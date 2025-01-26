@@ -1,37 +1,35 @@
-from sqlalchemy import JSON, Column, Date, ForeignKey, Integer, String
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship
+from sqlalchemy.dialects.postgresql import JSON
 
-Base = declarative_base()
+from app.db.database import db
 
 
-class Employee(Base):
+class Employee(db.Model):
     __tablename__ = "employees"
-    id = Column(Integer, primary_key=True)
-    name = Column(String)
-    schedule_entries = relationship("ScheduleEntry", back_populates="employee")
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String)
+    schedule_entries = db.relationship("ScheduleEntry", back_populates="employee")
 
 
-class ScheduleEntry(Base):
+class ScheduleEntry(db.Model):
     __tablename__ = "schedule_entries"
-    id = Column(Integer, primary_key=True)
-    employee_id = Column(Integer, ForeignKey("employees.id"))
-    date = Column(Date, nullable=False)
-    entries = Column(JSON, nullable=False)
-    absence_code = Column(String, nullable=True)
-    employee = relationship("Employee", back_populates="schedule_entries")
+    id = db.Column(db.Integer, primary_key=True)
+    employee_id = db.Column(db.Integer, db.ForeignKey("employees.id"))
+    date = db.Column(db.Date, nullable=False)
+    entries = db.Column(JSON, nullable=False)
+    absence_code = db.Column(db.String, nullable=True)
+    employee = db.relationship("Employee", back_populates="schedule_entries")
 
 
-class Holiday(Base):
+class Holiday(db.Model):
     __tablename__ = "holidays"
-    id = Column(Integer, primary_key=True)
-    date = Column(Date, unique=True, nullable=False)
-    description = Column(String)
-    type = Column(String)  # Inamovible, Trasladable, etc
+    id = db.Column(db.Integer, primary_key=True)
+    date = db.Column(db.Date, unique=True, nullable=False)
+    description = db.Column(db.String)
+    type = db.Column(db.String)
 
 
-class AbsenceCode(Base):
+class AbsenceCode(db.Model):
     __tablename__ = "absence_codes"
-    id = Column(Integer, primary_key=True)
-    code = Column(String, unique=True, nullable=False)
-    description = Column(String)
+    id = db.Column(db.Integer, primary_key=True)
+    code = db.Column(db.String, unique=True, nullable=False)
+    description = db.Column(db.String)
