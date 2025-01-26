@@ -1,6 +1,7 @@
+from config.config import Config
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from config.config import Config
+
 from app.routes.manual_entry import manual_entry
 from app.routes.time_analysis import time_analysis
 
@@ -11,5 +12,5 @@ db = SQLAlchemy(app)
 app.register_blueprint(manual_entry)
 app.register_blueprint(time_analysis)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     app.run(debug=True)
