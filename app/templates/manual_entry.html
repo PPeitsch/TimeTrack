@@ -3,7 +3,7 @@
 {% block title %}Manual Entry{% endblock %}
 
 {% block content %}
-<div class="row">
+<div class="row justify-content-center">
     <div class="col-md-8">
         <div class="card">
             <div class="card-header">
@@ -15,7 +15,7 @@
                         <label class="form-label">Date</label>
                         <input type="date" class="form-control" id="date" required>
                     </div>
-                    
+
                     <div class="mb-3">
                         <label class="form-label">Type</label>
                         <select class="form-select" id="entryType">
@@ -36,15 +36,16 @@
                                 <label class="form-label">Exit Time</label>
                                 <input type="time" class="form-control exit-time">
                             </div>
-                            <div class="col-auto">
-                                <label class="form-label">&nbsp;</label>
-                                <button type="button" class="btn btn-danger d-block remove-entry">Remove</button>
+                            <div class="col-auto d-flex align-items-end">
+                                <button type="button" class="btn btn-danger remove-entry">Remove</button>
                             </div>
                         </div>
                     </div>
 
-                    <button type="button" class="btn btn-secondary mb-3" id="addEntry">Add Entry</button>
-                    <button type="submit" class="btn btn-primary">Save</button>
+                    <div class="d-flex justify-content-between">
+                        <button type="button" class="btn btn-secondary" id="addEntry">Add Entry</button>
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </div>
                 </form>
             </div>
         </div>
@@ -59,9 +60,37 @@ document.getElementById('addEntry').addEventListener('click', function() {
     document.getElementById('timeEntries').appendChild(template);
 });
 
-document.getElementById('entryForm').addEventListener('submit', function(e) {
+document.getElementById('entryForm').addEventListener('submit', async function(e) {
     e.preventDefault();
-    // Form submission logic
+
+    const formData = {
+        date: document.getElementById('date').value,
+        employee_id: 1, // Temporal hasta implementar login
+        entries: Array.from(document.querySelectorAll('.time-entry')).map(entry => ({
+            entry: entry.querySelector('.entry-time').value,
+            exit: entry.querySelector('.exit-time').value
+        })),
+        absence_code: document.getElementById('entryType').value === 'WORK' ? null : document.getElementById('entryType').value
+    };
+
+    try {
+        const response = await fetch('/entry', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        });
+
+        if (response.ok) {
+            alert('Entry saved successfully');
+            location.reload();
+        } else {
+            alert('Error saving entry');
+        }
+    } catch (error) {
+        alert('Error saving entry');
+    }
 });
 </script>
 {% endblock %}
