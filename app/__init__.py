@@ -2,6 +2,7 @@ from flask import Flask
 from flask_migrate import Migrate
 
 from app.db.database import db, init_db
+from app.routes.main import main
 from app.routes.manual_entry import manual_entry
 from app.routes.time_analysis import time_analysis
 
@@ -11,8 +12,9 @@ def create_app(config_object):
     app.config.from_object(config_object)
 
     init_db(app)
-    Migrate(app, db)
+    migrate = Migrate(app, db)
 
+    app.register_blueprint(main)
     app.register_blueprint(manual_entry)
     app.register_blueprint(time_analysis)
 
