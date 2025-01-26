@@ -1,5 +1,3 @@
-from sqlalchemy.dialects.postgresql import JSON
-
 from app.db.database import db
 
 
@@ -15,7 +13,7 @@ class ScheduleEntry(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     employee_id = db.Column(db.Integer, db.ForeignKey("employees.id"))
     date = db.Column(db.Date, nullable=False)
-    entries = db.Column(JSON, nullable=False)
+    entries = db.Column(db.JSON, nullable=False)
     absence_code = db.Column(db.String, nullable=True)
     employee = db.relationship("Employee", back_populates="schedule_entries")
 
