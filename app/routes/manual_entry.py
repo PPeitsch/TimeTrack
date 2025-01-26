@@ -1,8 +1,9 @@
 from datetime import datetime
 
 from flask import Blueprint, jsonify, render_template, request
-from models import Employee, ScheduleEntry
-from utils.time_calculator import calculate_daily_hours
+
+from app.models.models import Employee, ScheduleEntry
+from app.utils.time_calculator import calculate_daily_hours
 
 manual_entry = Blueprint("manual_entry", __name__)
 

@@ -1,8 +1,10 @@
-from config.config import Config
+from flask import g
 from flask_sqlalchemy import SQLAlchemy
-from models import Base
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import scoped_session, sessionmaker
+
+from app.config.config import Config
+from app.models.models import Base
 
 db = SQLAlchemy()
 
@@ -13,7 +15,8 @@ def init_db(app):
     engine = create_engine(Config.SQLALCHEMY_DATABASE_URI)
     Base.metadata.create_all(engine)
 
-    Session = sessionmaker(bind=engine)
+    session_factory = sessionmaker(bind=engine)
+    Session = scoped_session(session_factory)
     return Session()
 
 

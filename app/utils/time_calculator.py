@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from typing import Dict, List
 
-from models import ScheduleEntry
+from app.models.models import ScheduleEntry
 
 
 def calculate_daily_hours(entries: List[Dict[str, str]]) -> float:

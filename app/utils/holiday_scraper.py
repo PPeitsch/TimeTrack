@@ -2,8 +2,9 @@ from datetime import datetime
 
 import requests
 from bs4 import BeautifulSoup
-from models import Holiday
 from sqlalchemy.orm import Session
+
+from app.models.models import Holiday
 
 
 def scrape_holidays(year: int, db: Session):

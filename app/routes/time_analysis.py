@@ -1,8 +1,9 @@
 from datetime import datetime, timedelta
 
 from flask import Blueprint, jsonify, render_template, request
-from models import ScheduleEntry
-from utils.time_calculator import (
+
+from app.models.models import ScheduleEntry
+from app.utils.time_calculator import (
     calculate_daily_hours,
     calculate_monthly_hours,
     calculate_weekly_hours,
