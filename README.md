@@ -22,6 +22,7 @@ git clone https://github.com/yourusername/timesheet.git
 cd timesheet
 python -m venv venv
 source venv/bin/activate  # Linux/Mac
+venv\Scripts\activate  # Windows
 pip install -r requirements.txt
 ```
 
@@ -31,14 +32,26 @@ cp .env.example .env
 # Edit .env with your settings
 ```
 
-3. Initialize database:
+3. Set Flask environment:
+```bash
+# Linux/Mac
+export FLASK_APP="app:create_app('app.config.Config')"
+
+# Windows CMD
+set FLASK_APP="app:create_app('app.config.Config')"
+
+# Windows PowerShell
+$env:FLASK_APP="app:create_app('app.config.Config')"
+```
+
+4. Initialize database:
 ```bash
 flask db init
-flask db migrate
+flask db migrate -m "Initial migration"
 flask db upgrade
 ```
 
-4. Run application:
+5. Run application:
 ```bash
 flask run
 ```
@@ -48,13 +61,13 @@ flask run
 ```
 app/
 ├── config/        # Configuration
-├── db/           # Database management
-├── models/       # Data models
-├── routes/       # Route handlers
-├── static/       # Static assets
-├── templates/    # HTML templates
-├── utils/        # Utilities
-└── app.py        # Application entry
+├── db/            # Database management
+├── models/        # Data models
+├── routes/        # Route handlers
+├── static/        # Static assets
+├── templates/     # HTML templates
+├── utils/         # Utilities
+└── app.py         # Application entry
 ```
 
 ## 🛠️ Development
@@ -63,6 +76,19 @@ Requirements:
 - Python 3.9+
 - PostgreSQL
 - pip
+
+## 🚀 Deployment
+
+For production deployment:
+
+1. Remove `migrations/` from `.gitignore`
+2. Initialize and run migrations:
+```bash
+flask db init
+flask db migrate -m "Initial migration"
+flask db upgrade
+```
+3. Set production configurations in `.env`
 
 ## 📜 License
 
