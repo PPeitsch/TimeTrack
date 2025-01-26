@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}Manual Entry{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Record Time Entry</h5>
+            </div>
+            <div class="card-body">
+                <form id="entryForm">
+                    <div class="mb-3">
+                        <label class="form-label">Date</label>
+                        <input type="date" class="form-control" id="date" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Type</label>
+                        <select class="form-select" id="entryType">
+                            <option value="WORK">Work Day</option>
+                            <option value="LAR">LAR</option>
+                            <option value="FRANCO">Franco Compensatorio</option>
+                            <option value="MEDICAL">Licencia Médica</option>
+                        </select>
+                    </div>
+
+                    <div id="timeEntries">
+                        <div class="row mb-3 time-entry">
+                            <div class="col">
+                                <label class="form-label">Entry Time</label>
+                                <input type="time" class="form-control entry-time">
+                            </div>
+                            <div class="col">
+                                <label class="form-label">Exit Time</label>
+                                <input type="time" class="form-control exit-time">
+                            </div>
+                            <div class="col-auto">
+                                <label class="form-label">&nbsp;</label>
+                                <button type="button" class="btn btn-danger d-block remove-entry">Remove</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="button" class="btn btn-secondary mb-3" id="addEntry">Add Entry</button>
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('addEntry').addEventListener('click', function() {
+    const template = document.querySelector('.time-entry').cloneNode(true);
+    template.querySelector('.entry-time').value = '';
+    template.querySelector('.exit-time').value = '';
+    document.getElementById('timeEntries').appendChild(template);
+});
+
+document.getElementById('entryForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    // Form submission logic
+});
+</script>
+{% endblock %}
