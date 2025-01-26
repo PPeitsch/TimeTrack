@@ -1,0 +1,18 @@
+.time-entry {
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-radius: 0.25rem;
+    margin-bottom: 1rem;
+}
+
+.table td, .table th {
+    vertical-align: middle;
+}
+
+.balance-positive {
+    color: #198754;
+}
+
+.balance-negative {
+    color: #dc3545;
+}
