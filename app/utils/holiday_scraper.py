@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, Optional
+from typing import List, Optional, cast
 
 import requests
 from bs4 import BeautifulSoup, Tag
@@ -15,9 +15,12 @@ def scrape_holidays(year: int, db: Session) -> List[Holiday]:
     soup = BeautifulSoup(response.text, "html.parser")
 
     holidays = []
-    table = soup.find("table")
+    table_elem = soup.find("table")
 
-    if table is not None:
+    if table_elem is not None:
+        # Asegurarnos de que table_elem es un Tag antes de usar find_all
+        table = cast(Tag, table_elem)
+
         for row in table.find_all("tr")[1:]:
             cols = row.find_all("td")
             if len(cols) >= 3:

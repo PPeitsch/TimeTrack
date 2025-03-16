@@ -65,7 +65,12 @@ class TestModels(unittest.TestCase):
 
             # Test relationship
             self.assertEqual(saved_entry.employee, employee)
-            self.assertIn(saved_entry, employee.schedule_entries)
+            # Verificar que el empleado tenga una lista de entradas que incluya esta
+            self.assertTrue(hasattr(employee, "schedule_entries"))
+            self.assertIsNotNone(employee.schedule_entries)
+            # Asegurarnos que la entrada esté en la lista de entradas del empleado
+            entry_ids = [entry.id for entry in employee.schedule_entries]
+            self.assertIn(saved_entry.id, entry_ids)
 
     def test_holiday_model(self):
         with self.app.app_context():
