@@ -1,12 +1,18 @@
+import re
 from datetime import date, datetime
 
 
 def validate_time_format(time_str: str) -> bool:
-    """Validate if a string is in HH:MM format."""
+    """Validate if a string is in HH:MM format with leading zeros."""
     if not time_str:
         return False
 
     try:
+        # Check the exact format with regex to ensure leading zeros
+        if not re.match(r"^[0-2]\d:[0-5]\d$", time_str):
+            return False
+
+        # Also verify it's a valid time
         datetime.strptime(time_str, "%H:%M")
         return True
     except ValueError:
