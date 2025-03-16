@@ -26,16 +26,23 @@ def save_entry():
     if not validate_date(data["date"]):
         return jsonify({"error": "Invalid date format"}), 400
 
-    # Only validate entries if there's no absence code
-    if not data.get("absence_code") and data["entries"]:
+    # Skip validation if it's an absence day
+    if not data.get("absence_code"):
+        # Check if entries is empty
+        if not data["entries"]:
+            return jsonify({"error": "No time entries provided for work day"}), 400
+
+        # Validate the entries
         is_valid, error = validate_entries(data["entries"])
         if not is_valid:
             return jsonify({"error": error}), 400
 
+    # Convert date string to date object
+    entry_date = datetime.strptime(data["date"], "%Y-%m-%d").date()
+
     # Check if an entry already exists for this date and employee
     existing_entry = ScheduleEntry.query.filter_by(
-        employee_id=data["employee_id"],
-        date=datetime.strptime(data["date"], "%Y-%m-%d").date(),
+        employee_id=data["employee_id"], date=entry_date
     ).first()
 
     if existing_entry:
@@ -47,7 +54,7 @@ def save_entry():
         # Create new entry
         schedule_entry = ScheduleEntry(
             employee_id=data["employee_id"],
-            date=datetime.strptime(data["date"], "%Y-%m-%d").date(),
+            date=entry_date,
             entries=data["entries"] if not data.get("absence_code") else [],
             absence_code=data.get("absence_code"),
         )
@@ -86,11 +93,3 @@ def get_entry(date):
         )
 
     return jsonify({})
-
-
-@manual_entry.route("/entry/<int:entry_id>", methods=["DELETE"])
-def delete_entry(entry_id):
-    entry = ScheduleEntry.query.get_or_404(entry_id)
-    db.session.delete(entry)
-    db.session.commit()
-    return jsonify({"status": "success", "message": "Entry deleted successfully"})
