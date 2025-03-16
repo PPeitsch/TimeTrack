@@ -6,7 +6,7 @@
 <div class="container mt-4">
     <h1>TimeTrack</h1>
     <div class="row mt-4">
-        <div class="col-md-6">
+        <div class="col-md-4">
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">Manual Entry</h5>
@@ -15,12 +15,21 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-6">
+        <div class="col-md-4">
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">Analysis</h5>
-                    <p class="card-text">View and analyze your time records.</p>
-                    <a href="{{ url_for('time_summary.show_summary') }}" class="btn btn-primary">Analysis</a>
+                    <h5 class="card-title">Monthly Summary</h5>
+                    <p class="card-text">View summary of your time records.</p>
+                    <a href="{{ url_for('time_summary.show_summary') }}" class="btn btn-primary">View Summary</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Time Logs</h5>
+                    <p class="card-text">View detailed time entry logs.</p>
+                    <a href="{{ url_for('time_log.show_logs') }}" class="btn btn-primary">View Logs</a>
                 </div>
             </div>
         </div>
