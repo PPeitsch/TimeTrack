@@ -1,6 +1,6 @@
 import datetime
 import unittest
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 from app.utils.time_calculator import (
     calculate_daily_hours,
@@ -36,41 +36,35 @@ class TestTimeCalculator(unittest.TestCase):
         entries = [{"entry": "", "exit": ""}]
         self.assertEqual(calculate_daily_hours(entries), 0.0)
 
-    @patch("app.utils.time_calculator.calculate_daily_hours")
-    def test_calculate_weekly_hours(self, mock_daily_hours):
-        # Mock calculate_daily_hours to return fixed values
-        mock_daily_hours.return_value = 8.0
-
+    def test_calculate_weekly_hours(self):
         # Create mock entries for a week
         monday = datetime.date(2025, 3, 10)  # A Monday
         entries = []
 
         # 5 work days
         for i in range(5):
-            entry = unittest.mock.Mock()
+            entry = MagicMock()
             entry.date = monday + datetime.timedelta(days=i)
             entry.absence_code = None
-            entry.entries = [{"entry": "09:00", "exit": "17:00"}]
+            entry.entries = []  # Empty entries initially
             entries.append(entry)
 
         # 2 weekend days
         for i in range(5, 7):
-            entry = unittest.mock.Mock()
+            entry = MagicMock()
             entry.date = monday + datetime.timedelta(days=i)
             entry.absence_code = None
             entry.entries = []
             entries.append(entry)
 
-        result = calculate_weekly_hours(entries)
-        self.assertEqual(result["total"], 40.0)  # 5 days × 8 hours
-        self.assertEqual(result["required"], 40.0)  # 5 work days × 8 hours
-        self.assertEqual(result["difference"], 0.0)
+        # Mock the calculate_daily_hours function
+        with patch("app.utils.time_calculator.calculate_daily_hours", return_value=8.0):
+            result = calculate_weekly_hours(entries)
+            self.assertEqual(result["total"], 40.0)  # 5 days × 8 hours
+            self.assertEqual(result["required"], 40.0)  # 5 work days × 8 hours
+            self.assertEqual(result["difference"], 0.0)
 
-    @patch("app.utils.time_calculator.calculate_daily_hours")
-    def test_calculate_monthly_hours(self, mock_daily_hours):
-        # Mock calculate_daily_hours to return fixed values
-        mock_daily_hours.return_value = 8.0
-
+    def test_calculate_monthly_hours(self):
         # Create mock entries for a month (assuming 20 work days)
         first_day = datetime.date(2025, 3, 1)
         entries = []
@@ -78,19 +72,26 @@ class TestTimeCalculator(unittest.TestCase):
         # Generate entries for all days in a month (31 days)
         for i in range(31):
             day = first_day + datetime.timedelta(days=i)
-            entry = unittest.mock.Mock()
+            entry = MagicMock()
             entry.date = day
             entry.absence_code = None
-            entry.entries = [{"entry": "09:00", "exit": "17:00"}]
+            entry.entries = []  # Empty entries initially
             entries.append(entry)
 
-        result = calculate_monthly_hours(entries)
+        # Mock the calculate_daily_hours function
+        with patch("app.utils.time_calculator.calculate_daily_hours", return_value=8.0):
+            result = calculate_monthly_hours(entries)
 
-        # The number of required hours depends on work days in the month
-        # so we can't assert exact values, but we can test the structure
-        self.assertIn("total", result)
-        self.assertIn("required", result)
-        self.assertIn("difference", result)
+            # We should expect the number of weekdays in March 2025
+            weekdays = sum(
+                1
+                for i in range(31)
+                if (first_day + datetime.timedelta(days=i)).weekday() < 5
+            )
+
+            self.assertEqual(result["total"], weekdays * 8.0)
+            self.assertEqual(result["required"], weekdays * 8.0)
+            self.assertEqual(result["difference"], 0.0)
 
 
 class TestValidators(unittest.TestCase):
