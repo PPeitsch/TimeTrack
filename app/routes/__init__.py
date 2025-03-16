@@ -1,4 +1,4 @@
 from app.routes.manual_entry import manual_entry
-from app.routes.time_analysis import time_analysis
+from app.routes.time_summary import time_summary
 
-__all__ = ["manual_entry", "time_analysis"]
+__all__ = ["manual_entry", "time_summary"]
