@@ -1,4 +1,4 @@
-# TimeSheet
+# Time Track
 
 [![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![Flask](https://img.shields.io/badge/Flask-3.1.0-green.svg)](https://flask.palletsprojects.com/)
@@ -9,7 +9,7 @@ Simple time tracking application for managing work hours, leaves and holidays. B
 ## 🌟 Features
 
 - 📅 Manual time entry with multiple clock in/out per day
-- 📊 Daily, weekly and monthly time analysis
+- 📊 Daily, weekly and monthly analysis
 - 🏖️ Leave management and holiday tracking
 - 📈 Automatic hour calculations
 - 🇦🇷 Argentina holidays integration
@@ -18,8 +18,8 @@ Simple time tracking application for managing work hours, leaves and holidays. B
 
 1. Clone and setup:
 ```bash
-git clone https://github.com/yourusername/timesheet.git
-cd timesheet
+git clone https://github.com/PPeitsch/TimeTrack.git
+cd timetrack
 python -m venv venv
 source venv/bin/activate  # Linux/Mac
 venv\Scripts\activate  # Windows

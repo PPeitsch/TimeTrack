@@ -4,23 +4,23 @@
 
 {% block content %}
 <div class="container mt-4">
-    <h1>TimeSheet</h1>
+    <h1>TimeTrack</h1>
     <div class="row mt-4">
         <div class="col-md-6">
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">Manual Entry</h5>
                     <p class="card-text">Register your work hours manually.</p>
-                    <a href="{{ url_for('manual_entry.show_entry_form') }}" class="btn btn-primary">Go to Manual Entry</a>
+                    <a href="{{ url_for('manual_entry.show_entry_form') }}" class="btn btn-primary">Data Entry</a>
                 </div>
             </div>
         </div>
         <div class="col-md-6">
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">Time Analysis</h5>
+                    <h5 class="card-title">Analysis</h5>
                     <p class="card-text">View and analyze your time records.</p>
-                    <a href="{{ url_for('time_analysis.show_analysis') }}" class="btn btn-primary">Go to Analysis</a>
+                    <a href="{{ url_for('time_analysis.show_analysis') }}" class="btn btn-primary">Analysis</a>
                 </div>
             </div>
         </div>

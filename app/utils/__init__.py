@@ -1,15 +1,9 @@
 from app.utils.holiday_scraper import scrape_holidays
-from app.utils.time_calculator import (
-    calculate_daily_hours,
-    calculate_monthly_hours,
-    calculate_weekly_hours,
-)
-from app.utils.validators import (
-    is_workday,
-    validate_date,
-    validate_entries,
-    validate_time_format,
-)
+from app.utils.time_calculator import (calculate_daily_hours,
+                                       calculate_monthly_hours,
+                                       calculate_weekly_hours)
+from app.utils.validators import (is_workday, validate_date, validate_entries,
+                                  validate_time_format)
 
 __all__ = [
     "scrape_holidays",
