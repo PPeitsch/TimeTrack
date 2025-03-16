@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Time Logs{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h5 class="card-title mb-0">Time Log Entries</h5>
+                    </div>
+                    <div class="col-auto">
+                        <select class="form-select" id="yearSelect">
+                            <!-- Will be populated by JavaScript -->
+                        </select>
+                    </div>
+                    <div class="col-auto">
+                        <select class="form-select" id="monthSelect">
+                            <!-- Will be populated by JavaScript -->
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Type</th>
+                                <th>Time Entries</th>
+                                <th>Total Hours</th>
+                            </tr>
+                        </thead>
+                        <tbody id="logTable">
+                            <!-- Will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/time-log.js') }}"></script>
+{% endblock %}
