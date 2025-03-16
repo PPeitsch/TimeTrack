@@ -52,45 +52,5 @@
     </div>
 </div>
 
-<script>
-document.getElementById('addEntry').addEventListener('click', function() {
-    const template = document.querySelector('.time-entry').cloneNode(true);
-    template.querySelector('.entry-time').value = '';
-    template.querySelector('.exit-time').value = '';
-    document.getElementById('timeEntries').appendChild(template);
-});
-
-document.getElementById('entryForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
-
-    const formData = {
-        date: document.getElementById('date').value,
-        employee_id: 1, // Temporal hasta implementar login
-        entries: Array.from(document.querySelectorAll('.time-entry')).map(entry => ({
-            entry: entry.querySelector('.entry-time').value,
-            exit: entry.querySelector('.exit-time').value
-        })),
-        absence_code: document.getElementById('entryType').value === 'WORK' ? null : document.getElementById('entryType').value
-    };
-
-    try {
-        const response = await fetch('/entry', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(formData)
-        });
-
-        if (response.ok) {
-            alert('Entry saved successfully');
-            location.reload();
-        } else {
-            alert('Error saving entry');
-        }
-    } catch (error) {
-        alert('Error saving entry');
-    }
-});
-</script>
+<script src="{{ url_for('static', filename='js/entry-handlers.js') }}"></script>
 {% endblock %}
