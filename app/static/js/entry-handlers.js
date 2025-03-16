@@ -1,6 +1,16 @@
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Entry handlers script loaded');
 
+    // Set current date as default
+    const dateInput = document.getElementById('date');
+    if (dateInput) {
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        dateInput.value = `${year}-${month}-${day}`;
+    }
+
     // Function to handle remove button clicks
     function handleRemoveClick(event) {
         console.log('Remove button clicked');
