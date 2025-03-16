@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('Time analysis script loaded');
+    console.log('Time summary script loaded');
 
     const yearSelect = document.getElementById('yearSelect');
     const monthSelect = document.getElementById('monthSelect');
@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         try {
             console.log(`Fetching data for ${year}/${month}`);
-            const response = await fetch(`/analysis/monthly/${year}/${month}`);
+            const response = await fetch(`/summary/monthly/${year}/${month}`);
 
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
@@ -97,7 +97,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             try {
                 console.log(`Fetching data for day: ${date}`);
-                const response = await fetch(`/analysis/daily/${date}`);
+                const response = await fetch(`/summary/daily/${date}`);
 
                 let dayData;
                 if (response.ok) {

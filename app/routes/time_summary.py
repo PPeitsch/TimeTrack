@@ -10,16 +10,16 @@ from app.utils.time_calculator import (
     calculate_weekly_hours,
 )
 
-time_analysis = Blueprint("time_analysis", __name__)
+time_summary = Blueprint("time_summary", __name__, url_prefix="/summary")
 
 
-@time_analysis.route("/analysis", methods=["GET"])
-def show_analysis():
-    return render_template("time_analysis.html")
+@time_summary.route("/", methods=["GET"])
+def show_summary():
+    return render_template("time_summary.html")
 
 
-@time_analysis.route("/analysis/daily/<date>", methods=["GET"])
-def get_daily_analysis(date):
+@time_summary.route("/daily/<date>", methods=["GET"])
+def get_daily_summary(date):
     try:
         # Parse the date string to a datetime object
         date_obj = datetime.strptime(date, "%Y-%m-%d").date()
@@ -39,10 +39,14 @@ def get_daily_analysis(date):
                 {
                     "hours": 0,
                     "required": required_hours,
-                    "difference": -required_hours,
+                    "difference": -required_hours if not is_weekend else 0,
                     "absence_code": None,
                 }
             )
+
+        # If it's an absence day, required hours is 0
+        if entry.absence_code:
+            required_hours = 0
 
         # Calculate hours if not an absence
         hours = calculate_daily_hours(entry.entries) if not entry.absence_code else 0
@@ -59,32 +63,8 @@ def get_daily_analysis(date):
         return jsonify({"error": str(e)}), 500
 
 
-@time_analysis.route("/analysis/weekly/<date>", methods=["GET"])
-def get_weekly_analysis(date):
-    try:
-        # Parse the date
-        date_obj = datetime.strptime(date, "%Y-%m-%d").date()
-
-        # Get the start of the week (Monday)
-        start_date = date_obj - timedelta(days=date_obj.weekday())
-        end_date = start_date + timedelta(days=6)
-
-        # Get entries for the week
-        entries = ScheduleEntry.query.filter(
-            ScheduleEntry.date.between(start_date, end_date),
-            ScheduleEntry.employee_id == 1,  # Default employee ID
-        ).all()
-
-        # Calculate weekly hours
-        weekly_data = calculate_weekly_hours(entries)
-
-        return jsonify(weekly_data)
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
-@time_analysis.route("/analysis/monthly/<int:year>/<int:month>", methods=["GET"])
-def get_monthly_analysis(year, month):
+@time_summary.route("/monthly/<int:year>/<int:month>", methods=["GET"])
+def get_monthly_summary(year, month):
     try:
         # Get start and end dates for the month
         start_date = datetime(year, month, 1).date()

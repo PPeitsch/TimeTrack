@@ -5,6 +5,7 @@ from app.models.models import ScheduleEntry
 
 
 def calculate_daily_hours(entries: List[Dict[str, str]]) -> float:
+    """Calculate total hours worked in a day based on time entries."""
     total_hours = 0
     for entry in entries:
         if entry["exit"] and entry["entry"]:
@@ -16,9 +17,17 @@ def calculate_daily_hours(entries: List[Dict[str, str]]) -> float:
 
 
 def calculate_weekly_hours(schedule_entries: List[ScheduleEntry]) -> Dict:
+    """Calculate weekly hours worked and required."""
     weekly_total = 0
-    weekly_required = len([e for e in schedule_entries if e.date.weekday() < 5]) * 8
+    # Count working days (Monday-Friday) without absence code
+    working_days = [
+        e for e in schedule_entries if e.date.weekday() < 5 and not e.absence_code
+    ]
 
+    # Required hours is 8 hours per working day
+    weekly_required = len(working_days) * 8
+
+    # Calculate actual hours worked
     for entry in schedule_entries:
         if not entry.absence_code:
             weekly_total += calculate_daily_hours(entry.entries)
@@ -31,14 +40,18 @@ def calculate_weekly_hours(schedule_entries: List[ScheduleEntry]) -> Dict:
 
 
 def calculate_monthly_hours(schedule_entries: List[ScheduleEntry]) -> Dict:
+    """Calculate monthly hours worked and required."""
     monthly_total = 0
-    monthly_required = (
-        len(
-            [e for e in schedule_entries if e.date.weekday() < 5 and not e.absence_code]
-        )
-        * 8
-    )
 
+    # Count working days (Monday-Friday) without absence code
+    working_days = [
+        e for e in schedule_entries if e.date.weekday() < 5 and not e.absence_code
+    ]
+
+    # Required hours is 8 hours per working day
+    monthly_required = len(working_days) * 8
+
+    # Calculate actual hours worked
     for entry in schedule_entries:
         if not entry.absence_code:
             monthly_total += calculate_daily_hours(entry.entries)

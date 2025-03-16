@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Analysis{% endblock %}
+{% block title %}Time Summary{% endblock %}
 
 {% block content %}
 <div class="row">
@@ -9,7 +9,7 @@
             <div class="card-header">
                 <div class="row align-items-center">
                     <div class="col">
-                        <h5 class="card-title mb-0">Analysis</h5>
+                        <h5 class="card-title mb-0">Monthly Time Summary</h5>
                     </div>
                     <div class="col-auto">
                         <select class="form-select" id="yearSelect">
@@ -67,5 +67,5 @@
     </div>
 </div>
 
-<script src="{{ url_for('static', filename='js/time-analysis.js') }}"></script>
+<script src="{{ url_for('static', filename='js/time-summary.js') }}"></script>
 {% endblock %}
