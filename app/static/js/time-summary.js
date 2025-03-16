@@ -12,6 +12,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const prevYearBtn = document.getElementById('prevYear');
     const nextYearBtn = document.getElementById('nextYear');
 
+    // Variable para almacenar la solicitud AJAX actual
+    let currentRequest = null;
+    // Variable para controlar si estamos en medio de una carga
+    let isLoading = false;
+
     // Initialize select elements if they exist
     if (!yearSelect || !monthSelect || !timeTable) {
         console.error('Required DOM elements not found');
@@ -52,15 +57,67 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     yearSelect.value = currentYear;
 
+    // Function to show loading state
+    function showLoading() {
+        isLoading = true;
+        // Disable navigation buttons
+        prevMonthBtn.disabled = true;
+        nextMonthBtn.disabled = true;
+        prevYearBtn.disabled = true;
+        nextYearBtn.disabled = true;
+        yearSelect.disabled = true;
+        monthSelect.disabled = true;
+
+        // Change cursor to indicate loading
+        document.body.style.cursor = 'wait';
+
+        // Show loading indicator in the table
+        timeTable.innerHTML = '<tr><td colspan="5" class="text-center">Loading data...</td></tr>';
+    }
+
+    // Function to hide loading state
+    function hideLoading() {
+        isLoading = false;
+        // Enable navigation buttons
+        prevMonthBtn.disabled = false;
+        nextMonthBtn.disabled = false;
+        prevYearBtn.disabled = false;
+        nextYearBtn.disabled = false;
+        yearSelect.disabled = false;
+        monthSelect.disabled = false;
+
+        // Reset cursor
+        document.body.style.cursor = 'default';
+    }
+
     // Function to load monthly data
     async function loadMonthlyData() {
+        // Prevent multiple simultaneous requests
+        if (isLoading) {
+            console.log('Already loading data, request ignored');
+            return;
+        }
+
+        showLoading();
+
         console.log('Loading monthly data');
         const year = yearSelect.value;
         const month = monthSelect.value;
 
         try {
             console.log(`Fetching data for ${year}/${month}`);
-            const response = await fetch(`/summary/monthly/${year}/${month}`);
+
+            // Cancel any existing request
+            if (currentRequest) {
+                currentRequest.abort();
+            }
+
+            // Use the fetch API with AbortController
+            const controller = new AbortController();
+            const signal = controller.signal;
+            currentRequest = controller;
+
+            const response = await fetch(`/summary/monthly/${year}/${month}`, { signal });
 
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
@@ -80,8 +137,15 @@ document.addEventListener('DOMContentLoaded', function() {
             // Load daily data for the selected month
             await loadDailyData(year, month);
         } catch (error) {
-            console.error('Error loading monthly data:', error);
-            alert(`Error loading data: ${error.message}`);
+            if (error.name === 'AbortError') {
+                console.log('Fetch aborted');
+            } else {
+                console.error('Error loading monthly data:', error);
+                timeTable.innerHTML = `<tr><td colspan="5" class="text-center text-danger">Error loading data: ${error.message}</td></tr>`;
+            }
+        } finally {
+            hideLoading();
+            currentRequest = null;
         }
     }
 
@@ -95,75 +159,96 @@ document.addEventListener('DOMContentLoaded', function() {
         const daysInMonth = new Date(year, month, 0).getDate();
         console.log(`Days in month: ${daysInMonth}`);
 
+        // Create a batch of promises for all day requests
+        const dayPromises = [];
+        const dayData = [];
+
         for (let day = 1; day <= daysInMonth; day++) {
             const date = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
             const dayOfWeek = new Date(year, month - 1, day).getDay();
-
-            // Skip weekends (0 = Sunday, 6 = Saturday)
             const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
 
-            try {
-                console.log(`Fetching data for day: ${date}`);
-                const response = await fetch(`/summary/daily/${date}`);
+            // Store date info to be used after fetching
+            dayData.push({
+                date: date,
+                formattedDate: new Date(date).toLocaleDateString(),
+                isWeekend: isWeekend,
+                dayOfWeek: dayOfWeek
+            });
 
-                let dayData;
-                if (response.ok) {
-                    dayData = await response.json();
-                    console.log(`Day data for ${date}:`, dayData);
-                } else {
-                    console.warn(`No data for ${date}, using defaults`);
-                    // Default data if not found
-                    dayData = {
+            // Create the promise but don't await it yet
+            const dayPromise = fetch(`/summary/daily/${date}`)
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    } else {
+                        return {
+                            hours: 0,
+                            required: isWeekend ? 0 : 8,
+                            difference: isWeekend ? 0 : -8,
+                            absence_code: null
+                        };
+                    }
+                })
+                .catch(error => {
+                    console.error(`Error loading data for ${date}:`, error);
+                    return {
                         hours: 0,
                         required: isWeekend ? 0 : 8,
                         difference: isWeekend ? 0 : -8,
                         absence_code: null
                     };
-                }
+                });
 
-                // Create table row
-                const row = document.createElement('tr');
+            dayPromises.push(dayPromise);
+        }
 
-                // Format the date
-                const formattedDate = new Date(date).toLocaleDateString();
+        // Wait for all promises to resolve
+        const dayResults = await Promise.all(dayPromises);
 
-                // Add row class for weekends
-                if (isWeekend) {
-                    row.classList.add('table-secondary');
-                }
+        // Now build the table with the results
+        for (let i = 0; i < dayResults.length; i++) {
+            const result = dayResults[i];
+            const info = dayData[i];
 
-                // Determine type (Work Day, Absence, Weekend)
-                let type = "Work Day";
-                if (isWeekend) {
-                    type = "Weekend";
-                } else if (dayData.absence_code) {
-                    type = dayData.absence_code;
-                }
+            // Create table row
+            const row = document.createElement('tr');
 
-                // Calculate balance and add appropriate class
-                const hours = dayData.hours || 0;
-                const required = dayData.required || 0;
-                const balance = hours - required;
-                const balanceClass = balance >= 0 ? 'balance-positive' : 'balance-negative';
-
-                row.innerHTML = `
-                    <td>${formattedDate}</td>
-                    <td>${type}</td>
-                    <td>${hours.toFixed(1)}</td>
-                    <td>${required.toFixed(1)}</td>
-                    <td class="${balanceClass}">${balance.toFixed(1)}</td>
-                `;
-
-                timeTable.appendChild(row);
-
-            } catch (error) {
-                console.error(`Error loading data for ${date}:`, error);
+            // Add row class for weekends
+            if (info.isWeekend) {
+                row.classList.add('table-secondary');
             }
+
+            // Determine type (Work Day, Absence, Weekend)
+            let type = "Work Day";
+            if (info.isWeekend) {
+                type = "Weekend";
+            } else if (result.absence_code) {
+                type = result.absence_code;
+            }
+
+            // Calculate balance and add appropriate class
+            const hours = result.hours || 0;
+            const required = result.required || 0;
+            const balance = hours - required;
+            const balanceClass = balance >= 0 ? 'balance-positive' : 'balance-negative';
+
+            row.innerHTML = `
+                <td>${info.formattedDate}</td>
+                <td>${type}</td>
+                <td>${hours.toFixed(1)}</td>
+                <td>${required.toFixed(1)}</td>
+                <td class="${balanceClass}">${balance.toFixed(1)}</td>
+            `;
+
+            timeTable.appendChild(row);
         }
     }
 
     // Navigation functions
     function navigateToPreviousMonth() {
+        if (isLoading) return;
+
         let month = parseInt(monthSelect.value);
         let year = parseInt(yearSelect.value);
 
@@ -181,6 +266,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function navigateToNextMonth() {
+        if (isLoading) return;
+
         let month = parseInt(monthSelect.value);
         let year = parseInt(yearSelect.value);
 
@@ -198,6 +285,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function navigateToPreviousYear() {
+        if (isLoading) return;
+
         let year = parseInt(yearSelect.value);
         year--;
 
@@ -208,6 +297,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function navigateToNextYear() {
+        if (isLoading) return;
+
         let year = parseInt(yearSelect.value);
         year++;
 
@@ -217,11 +308,24 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Add navigation button event listeners
-    prevMonthBtn.addEventListener('click', navigateToPreviousMonth);
-    nextMonthBtn.addEventListener('click', navigateToNextMonth);
-    prevYearBtn.addEventListener('click', navigateToPreviousYear);
-    nextYearBtn.addEventListener('click', navigateToNextYear);
+    // Throttle function to prevent too many rapid clicks
+    function throttle(func, delay) {
+        let lastCall = 0;
+        return function(...args) {
+            const now = new Date().getTime();
+            if (now - lastCall < delay) {
+                return;
+            }
+            lastCall = now;
+            return func(...args);
+        };
+    }
+
+    // Add navigation button event listeners with throttling
+    prevMonthBtn.addEventListener('click', throttle(navigateToPreviousMonth, 300));
+    nextMonthBtn.addEventListener('click', throttle(navigateToNextMonth, 300));
+    prevYearBtn.addEventListener('click', throttle(navigateToPreviousYear, 300));
+    nextYearBtn.addEventListener('click', throttle(navigateToNextYear, 300));
 
     // Load data when changing year or month manually
     yearSelect.addEventListener('change', loadMonthlyData);

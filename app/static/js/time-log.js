@@ -9,6 +9,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const prevYearBtn = document.getElementById('prevYear');
     const nextYearBtn = document.getElementById('nextYear');
 
+    // Variable para controlar solicitudes simultáneas
+    let currentRequest = null;
+    let isLoading = false;
+
     // Initialize select elements if they exist
     if (!yearSelect || !monthSelect || !logTable) {
         console.error('Required DOM elements not found');
@@ -49,15 +53,67 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     yearSelect.value = currentYear;
 
+    // Function to show loading state
+    function showLoading() {
+        isLoading = true;
+        // Disable navigation controls
+        prevMonthBtn.disabled = true;
+        nextMonthBtn.disabled = true;
+        prevYearBtn.disabled = true;
+        nextYearBtn.disabled = true;
+        yearSelect.disabled = true;
+        monthSelect.disabled = true;
+
+        // Change cursor to indicate loading
+        document.body.style.cursor = 'wait';
+
+        // Show loading indicator
+        logTable.innerHTML = '<tr><td colspan="4" class="text-center">Loading data...</td></tr>';
+    }
+
+    // Function to hide loading state
+    function hideLoading() {
+        isLoading = false;
+        // Enable navigation controls
+        prevMonthBtn.disabled = false;
+        nextMonthBtn.disabled = false;
+        prevYearBtn.disabled = false;
+        nextYearBtn.disabled = false;
+        yearSelect.disabled = false;
+        monthSelect.disabled = false;
+
+        // Reset cursor
+        document.body.style.cursor = 'default';
+    }
+
     // Function to load monthly logs
     async function loadMonthlyLogs() {
+        // Prevent multiple simultaneous requests
+        if (isLoading) {
+            console.log('Already loading data, request ignored');
+            return;
+        }
+
+        showLoading();
+
         console.log('Loading monthly logs');
         const year = yearSelect.value;
         const month = monthSelect.value;
 
         try {
             console.log(`Fetching logs for ${year}/${month}`);
-            const response = await fetch(`/logs/monthly/${year}/${month}`);
+
+            // Cancel any existing request
+            if (currentRequest) {
+                currentRequest.abort();
+            }
+
+            // Use fetch with AbortController
+            const controller = new AbortController();
+            const signal = controller.signal;
+            currentRequest = controller;
+
+            const response = await fetch(`/logs/monthly/${year}/${month}`, { signal });
 
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
@@ -66,15 +122,11 @@ document.addEventListener('DOMContentLoaded', function() {
             const logsData = await response.json();
             console.log('Logs data:', logsData);
 
-            // Clear the table
-            logTable.innerHTML = '';
-
             // Display log entries
             if (logsData.length === 0) {
-                const row = document.createElement('tr');
-                row.innerHTML = '<td colspan="4" class="text-center">No time entries found for this month</td>';
-                logTable.appendChild(row);
+                logTable.innerHTML = '<tr><td colspan="4" class="text-center">No time entries found for this month</td></tr>';
             } else {
+                logTable.innerHTML = '';
                 logsData.forEach(log => {
                     const row = document.createElement('tr');
 
@@ -105,13 +157,34 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             }
         } catch (error) {
-            console.error('Error loading logs:', error);
-            logTable.innerHTML = `<tr><td colspan="4" class="text-center text-danger">Error loading data: ${error.message}</td></tr>`;
+            if (error.name === 'AbortError') {
+                console.log('Fetch aborted');
+            } else {
+                console.error('Error loading logs:', error);
+                logTable.innerHTML = `<tr><td colspan="4" class="text-center text-danger">Error loading data: ${error.message}</td></tr>`;
+            }
+        } finally {
+            hideLoading();
+            currentRequest = null;
         }
     }
 
-    // Navigation functions
+    // Navigation functions with throttling
+    function throttle(func, delay) {
+        let lastCall = 0;
+        return function(...args) {
+            const now = new Date().getTime();
+            if (now - lastCall < delay) {
+                return;
+            }
+            lastCall = now;
+            return func(...args);
+        };
+    }
+
     function navigateToPreviousMonth() {
+        if (isLoading) return;
+
         let month = parseInt(monthSelect.value);
         let year = parseInt(yearSelect.value);
 
@@ -129,6 +202,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function navigateToNextMonth() {
+        if (isLoading) return;
+
         let month = parseInt(monthSelect.value);
         let year = parseInt(yearSelect.value);
 
@@ -146,6 +221,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function navigateToPreviousYear() {
+        if (isLoading) return;
+
         let year = parseInt(yearSelect.value);
         year--;
 
@@ -156,6 +233,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function navigateToNextYear() {
+        if (isLoading) return;
+
         let year = parseInt(yearSelect.value);
         year++;
 
@@ -165,11 +244,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Add navigation button event listeners
-    prevMonthBtn.addEventListener('click', navigateToPreviousMonth);
-    nextMonthBtn.addEventListener('click', navigateToNextMonth);
-    prevYearBtn.addEventListener('click', navigateToPreviousYear);
-    nextYearBtn.addEventListener('click', navigateToNextYear);
+    // Add navigation button event listeners with throttling
+    prevMonthBtn.addEventListener('click', throttle(navigateToPreviousMonth, 300));
+    nextMonthBtn.addEventListener('click', throttle(navigateToNextMonth, 300));
+    prevYearBtn.addEventListener('click', throttle(navigateToPreviousYear, 300));
+    nextYearBtn.addEventListener('click', throttle(navigateToNextYear, 300));
 
     // Load data when changing year or month manually
     yearSelect.addEventListener('change', loadMonthlyLogs);
