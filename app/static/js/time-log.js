@@ -4,6 +4,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const yearSelect = document.getElementById('yearSelect');
     const monthSelect = document.getElementById('monthSelect');
     const logTable = document.getElementById('logTable');
+    const prevMonthBtn = document.getElementById('prevMonth');
+    const nextMonthBtn = document.getElementById('nextMonth');
+    const prevYearBtn = document.getElementById('prevYear');
+    const nextYearBtn = document.getElementById('nextYear');
 
     // Initialize select elements if they exist
     if (!yearSelect || !monthSelect || !logTable) {
@@ -34,7 +38,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const currentYear = currentDate.getFullYear();
     yearSelect.innerHTML = '';
 
-    for (let year = currentYear - 1; year <= currentYear + 1; year++) {
+    const startYear = currentYear - 3;
+    const endYear = currentYear + 3;
+
+    for (let year = startYear; year <= endYear; year++) {
         const option = document.createElement('option');
         option.value = year;
         option.textContent = year;
@@ -103,7 +110,68 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Load data when changing year or month
+    // Navigation functions
+    function navigateToPreviousMonth() {
+        let month = parseInt(monthSelect.value);
+        let year = parseInt(yearSelect.value);
+
+        month--;
+        if (month < 1) {
+            month = 12;
+            year--;
+        }
+
+        if (year >= startYear) {
+            monthSelect.value = month;
+            yearSelect.value = year;
+            loadMonthlyLogs();
+        }
+    }
+
+    function navigateToNextMonth() {
+        let month = parseInt(monthSelect.value);
+        let year = parseInt(yearSelect.value);
+
+        month++;
+        if (month > 12) {
+            month = 1;
+            year++;
+        }
+
+        if (year <= endYear) {
+            monthSelect.value = month;
+            yearSelect.value = year;
+            loadMonthlyLogs();
+        }
+    }
+
+    function navigateToPreviousYear() {
+        let year = parseInt(yearSelect.value);
+        year--;
+
+        if (year >= startYear) {
+            yearSelect.value = year;
+            loadMonthlyLogs();
+        }
+    }
+
+    function navigateToNextYear() {
+        let year = parseInt(yearSelect.value);
+        year++;
+
+        if (year <= endYear) {
+            yearSelect.value = year;
+            loadMonthlyLogs();
+        }
+    }
+
+    // Add navigation button event listeners
+    prevMonthBtn.addEventListener('click', navigateToPreviousMonth);
+    nextMonthBtn.addEventListener('click', navigateToNextMonth);
+    prevYearBtn.addEventListener('click', navigateToPreviousYear);
+    nextYearBtn.addEventListener('click', navigateToNextYear);
+
+    // Load data when changing year or month manually
     yearSelect.addEventListener('change', loadMonthlyLogs);
     monthSelect.addEventListener('change', loadMonthlyLogs);
 
