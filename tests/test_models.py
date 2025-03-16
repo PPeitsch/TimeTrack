@@ -1,5 +1,6 @@
 import unittest
 from datetime import date
+from typing import List
 
 from app.db.database import db
 from app.models.models import AbsenceCode, Employee, Holiday, ScheduleEntry
@@ -65,12 +66,16 @@ class TestModels(unittest.TestCase):
 
             # Test relationship
             self.assertEqual(saved_entry.employee, employee)
-            # Verificar que el empleado tenga una lista de entradas que incluya esta
-            self.assertTrue(hasattr(employee, "schedule_entries"))
-            self.assertIsNotNone(employee.schedule_entries)
-            # Asegurarnos que la entrada esté en la lista de entradas del empleado
-            entry_ids = [entry.id for entry in employee.schedule_entries]
-            self.assertIn(saved_entry.id, entry_ids)
+
+            # Refetch the employee to ensure relationships are loaded
+            refreshed_employee = Employee.query.get(employee.id)
+            self.assertIsNotNone(refreshed_employee)
+
+            # Check that the employee has the schedule entry
+            self.assertTrue(hasattr(refreshed_employee, "schedule_entries"))
+            entries_list = list(refreshed_employee.schedule_entries)
+            self.assertEqual(len(entries_list), 1)
+            self.assertEqual(entries_list[0].id, saved_entry.id)
 
     def test_holiday_model(self):
         with self.app.app_context():
