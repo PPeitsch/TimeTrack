@@ -27,9 +27,9 @@ def calculate_weekly_hours(schedule_entries: List[ScheduleEntry]) -> Dict:
     # Required hours is 8 hours per working day
     weekly_required = len(working_days) * 8
 
-    # Calculate actual hours worked
+    # Calculate actual hours worked - ONLY count work days (Mon-Fri)
     for entry in schedule_entries:
-        if not entry.absence_code:
+        if not entry.absence_code and entry.date.weekday() < 5:  # Only weekdays
             weekly_total += calculate_daily_hours(entry.entries)
 
     return {
@@ -51,9 +51,9 @@ def calculate_monthly_hours(schedule_entries: List[ScheduleEntry]) -> Dict:
     # Required hours is 8 hours per working day
     monthly_required = len(working_days) * 8
 
-    # Calculate actual hours worked
+    # Calculate actual hours worked - ONLY count work days (Mon-Fri)
     for entry in schedule_entries:
-        if not entry.absence_code:
+        if not entry.absence_code and entry.date.weekday() < 5:  # Only weekdays
             monthly_total += calculate_daily_hours(entry.entries)
 
     return {
