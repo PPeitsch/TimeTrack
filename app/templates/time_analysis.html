@@ -13,15 +13,12 @@
                     </div>
                     <div class="col-auto">
                         <select class="form-select" id="yearSelect">
-                            <option value="2024">2024</option>
-                            <option value="2025">2025</option>
+                            <!-- Will be populated by JavaScript -->
                         </select>
                     </div>
                     <div class="col-auto">
                         <select class="form-select" id="monthSelect">
-                            <option value="1">January</option>
-                            <option value="2">February</option>
-                            <!-- ... other months ... -->
+                            <!-- Will be populated by JavaScript -->
                         </select>
                     </div>
                 </div>
@@ -61,7 +58,7 @@
                             </tr>
                         </thead>
                         <tbody id="timeTable">
-                            <!-- Filled dynamically -->
+                            <!-- Will be populated by JavaScript -->
                         </tbody>
                     </table>
                 </div>
@@ -70,17 +67,5 @@
     </div>
 </div>
 
-<script>
-function updateAnalysis() {
-    const year = document.getElementById('yearSelect').value;
-    const month = document.getElementById('monthSelect').value;
-    // Fetch and update analysis data
-}
-
-document.getElementById('yearSelect').addEventListener('change', updateAnalysis);
-document.getElementById('monthSelect').addEventListener('change', updateAnalysis);
-
-// Initial load
-updateAnalysis();
-</script>
+<script src="{{ url_for('static', filename='js/time-analysis.js') }}"></script>
 {% endblock %}
