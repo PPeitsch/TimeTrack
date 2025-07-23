@@ -34,7 +34,7 @@ body:
       description: What alternatives have you considered?
     validations:
       required: false
-      
+
   - type: textarea
     id: context
     attributes:
@@ -42,7 +42,7 @@ body:
       description: Add any other context, mock-ups, or screenshots about the feature request here.
     validations:
       required: false
-      
+
   - type: checkboxes
     id: implementation
     attributes:

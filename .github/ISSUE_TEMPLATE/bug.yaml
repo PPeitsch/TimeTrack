@@ -74,7 +74,7 @@ body:
         4. See error
     validations:
       required: true
-      
+
   - type: textarea
     id: expected
     attributes:
