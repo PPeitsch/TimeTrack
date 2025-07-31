@@ -164,38 +164,36 @@ document.addEventListener('DOMContentLoaded', function() {
         const dayData = [];
 
         for (let day = 1; day <= daysInMonth; day++) {
-            const date = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
-            const dayOfWeek = new Date(year, month - 1, day).getDay();
-            const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+            const dateStr = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
 
             // Store date info to be used after fetching
             dayData.push({
-                date: date,
-                formattedDate: new Date(date).toLocaleDateString(),
-                isWeekend: isWeekend,
-                dayOfWeek: dayOfWeek
+                date: dateStr
             });
 
             // Create the promise but don't await it yet
-            const dayPromise = fetch(`/summary/daily/${date}`)
+            const dayPromise = fetch(`/summary/daily/${dateStr}`)
                 .then(response => {
                     if (response.ok) {
                         return response.json();
                     } else {
+                        // Fallback in case of server error for a specific day
                         return {
+                            type: "Error",
                             hours: 0,
-                            required: isWeekend ? 0 : 8,
-                            difference: isWeekend ? 0 : -8,
+                            required: 0,
+                            difference: 0,
                             absence_code: null
                         };
                     }
                 })
                 .catch(error => {
-                    console.error(`Error loading data for ${date}:`, error);
+                    console.error(`Error loading data for ${dateStr}:`, error);
                     return {
+                        type: "Error",
                         hours: 0,
-                        required: isWeekend ? 0 : 8,
-                        difference: isWeekend ? 0 : -8,
+                        required: 0,
+                        difference: 0,
                         absence_code: null
                     };
                 });
@@ -213,29 +211,26 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Create table row
             const row = document.createElement('tr');
+            // Using replace with a regular expression ensures all hyphens are replaced
+            // This forces the date to be parsed in the local time zone, fixing the off-by-one error
+            const dayDate = new Date(info.date.replace(/-/g, '/'));
+            const formattedDate = dayDate.toLocaleDateString();
 
-            // Add row class for weekends
-            if (info.isWeekend) {
+
+            // Add row class for weekends and holidays for visual distinction
+            if (result.type === "Weekend" || result.type === "Holiday") {
                 row.classList.add('table-secondary');
-            }
-
-            // Determine type (Work Day, Absence, Weekend)
-            let type = "Work Day";
-            if (info.isWeekend) {
-                type = "Weekend";
-            } else if (result.absence_code) {
-                type = result.absence_code;
             }
 
             // Calculate balance and add appropriate class
             const hours = result.hours || 0;
             const required = result.required || 0;
-            const balance = hours - required;
+            const balance = result.difference || 0;
             const balanceClass = balance >= 0 ? 'balance-positive' : 'balance-negative';
 
             row.innerHTML = `
-                <td>${info.formattedDate}</td>
-                <td>${type}</td>
+                <td>${formattedDate}</td>
+                <td>${result.type}</td>
                 <td>${hours.toFixed(1)}</td>
                 <td>${required.toFixed(1)}</td>
                 <td class="${balanceClass}">${balance.toFixed(1)}</td>
