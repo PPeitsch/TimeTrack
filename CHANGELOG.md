@@ -14,6 +14,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Your new fix here.
 
 
+## [1.0.3] - 2025-07-31
+
+### Added
+- Implemented a GitHub Actions workflow to automate the creation of releases.
+- Added a Python script (`scripts/extract_release_notes.py`) to parse release notes for a specific version from `CHANGELOG.md`.
+
+### Changed
+- The new release workflow automatically populates the body of a GitHub Release using the content from the changelog when a new version tag (e.g., `v1.0.3`) is pushed.
+
+
 ## [1.0.2] - 2025-07-31
 
 ### Fixed
@@ -41,6 +51,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 [Unreleased]: https://github.com/PPeitsch/TimeTrack/compare/v1.0.1...HEAD
+[1.0.3]: https://github.com/PPeitsch/TimeTrack/compare/v1.0.2...v1.0.3
 [1.0.2]: https://github.com/PPeitsch/TimeTrack/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/PPeitsch/TimeTrack/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/PPeitsch/TimeTrack/releases/tag/v1.0.0
