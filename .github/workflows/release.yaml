@@ -1,0 +1,46 @@
+name: Create GitHub Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        # Fetch all history for all branches and tags
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Extract Release Notes from CHANGELOG.md
+        id: extract_notes
+        run: |
+          # The github.ref_name context variable holds the tag name (e.g., "v1.0.2")
+          VERSION_TAG="${{ github.ref_name }}"
+          # Remove the 'v' prefix from the tag to get the pure version number
+          VERSION_NUMBER="${VERSION_TAG#v}"
+          echo "Extracting notes for version: $VERSION_NUMBER"
+          python scripts/extract_release_notes.py "$VERSION_NUMBER" CHANGELOG.md RELEASE_NOTES.md
+          echo "---- Contents of generated RELEASE_NOTES.md ----"
+          cat RELEASE_NOTES.md
+          echo "---- End of RELEASE_NOTES.md ----"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          body_path: RELEASE_NOTES.md
+          name: TimeTrack ${{ github.ref_name }}
+          draft: false
+          prerelease: ${{ contains(github.ref_name, '-alpha') || contains(github.ref_name, '-beta') }}
