@@ -14,12 +14,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Your new fix here.
 
 
+## [1.0.2] - 2025-07-31
+
+### Fixed
+- Corrected off-by-one date display error in the daily summary view caused by timezone misinterpretation in the frontend.
+- Fixed a bug where holidays were not being recognized or displayed in the time summary, leading to incorrect required hours calculations.
+- Centralized day type logic (Work Day, Weekend, Holiday, Absence) in the backend to ensure data consistency.
+
+
 ## [1.0.1] - 2025-07-23
 
 ### Fixed
 - Resolved WSGI server deployment issue caused by entry-point name conflict (`run.py`).
 - Updated project documentation (`README.md`) to reflect the new entry-point file.
 - Adjusted environment configuration (`.env.example`) to use the new `run.py` script.
+
 
 ## [1.0.0] - 2025-03-16
 
@@ -30,6 +39,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Argentina holidays integration.
 - Flexible database configuration (SQLite/PostgreSQL).
 
+
 [Unreleased]: https://github.com/PPeitsch/TimeTrack/compare/v1.0.1...HEAD
+[1.0.2]: https://github.com/PPeitsch/TimeTrack/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/PPeitsch/TimeTrack/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/PPeitsch/TimeTrack/releases/tag/v1.0.0
