@@ -99,9 +99,9 @@ class TestRoutes(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_daily_summary_route(self):
-        # Create a test entry first
+        # Create a test entry first on a weekday
         with self.app.app_context():
-            entry_date = date(2025, 3, 16)
+            entry_date = date(2025, 3, 17)  # Monday
             schedule_entry = ScheduleEntry(
                 employee_id=1,
                 date=entry_date,
@@ -111,15 +111,16 @@ class TestRoutes(unittest.TestCase):
             db.session.add(schedule_entry)
             db.session.commit()
 
-        # Test getting daily summary
-        response = self.client.get("/summary/daily/2025-03-16")
+        # Test getting daily summary for the weekday
+        response = self.client.get("/summary/daily/2025-03-17")
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
 
-        # Weekend day (Sunday March 16, 2025)
+        # For a standard workday, we expect 8 hours worked and 8 required
+        self.assertEqual(data["type"], "Work Day")
         self.assertEqual(data["hours"], 8.0)
-        self.assertEqual(data["required"], 0.0)  # Weekend
-        self.assertEqual(data["difference"], 8.0)
+        self.assertEqual(data["required"], 8.0)
+        self.assertEqual(data["difference"], 0.0)
 
     def test_monthly_summary_route(self):
         # Create some test entries for the month
