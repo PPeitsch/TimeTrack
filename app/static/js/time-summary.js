@@ -211,7 +211,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Create table row
             const row = document.createElement('tr');
-            const dayDate = new Date(info.date.replace(/-/g, '/')); // Use / to avoid UTC issues
+            // Using replace with a regular expression ensures all hyphens are replaced
+            // This forces the date to be parsed in the local time zone, fixing the off-by-one error
+            const dayDate = new Date(info.date.replace(/-/g, '/'));
             const formattedDate = dayDate.toLocaleDateString();
 
 
