@@ -1,8 +1,24 @@
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Entry handlers script loaded');
 
-    // Set current date as default
+    // Get primary elements
     const dateInput = document.getElementById('date');
+    const entryTypeSelect = document.getElementById('entryType');
+    const workDayFields = document.getElementById('workDayFields');
+    const entryForm = document.getElementById('entryForm');
+
+    // Function to toggle visibility of time entry fields
+    function toggleWorkDayFields() {
+        if (!entryTypeSelect || !workDayFields) return;
+
+        if (entryTypeSelect.value === 'WORK') {
+            workDayFields.style.display = 'block';
+        } else {
+            workDayFields.style.display = 'none';
+        }
+    }
+
+    // Set current date as default
     if (dateInput) {
         const today = new Date();
         const year = today.getFullYear();
@@ -11,16 +27,20 @@ document.addEventListener('DOMContentLoaded', function() {
         dateInput.value = `${year}-${month}-${day}`;
     }
 
+    // Add event listener to the type dropdown
+    if (entryTypeSelect) {
+        entryTypeSelect.addEventListener('change', toggleWorkDayFields);
+    }
+
     // Function to handle remove button clicks
     function handleRemoveClick(event) {
         console.log('Remove button clicked');
-        const timeEntries = document.querySelectorAll('.time-entry');
+        const timeEntriesContainer = document.getElementById('timeEntries');
+        const timeEntries = timeEntriesContainer.querySelectorAll('.time-entry');
 
-        // Only remove if there's more than one entry
         if (timeEntries.length > 1) {
             event.target.closest('.time-entry').remove();
         } else {
-            // Just clear the values if it's the last one
             const entry = event.target.closest('.time-entry');
             entry.querySelector('.entry-time').value = '';
             entry.querySelector('.exit-time').value = '';
@@ -30,18 +50,17 @@ document.addEventListener('DOMContentLoaded', function() {
     // Function to add new time entry
     function addNewTimeEntry() {
         console.log('Adding new time entry');
-        const timeEntries = document.getElementById('timeEntries');
-        const template = document.querySelector('.time-entry').cloneNode(true);
+        const timeEntriesContainer = document.getElementById('timeEntries');
+        if (!timeEntriesContainer) return;
 
-        // Clear the input values
+        const template = timeEntriesContainer.querySelector('.time-entry').cloneNode(true);
         template.querySelector('.entry-time').value = '';
         template.querySelector('.exit-time').value = '';
 
-        // Add event listener to the new remove button
         const removeButton = template.querySelector('.remove-entry');
         removeButton.addEventListener('click', handleRemoveClick);
 
-        timeEntries.appendChild(template);
+        timeEntriesContainer.appendChild(template);
     }
 
     // Initialize all remove buttons
@@ -56,23 +75,26 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Form submission handler
-    const entryForm = document.getElementById('entryForm');
     if (entryForm) {
         entryForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             console.log('Form submitted');
 
-            // Get all time entries with both values filled
-            const entries = Array.from(document.querySelectorAll('.time-entry'))
-                .map(entry => ({
-                    entry: entry.querySelector('.entry-time').value,
-                    exit: entry.querySelector('.exit-time').value
-                }))
-                .filter(entry => entry.entry && entry.exit);
+            const entryType = entryTypeSelect.value;
+            let entries = [];
+
+            // Only gather entries if it's a work day
+            if (entryType === 'WORK') {
+                entries = Array.from(document.querySelectorAll('.time-entry'))
+                    .map(entry => ({
+                        entry: entry.querySelector('.entry-time').value,
+                        exit: entry.querySelector('.exit-time').value
+                    }))
+                    .filter(entry => entry.entry && entry.exit);
+            }
 
             console.log('Filtered entries:', entries);
 
-            const entryType = document.getElementById('entryType').value;
             const formData = {
                 date: document.getElementById('date').value,
                 employee_id: 1, // Default employee
@@ -85,9 +107,7 @@ document.addEventListener('DOMContentLoaded', function() {
             try {
                 const response = await fetch('/entry', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(formData)
                 });
 
@@ -95,8 +115,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 if (response.ok) {
                     alert('Entry saved successfully');
-                    // Don't reload, just update UI
-                    // location.reload();
                 } else {
                     alert(`Error saving entry: ${responseData.error || 'Unknown error'}`);
                 }
@@ -105,4 +123,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+
+    // Set initial form state on page load
+    toggleWorkDayFields();
 });
