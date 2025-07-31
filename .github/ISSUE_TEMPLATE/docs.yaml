@@ -1,0 +1,50 @@
+name: Documentation Report
+description: Report an issue or suggest an improvement for the documentation
+title: "[Docs]: "
+labels: ["documentation"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for helping improve our documentation! Please provide the details of the issue below.
+
+  - type: dropdown
+    id: issue_type
+    attributes:
+      label: Type of Issue
+      description: What kind of documentation issue is this?
+      options:
+        - Incorrect information
+        - Outdated content
+        - Unclear explanation
+        - Typo or grammatical error
+        - Suggestion for new documentation
+    validations:
+      required: true
+
+  - type: input
+    id: location
+    attributes:
+      label: Location of the Issue
+      description: "Please provide the file path or URL of the documentation page."
+      placeholder: "e.g., README.md or /app/routes/time_summary.py"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description of the Issue
+      description: "A clear and concise description of what the problem is."
+      placeholder: "In the Quick Start section, the command for activating the virtual environment on Windows is incorrect."
+    validations:
+      required: true
+
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: Suggested Change
+      description: "How do you suggest we fix this? Please provide the corrected text if possible."
+      placeholder: "Change `venv/script/activate` to `venv\\Scripts\\activate`"
+    validations:
+      required: true
