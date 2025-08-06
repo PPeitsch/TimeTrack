@@ -64,7 +64,6 @@ class TestArgentinaWebsiteProvider:
         provider = ArgentinaWebsiteProvider(base_url="http://fake-url.com/{year}")
         with patch("requests.get", return_value=mock_response):
             holidays = provider.get_holidays(year)
-            # Should skip the bad entry and return only the good one
             assert len(holidays) == 1
             assert holidays[0].description == "Año Nuevo"
 
@@ -91,13 +90,18 @@ class TestArgentinaWebsiteProvider:
 
     def test_parse_holidays_from_script_invalid_json(self):
         """
-        Test that invalid JSON in the script is handled.
+        Test that invalid JSON (e.g., with a trailing comma) is handled.
         """
-        script_content = "es: [{'date': '01/01/2025', 'label': 'bad'}],"
+        # This string simulates a trailing comma, which is invalid in strict JSON
+        script_content = """
+        es: [{"date": "01/01/2025", "label": "Año Nuevo", "type": "inamovible"},],
+        """
         provider = ArgentinaWebsiteProvider(base_url="")
 
         holidays = provider._parse_holidays_from_script(script_content)
-        assert holidays == []
+        # The parser should now correctly handle this and return the valid entry
+        assert len(holidays) == 1
+        assert holidays[0]["label"] == "Año Nuevo"
 
 
 class TestHolidayService:
@@ -113,7 +117,7 @@ class TestHolidayService:
         """
         Test that the factory returns the correct provider instance.
         """
-        provider = get_holiday_provider(self.MockConfig)
+        provider = get_holiday_provider(TestHolidayService.MockConfig)
         assert isinstance(provider, ArgentinaWebsiteProvider)
 
     def test_get_holiday_provider_invalid_provider(self):
@@ -121,7 +125,7 @@ class TestHolidayService:
         Test that a ValueError is raised for an unknown provider.
         """
 
-        class InvalidConfig(self.MockConfig):
+        class InvalidConfig(TestHolidayService.MockConfig):
             HOLIDAY_PROVIDER = "INVALID_PROVIDER"
 
         with pytest.raises(ValueError, match="Invalid or missing HOLIDAY_PROVIDER"):
@@ -132,7 +136,7 @@ class TestHolidayService:
         Test that a ValueError is raised if HOLIDAY_PROVIDER is not set.
         """
 
-        class NoProviderConfig(self.MockConfig):
+        class NoProviderConfig(TestHolidayService.MockConfig):
             HOLIDAY_PROVIDER = None
 
         with pytest.raises(ValueError, match="Invalid or missing HOLIDAY_PROVIDER"):
@@ -143,7 +147,7 @@ class TestHolidayService:
         Test that a ValueError is raised if the URL is missing for the provider.
         """
 
-        class MissingUrlConfig(self.MockConfig):
+        class MissingUrlConfig(TestHolidayService.MockConfig):
             HOLIDAYS_BASE_URL = None
 
         with pytest.raises(ValueError, match="HOLIDAYS_BASE_URL is not configured"):
@@ -154,19 +158,18 @@ class TestHolidayService:
         Test that a NotImplementedError is raised for a provider without init logic.
         """
 
-        # Temporarily add a new provider to the map for this test
         class NewDummyProvider:
             pass
 
         original_map = PROVIDER_MAP.copy()
-        PROVIDER_MAP["NEW_DUMMY_PROVIDER"] = NewDummyProvider
+        # Ignoring mypy error as this is a deliberate test of an invalid state
+        PROVIDER_MAP["NEW_DUMMY_PROVIDER"] = NewDummyProvider  # type: ignore[assignment]
 
-        class DummyProviderConfig(self.MockConfig):
+        class DummyProviderConfig(TestHolidayService.MockConfig):
             HOLIDAY_PROVIDER = "NEW_DUMMY_PROVIDER"
 
         with pytest.raises(NotImplementedError):
             get_holiday_provider(DummyProviderConfig)
 
-        # Clean up the map after the test
         PROVIDER_MAP.clear()
         PROVIDER_MAP.update(original_map)
