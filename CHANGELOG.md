@@ -14,17 +14,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Your new fix here.
 
 
-## [1.0.6] - 2025-07-31
+## [1.0.6] - 2025-08-06
 
 ### Changed
-- Refactored the holiday import system to be modular and extensible. The previous hardcoded scraping logic has been moved into a provider-based architecture.
-- The application now uses a `HOLIDAY_PROVIDER` setting in the configuration to allow for different holiday data sources in the future.
+- Refactored the holiday import system into a modular, provider-based architecture, decoupling the application from a single data source.
+- The application now uses a `HOLIDAY_PROVIDER` setting in the configuration for future extensibility.
+- Improved the database initialization script (`init_db.py`) with better user experience and more robust error handling.
 
 ### Added
-- An `ArgentinaWebsiteProvider` as the first implementation of the new provider system.
-- A `HolidayProvider` interface to ensure all future providers follow a common contract.
-- A factory service to instantiate the correct holiday provider based on the application's configuration.
-- A user prompt in the `init_db.py` script to populate holidays for the current and next year upon database initialization.
+- A `HolidayProvider` interface and a concrete `ArgentinaWebsiteProvider` implementation.
+- A factory service (`get_holiday_provider`) to instantiate the correct provider based on configuration.
+- A comprehensive suite of unit tests (`tests/test_services.py`) for the new holiday provider services, achieving 100% code coverage on the new modules.
+
+### Fixed
+- The holiday scraper, which was failing silently, is now fixed. It correctly parses data from an embedded JSON object on the source website, making it significantly more reliable.
+- Corrected a recurring dependency check error for `beautifulsoup4` in the init script.
+- Resolved multiple `mypy` type-checking errors that appeared in CI/CD environments.
 
 
 ## [1.0.5] - 2025-07-31
