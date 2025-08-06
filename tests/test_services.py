@@ -92,14 +92,12 @@ class TestArgentinaWebsiteProvider:
         """
         Test that invalid JSON (e.g., with a trailing comma) is handled.
         """
-        # This string simulates a trailing comma, which is invalid in strict JSON
         script_content = """
         es: [{"date": "01/01/2025", "label": "Año Nuevo", "type": "inamovible"},],
         """
         provider = ArgentinaWebsiteProvider(base_url="")
 
         holidays = provider._parse_holidays_from_script(script_content)
-        # The parser should now correctly handle this and return the valid entry
         assert len(holidays) == 1
         assert holidays[0]["label"] == "Año Nuevo"
 
@@ -137,7 +135,7 @@ class TestHolidayService:
         """
 
         class NoProviderConfig(TestHolidayService.MockConfig):
-            HOLIDAY_PROVIDER = None
+            HOLIDAY_PROVIDER = None  # type: ignore[assignment]
 
         with pytest.raises(ValueError, match="Invalid or missing HOLIDAY_PROVIDER"):
             get_holiday_provider(NoProviderConfig)
@@ -148,7 +146,7 @@ class TestHolidayService:
         """
 
         class MissingUrlConfig(TestHolidayService.MockConfig):
-            HOLIDAYS_BASE_URL = None
+            HOLIDAYS_BASE_URL = None  # type: ignore[assignment]
 
         with pytest.raises(ValueError, match="HOLIDAYS_BASE_URL is not configured"):
             get_holiday_provider(MissingUrlConfig)
@@ -162,7 +160,6 @@ class TestHolidayService:
             pass
 
         original_map = PROVIDER_MAP.copy()
-        # Ignoring mypy error as this is a deliberate test of an invalid state
         PROVIDER_MAP["NEW_DUMMY_PROVIDER"] = NewDummyProvider  # type: ignore[assignment]
 
         class DummyProviderConfig(TestHolidayService.MockConfig):
