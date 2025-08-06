@@ -5,6 +5,7 @@ from typing import Any, Dict, List, cast
 
 import requests
 from bs4 import BeautifulSoup
+from bs4.element import Tag
 
 from app.models.models import Holiday
 
@@ -25,22 +26,17 @@ class ArgentinaWebsiteProvider:
         This function uses regex to find each holiday entry individually,
         making it resilient to common JS syntax variations like trailing commas.
         """
-        # This regex now specifically looks for the 'es: [...]' array.
         object_pattern = re.compile(r"es:\s*(\[.*?\]),", re.DOTALL)
         match = object_pattern.search(script_content)
 
         if not match:
             return []
 
-        # group(1) contains the list content, e.g., '[{"date": ...}]'
         json_list_text = match.group(1)
 
         try:
-            # Replace single quotes with double quotes for valid JSON
-            # and remove trailing commas before brackets/braces
             valid_json_text = json_list_text.replace("'", '"')
             valid_json_text = re.sub(r",\s*([\]}])", r"\1", valid_json_text)
-            # Use cast to inform mypy about the expected return type
             return cast(List[Dict[str, Any]], json.loads(valid_json_text))
         except json.JSONDecodeError as e:
             print(f"Failed to decode JSON from script: {e}")
@@ -68,8 +64,11 @@ class ArgentinaWebsiteProvider:
             "script", string=re.compile(rf"const holidays{year}\s*=")
         )
 
-        if script_tag and script_tag.string:
-            holidays_list = self._parse_holidays_from_script(script_tag.string)
+        # Add explicit check for None and assert the type to satisfy mypy
+        if script_tag:
+            assert isinstance(script_tag, Tag)
+            if script_tag.string:
+                holidays_list = self._parse_holidays_from_script(script_tag.string)
 
         if not holidays_list:
             return []
