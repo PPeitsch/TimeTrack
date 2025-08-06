@@ -14,6 +14,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Your new fix here.
 
 
+## [1.0.6] - 2025-07-31
+
+### Changed
+- Refactored the holiday import system to be modular and extensible. The previous hardcoded scraping logic has been moved into a provider-based architecture.
+- The application now uses a `HOLIDAY_PROVIDER` setting in the configuration to allow for different holiday data sources in the future.
+
+### Added
+- An `ArgentinaWebsiteProvider` as the first implementation of the new provider system.
+- A `HolidayProvider` interface to ensure all future providers follow a common contract.
+- A factory service to instantiate the correct holiday provider based on the application's configuration.
+- A user prompt in the `init_db.py` script to populate holidays for the current and next year upon database initialization.
+
+
 ## [1.0.5] - 2025-07-31
 
 ### Added
@@ -63,6 +76,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 [Unreleased]: https://github.com/PPeitsch/TimeTrack/compare/v1.0.1...HEAD
+[1.0.6]: https://github.com/PPeitsch/TimeTrack/compare/v1.0.5...v1.0.6
 [1.0.5]: https://github.com/PPeitsch/TimeTrack/compare/v1.0.4...v1.0.5
 [1.0.4]: https://github.com/PPeitsch/TimeTrack/compare/v1.0.3...v1.0.4
 [1.0.3]: https://github.com/PPeitsch/TimeTrack/compare/v1.0.2...v1.0.3
