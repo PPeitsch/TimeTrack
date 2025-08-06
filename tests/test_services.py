@@ -105,11 +105,20 @@ class TestArgentinaWebsiteProvider:
     def test_parse_holidays_from_script_raises_decode_error(self):
         """
         Test the except block for JSONDecodeError.
-        This string is syntactically invalid in a way that re.sub can't fix.
         """
         script_content = 'es: [{"date": "01/01/2025", "label": "Broken "JSON" here"}],'
         provider = ArgentinaWebsiteProvider(base_url="")
 
+        holidays = provider._parse_holidays_from_script(script_content)
+        assert holidays == []
+
+    def test_parse_holidays_from_script_no_match(self):
+        """
+        Test the 'if not match' path in _parse_holidays_from_script.
+        """
+        # This content lacks the 'es:' key, so the regex will not match.
+        script_content = "const holidays2025 = { en: [] };"
+        provider = ArgentinaWebsiteProvider(base_url="")
         holidays = provider._parse_holidays_from_script(script_content)
         assert holidays == []
 
