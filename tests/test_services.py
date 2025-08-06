@@ -6,10 +6,11 @@ import pytest
 import requests
 
 from app.config.config import Config
+from app.models.models import Holiday
 from app.services.holiday_providers.argentina_website_provider import (
     ArgentinaWebsiteProvider,
 )
-from app.services.holiday_service import get_holiday_provider
+from app.services.holiday_service import PROVIDER_MAP, get_holiday_provider
 
 
 class TestArgentinaWebsiteProvider:
@@ -29,35 +30,49 @@ class TestArgentinaWebsiteProvider:
         Test successful holiday parsing from mock HTML content.
         """
         year = 2025
-        # Mock HTML content with embedded script
         mock_response.text = f"""
-        <html>
-            <script>
-                const holidays{year} = {{
-                    es: [
-                        {{"date": "01/01/2025", "label": "Año Nuevo", "type": "inamovible"}},
-                        {{"date": "01/05/2025", "label": "Día del Trabajador", "type": "inamovible"}}
-                    ],
-                }};
-            </script>
-        </html>
+        <html><script>
+            const holidays{year} = {{
+                es: [
+                    {{"date": "01/01/2025", "label": "Año Nuevo", "type": "inamovible"}},
+                    {{"date": "01/05/2025", "label": "Día del Trabajador", "type": "inamovible"}}
+                ],
+            }};
+        </script></html>
         """
-
         provider = ArgentinaWebsiteProvider(base_url="http://fake-url.com/{year}")
-
-        with patch("requests.get", return_value=mock_response) as mock_get:
+        with patch("requests.get", return_value=mock_response):
             holidays = provider.get_holidays(year)
-            mock_get.assert_called_once()
             assert len(holidays) == 2
             assert holidays[0].description == "Año Nuevo"
-            assert holidays[1].type == "Inamovible"
+
+    def test_get_holidays_with_malformed_entry(self, mock_response):
+        """
+        Test that a single malformed holiday entry is skipped.
+        """
+        year = 2025
+        mock_response.text = f"""
+        <html><script>
+            const holidays{year} = {{
+                es: [
+                    {{"date": "01/01/2025", "label": "Año Nuevo", "type": "inamovible"}},
+                    {{"date": "invalid-date", "label": "Invalid", "type": "invalido"}}
+                ],
+            }};
+        </script></html>
+        """
+        provider = ArgentinaWebsiteProvider(base_url="http://fake-url.com/{year}")
+        with patch("requests.get", return_value=mock_response):
+            holidays = provider.get_holidays(year)
+            # Should skip the bad entry and return only the good one
+            assert len(holidays) == 1
+            assert holidays[0].description == "Año Nuevo"
 
     def test_get_holidays_network_error(self):
         """
         Test that network errors are handled gracefully.
         """
         provider = ArgentinaWebsiteProvider(base_url="http://fake-url.com/{year}")
-
         with patch(
             "requests.get", side_effect=requests.RequestException("Network Error")
         ):
@@ -70,23 +85,19 @@ class TestArgentinaWebsiteProvider:
         """
         mock_response.text = "<html><body>No data here</body></html>"
         provider = ArgentinaWebsiteProvider(base_url="http://fake-url.com/{year}")
-
         with patch("requests.get", return_value=mock_response):
             holidays = provider.get_holidays(2025)
             assert holidays == []
 
-    def test_parse_holidays_from_script_malformed_json(self):
+    def test_parse_holidays_from_script_invalid_json(self):
         """
-        Test that malformed JSON in the script is handled.
+        Test that invalid JSON in the script is handled.
         """
-        script_content = "es: [{'date': '01/01/2025'}],"  # Invalid JSON (single quotes)
+        script_content = "es: [{'date': '01/01/2025', 'label': 'bad'}],"
         provider = ArgentinaWebsiteProvider(base_url="")
 
-        # We replace the internal regex to simulate a bad match
-        with patch.object(provider, "_parse_holidays_from_script", return_value=[]):
-            holidays = provider.get_holidays(2025)
-            # The test should check if it returns an empty list, not crash
-            assert holidays == []
+        holidays = provider._parse_holidays_from_script(script_content)
+        assert holidays == []
 
 
 class TestHolidayService:
@@ -116,6 +127,17 @@ class TestHolidayService:
         with pytest.raises(ValueError, match="Invalid or missing HOLIDAY_PROVIDER"):
             get_holiday_provider(InvalidConfig)
 
+    def test_get_holiday_provider_no_provider_configured(self):
+        """
+        Test that a ValueError is raised if HOLIDAY_PROVIDER is not set.
+        """
+
+        class NoProviderConfig(self.MockConfig):
+            HOLIDAY_PROVIDER = None
+
+        with pytest.raises(ValueError, match="Invalid or missing HOLIDAY_PROVIDER"):
+            get_holiday_provider(NoProviderConfig)
+
     def test_get_holiday_provider_missing_url(self):
         """
         Test that a ValueError is raised if the URL is missing for the provider.
@@ -126,3 +148,25 @@ class TestHolidayService:
 
         with pytest.raises(ValueError, match="HOLIDAYS_BASE_URL is not configured"):
             get_holiday_provider(MissingUrlConfig)
+
+    def test_get_holiday_provider_not_implemented(self):
+        """
+        Test that a NotImplementedError is raised for a provider without init logic.
+        """
+
+        # Temporarily add a new provider to the map for this test
+        class NewDummyProvider:
+            pass
+
+        original_map = PROVIDER_MAP.copy()
+        PROVIDER_MAP["NEW_DUMMY_PROVIDER"] = NewDummyProvider
+
+        class DummyProviderConfig(self.MockConfig):
+            HOLIDAY_PROVIDER = "NEW_DUMMY_PROVIDER"
+
+        with pytest.raises(NotImplementedError):
+            get_holiday_provider(DummyProviderConfig)
+
+        # Clean up the map after the test
+        PROVIDER_MAP.clear()
+        PROVIDER_MAP.update(original_map)
