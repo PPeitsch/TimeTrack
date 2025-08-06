@@ -4,6 +4,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 import requests
+from bs4.element import Tag
 
 from app.config.config import Config
 from app.models.models import Holiday
@@ -88,9 +89,9 @@ class TestArgentinaWebsiteProvider:
             holidays = provider.get_holidays(2025)
             assert holidays == []
 
-    def test_parse_holidays_from_script_invalid_json(self):
+    def test_parse_holidays_from_script_handles_trailing_comma(self):
         """
-        Test that invalid JSON (e.g., with a trailing comma) is handled.
+        Test that JSON with a trailing comma is handled correctly.
         """
         script_content = """
         es: [{"date": "01/01/2025", "label": "Año Nuevo", "type": "inamovible"},],
@@ -100,6 +101,17 @@ class TestArgentinaWebsiteProvider:
         holidays = provider._parse_holidays_from_script(script_content)
         assert len(holidays) == 1
         assert holidays[0]["label"] == "Año Nuevo"
+
+    def test_parse_holidays_from_script_raises_decode_error(self):
+        """
+        Test the except block for JSONDecodeError.
+        This string is syntactically invalid in a way that re.sub can't fix.
+        """
+        script_content = 'es: [{"date": "01/01/2025", "label": "Broken "JSON" here"}],'
+        provider = ArgentinaWebsiteProvider(base_url="")
+
+        holidays = provider._parse_holidays_from_script(script_content)
+        assert holidays == []
 
 
 class TestHolidayService:
