@@ -1,4 +1,4 @@
-from flask import current_app
+from flask import Config
 
 from app.services.holiday_providers.argentina_website_provider import (
     ArgentinaWebsiteProvider,
@@ -10,20 +10,13 @@ from app.services.holiday_providers.base import HolidayProvider
 PROVIDER_MAP = {"ARGENTINA_WEBSITE": ArgentinaWebsiteProvider}
 
 
-def get_holiday_provider() -> HolidayProvider:
+def get_holiday_provider(config: Config) -> HolidayProvider:
     """
     Factory function that returns an instance of the configured holiday provider.
 
-    Reads the provider name and relevant settings from the Flask app config
-    and instantiates the appropriate provider class.
-
-    Raises:
-        ValueError: If the configured provider is not found in PROVIDER_MAP.
-
-    Returns:
-        An instance of a class that implements the HolidayProvider protocol.
+    Reads the provider name and settings from the provided config object.
     """
-    provider_name = current_app.config.get("HOLIDAY_PROVIDER")
+    provider_name = getattr(config, "HOLIDAY_PROVIDER", None)
     if not provider_name or provider_name.upper() not in PROVIDER_MAP:
         raise ValueError(f"Invalid or missing HOLIDAY_PROVIDER: '{provider_name}'")
 
@@ -31,7 +24,7 @@ def get_holiday_provider() -> HolidayProvider:
 
     # Specific initialization logic for each provider
     if provider_name.upper() == "ARGENTINA_WEBSITE":
-        base_url = current_app.config.get("HOLIDAYS_BASE_URL")
+        base_url = getattr(config, "HOLIDAYS_BASE_URL", None)
         if not base_url:
             raise ValueError("HOLIDAYS_BASE_URL is not configured.")
         return provider_class(base_url=base_url)
