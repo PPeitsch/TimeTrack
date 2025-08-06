@@ -14,6 +14,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Your new fix here.
 
 
+## [1.0.6] - 2025-08-06
+
+### Changed
+- Refactored the holiday import system into a modular, provider-based architecture, decoupling the application from a single data source.
+- The application now uses a `HOLIDAY_PROVIDER` setting in the configuration for future extensibility.
+- Improved the database initialization script (`init_db.py`) with better user experience and more robust error handling.
+
+### Added
+- A `HolidayProvider` interface and a concrete `ArgentinaWebsiteProvider` implementation.
+- A factory service (`get_holiday_provider`) to instantiate the correct provider based on configuration.
+- A comprehensive suite of unit tests (`tests/test_services.py`) for the new holiday provider services, achieving 100% code coverage on the new modules.
+
+### Fixed
+- The holiday scraper, which was failing silently, is now fixed. It correctly parses data from an embedded JSON object on the source website, making it significantly more reliable.
+- Corrected a recurring dependency check error for `beautifulsoup4` in the init script.
+- Resolved multiple `mypy` type-checking errors that appeared in CI/CD environments.
+
+
 ## [1.0.5] - 2025-07-31
 
 ### Added
@@ -63,6 +81,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 [Unreleased]: https://github.com/PPeitsch/TimeTrack/compare/v1.0.1...HEAD
+[1.0.6]: https://github.com/PPeitsch/TimeTrack/compare/v1.0.5...v1.0.6
 [1.0.5]: https://github.com/PPeitsch/TimeTrack/compare/v1.0.4...v1.0.5
 [1.0.4]: https://github.com/PPeitsch/TimeTrack/compare/v1.0.3...v1.0.4
 [1.0.3]: https://github.com/PPeitsch/TimeTrack/compare/v1.0.2...v1.0.3
