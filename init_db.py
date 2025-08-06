@@ -19,7 +19,8 @@ def parse_env_file(file_path):
                     parts = line.split("=", 1)
                     if len(parts) == 2:
                         key, value = parts
-                        env_vars[key] = value
+                        # Remove quotes if they exist
+                        env_vars[key] = value.strip("'\"")
     return env_vars
 
 
@@ -58,6 +59,8 @@ def initialize_database_manually():
             from app import create_app
             from app.config.config import Config
             from app.db.database import db
+            from app.models.models import Holiday
+            from app.services import get_holiday_provider
 
             print("✓ Módulos importados correctamente")
         except ImportError as e:
@@ -78,11 +81,48 @@ def initialize_database_manually():
                 db.create_all()
                 print("✓ Tablas creadas correctamente")
 
+                # Ask user if they want to populate holidays
+                populate = (
+                    input(
+                        "\n¿Deseas poblar la base de datos con los feriados? (s/n) [s]: "
+                    ).lower()
+                    != "n"
+                )
+                if populate:
+                    print("Obteniendo proveedor de feriados...")
+                    provider = get_holiday_provider()
+                    current_year = time.localtime().tm_year
+                    years_to_fetch = [current_year, current_year + 1]
+
+                    print(f"Obteniendo feriados para los años {years_to_fetch}...")
+                    all_holidays = []
+                    for year in years_to_fetch:
+                        holidays = provider.get_holidays(year)
+                        if holidays:
+                            print(
+                                f"✓ Se encontraron {len(holidays)} feriados para {year}"
+                            )
+                            all_holidays.extend(holidays)
+                        else:
+                            print(f"⚠️ No se encontraron feriados para {year}.")
+
+                    if all_holidays:
+                        # Clear existing holidays to prevent duplicates
+                        db.session.query(Holiday).delete()
+                        db.session.commit()
+
+                        db.session.bulk_save_objects(all_holidays)
+                        db.session.commit()
+                        print(
+                            f"✓ {len(all_holidays)} feriados guardados en la base de datos."
+                        )
+
             print("\nLa base de datos ha sido inicializada exitosamente.")
             return True, "Base de datos inicializada correctamente"
         except Exception as e:
-            print(f"❌ Error al crear tablas: {e}")
-            return False, f"Error al crear tablas: {e}"
+            print(f"❌ Error durante la inicialización o populación: {e}")
+            db.session.rollback()
+            return False, f"Error en base de datos: {e}"
 
     except Exception as e:
         print(f"❌ Error durante la inicialización manual: {e}")
@@ -91,7 +131,13 @@ def initialize_database_manually():
 
 def check_dependencies():
     """Check if all required dependencies are installed."""
-    required_packages = ["flask", "flask-sqlalchemy", "flask-migrate"]
+    required_packages = [
+        "flask",
+        "flask-sqlalchemy",
+        "flask-migrate",
+        "requests",
+        "beautifulsoup4",
+    ]
     missing_packages = []
 
     for package in required_packages:
@@ -137,7 +183,7 @@ def main():
     env_example_path = ".env.example"
 
     if os.path.exists(env_path):
-        print(f"Se encontró el archivo {env_path} existente.")
+        print(f"\nSe encontró el archivo {env_path} existente.")
         env_vars = parse_env_file(env_path)
         using_existing = True
     elif os.path.exists(env_example_path):
@@ -149,22 +195,18 @@ def main():
         env_vars = {
             "DATABASE_URL": "sqlite:///timetrack.db",
             "SECRET_KEY": "desarrollo-local-seguro",
-            "FLASK_APP": 'app:create_app("app.config.config.Config")',
+            "FLASK_APP": "run.py",
             "FLASK_ENV": "development",
             "FLASK_DEBUG": "1",
+            "HOLIDAY_PROVIDER": "ARGENTINA_WEBSITE",
+            "HOLIDAYS_BASE_URL": "https://www.argentina.gob.ar/interior/feriados-nacionales-{year}",
         }
         using_existing = False
 
-    # Set correct FLASK_APP with factory arguments
-    if (
-        "FLASK_APP" not in env_vars
-        or "create_app" not in env_vars["FLASK_APP"]
-        or "(" not in env_vars["FLASK_APP"]
-    ):
-        env_vars["FLASK_APP"] = 'app:create_app("app.config.config.Config")'
-        print(
-            "\n✓ Se ha actualizado la configuración de FLASK_APP para usar la factory function correctamente"
-        )
+    # Set correct FLASK_APP if needed
+    if "FLASK_APP" not in env_vars or "run.py" not in env_vars["FLASK_APP"]:
+        env_vars["FLASK_APP"] = "run.py"
+        print("\n✓ Se ha actualizado la configuración de FLASK_APP para usar run.py")
 
     # Extract current database configuration
     db_url = env_vars.get("DATABASE_URL", "")
@@ -174,13 +216,16 @@ def main():
     if using_existing:
         print("\nConfiguración actual:")
         if db_info["type"] == "sqlite":
-            print(f"Tipo de base de datos: SQLite")
-            print(f"Ruta del archivo: {db_info['path']}")
+            print(f"  Tipo de base de datos: SQLite")
+            print(f"  Ruta del archivo: {db_info['path']}")
         elif db_info["type"] == "postgres":
-            print(f"Tipo de base de datos: PostgreSQL")
-            print(f"Nombre de la base de datos: {db_info['name']}")
-            print(f"Usuario: {db_info['user']}")
-            print(f"Host: {db_info['host']}:{db_info['port']}")
+            print(f"  Tipo de base de datos: PostgreSQL")
+            print(f"  Nombre de la base de datos: {db_info['name']}")
+            print(f"  Usuario: {db_info['user']}")
+            print(f"  Host: {db_info['host']}:{db_info['port']}")
+
+        provider = env_vars.get("HOLIDAY_PROVIDER", "No configurado")
+        print(f"  Proveedor de feriados: {provider}")
 
         modify = (
             input(
@@ -256,11 +301,11 @@ def main():
         f"\nArchivo {env_path} {'actualizado' if using_existing else 'creado'} correctamente."
     )
 
-    # Set environment variables
+    # Set environment variables for the current script run
     for key, value in env_vars.items():
         os.environ[key] = value
 
-    # Initialize database directly (without using flask db commands)
+    # Initialize database directly
     success, message = initialize_database_manually()
 
     if success:
@@ -269,13 +314,9 @@ def main():
     else:
         print(f"\n❌ Error al inicializar la base de datos: {message}")
         print("\nPuedes intentar ejecutar estos comandos manualmente para depurar:")
-        print(
-            f"1. Asegúrate de tener FLASK_APP configurado como: {env_vars.get('FLASK_APP')}"
-        )
-        print("2. Verifica que Flask-Migrate está instalado: pip install flask-migrate")
-        print("3. Ejecuta: flask db init")
-        print("4. Ejecuta: flask db migrate -m 'Initial migration'")
-        print("5. Ejecuta: flask db upgrade")
+        print("1. flask db init")
+        print("2. flask db migrate -m 'Initial migration'")
+        print("3. flask db upgrade")
 
 
 if __name__ == "__main__":
