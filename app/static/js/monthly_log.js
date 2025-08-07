@@ -18,32 +18,33 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentDate = new Date();
     let selectedDates = [];
     let isMouseDown = false;
-    let absenceCodes = [];
 
     async function fetchAbsenceCodes() {
         try {
-            const response = await fetch('/monthly-log/api/absence-codes');
+            // Point to the new, centralized API endpoint
+            const response = await fetch('/settings/api/absence-codes');
             if (!response.ok) throw new Error('Failed to fetch absence codes');
-            absenceCodes = await response.json();
+            // The new API returns a list of objects, so we return that directly
+            return await response.json();
         } catch (error) {
             console.error(error);
+            return [];
         }
     }
 
-    function populateDayTypeSelect() {
+    function populateDayTypeSelect(absenceCodes) {
         dayTypeSelect.innerHTML = '';
         // Add special "Default" option first
         dayTypeSelect.add(new Option("(Revert to Default)", "DEFAULT"));
         dayTypeSelect.add(new Option("Work Day", "Work Day"));
 
         if (absenceCodes && absenceCodes.length > 0) {
-            absenceCodes.forEach(code => {
-                dayTypeSelect.add(new Option(code.replace(/_/g, ' '), code));
+            // Adjust to handle the new object format {id, code}
+            absenceCodes.forEach(item => {
+                dayTypeSelect.add(new Option(item.code.replace(/_/g, ' '), item.code));
             });
         }
     }
-
-    // ... (el resto de las funciones de JS no cambian)
 
     function populateSelectors() {
         const currentYear = new Date().getFullYear();
@@ -192,8 +193,8 @@ document.addEventListener('DOMContentLoaded', function() {
     async function init() {
         populateSelectors();
         updateSelectors();
-        await fetchAbsenceCodes();
-        populateDayTypeSelect();
+        const absenceCodes = await fetchAbsenceCodes();
+        populateDayTypeSelect(absenceCodes);
         await renderCalendar();
     }
 
