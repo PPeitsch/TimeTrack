@@ -4,6 +4,7 @@ from flask_migrate import Migrate
 from app.db.database import db, init_db
 from app.routes.main import main
 from app.routes.manual_entry import manual_entry
+from app.routes.monthly_log import monthly_log_bp
 from app.routes.time_log import time_log
 from app.routes.time_summary import time_summary
 
@@ -19,5 +20,6 @@ def create_app(config_object):
     app.register_blueprint(manual_entry)
     app.register_blueprint(time_summary)
     app.register_blueprint(time_log)
+    app.register_blueprint(monthly_log_bp)
 
     return app
