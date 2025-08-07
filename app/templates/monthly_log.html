@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}Monthly Log{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <div class="row align-items-center">
+            <div class="col">
+                <h5 class="card-title mb-0">Monthly Log Management</h5>
+            </div>
+            <div class="col-auto d-flex align-items-center">
+                <button id="prevYear" class="month-nav-button me-2"><i class="bi bi-chevron-double-left"></i></button>
+                <button id="prevMonth" class="month-nav-button me-2"><i class="bi bi-chevron-left"></i></button>
+                <select class="form-select mx-2" id="monthSelect" style="width: auto;"></select>
+                <select class="form-select mx-2" id="yearSelect" style="width: auto;"></select>
+                <button id="nextMonth" class="month-nav-button ms-2"><i class="bi bi-chevron-right"></i></button>
+                <button id="nextYear" class="month-nav-button ms-2"><i class="bi bi-chevron-double-right"></i></button>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="calendar-header">
+            <div>Sun</div>
+            <div>Mon</div>
+            <div>Tue</div>
+            <div>Wed</div>
+            <div>Thu</div>
+            <div>Fri</div>
+            <div>Sat</div>
+        </div>
+        <div id="calendarGrid" class="calendar-grid">
+            <!-- Day cells will be populated by JavaScript -->
+        </div>
+        <div id="loadingIndicator" class="text-center mt-3" style="display: none;">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Day Modal -->
+<div class="modal fade" id="editDayModal" tabindex="-1" aria-labelledby="editDayModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editDayModalLabel">Edit Day Type</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Selected Date: <strong id="selectedDate"></strong></p>
+                <div class="mb-3">
+                    <label for="dayTypeSelect" class="form-label">New Day Type</label>
+                    <select class="form-select" id="dayTypeSelect">
+                        <!-- Options will be populated by JavaScript -->
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="saveDayTypeBtn">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/monthly_log.js') }}"></script>
+{% endblock %}

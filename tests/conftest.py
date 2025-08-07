@@ -36,17 +36,17 @@ def client(app):
 
 
 @pytest.fixture
-def default_employee(app):
-    """Create a default employee for testing."""
+def default_employee_id(app):
+    """Create a default employee and return its ID."""
     with app.app_context():
         employee = Employee(id=1, name="Default Test Employee")
         db.session.add(employee)
         db.session.commit()
-        return employee
+        return employee.id
 
 
 @pytest.fixture
-def sample_entries(app, default_employee):
+def sample_entries(app, default_employee_id):
     """Create sample time entries for testing."""
     with app.app_context():
         # Add some test data
@@ -54,8 +54,8 @@ def sample_entries(app, default_employee):
 
         # Regular work day
         entry1 = ScheduleEntry(
-            employee_id=default_employee.id,
-            date="2025-03-10",  # Monday
+            employee_id=default_employee_id,
+            date="2025-03-10",
             entries=[{"entry": "09:00", "exit": "17:00"}],
             absence_code=None,
         )
@@ -64,8 +64,8 @@ def sample_entries(app, default_employee):
 
         # Absence day
         entry2 = ScheduleEntry(
-            employee_id=default_employee.id,
-            date="2025-03-11",  # Tuesday
+            employee_id=default_employee_id,
+            date="2025-03-11",
             entries=[],
             absence_code="SICK",
         )
@@ -74,8 +74,8 @@ def sample_entries(app, default_employee):
 
         # Multiple time entries in one day
         entry3 = ScheduleEntry(
-            employee_id=default_employee.id,
-            date="2025-03-12",  # Wednesday
+            employee_id=default_employee_id,
+            date="2025-03-12",
             entries=[
                 {"entry": "09:00", "exit": "12:00"},
                 {"entry": "13:00", "exit": "18:00"},
