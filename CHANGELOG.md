@@ -14,6 +14,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Your new fix here.
 
 
+## [1.1.0] - 2025-08-06
+
+### Fixed
+- Resolved a CSS bug in the "Monthly Log" calendar where day types with multiple words (e.g., "LICENCIA MÉDICA") were unreadable due to poor color contrast.
+
+
 ## [1.0.9] - 2025-08-07
 
 ### Fixed

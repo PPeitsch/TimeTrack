@@ -155,15 +155,10 @@
     background-color: #dc3545;
 }
 
-.day-lar, .day-franco, .day-medical, .day-comisión {
+.day-lar, .day-franco, .day-medical, .day-licencia, .day-comisión {
     background-color: #fffbe6; /* Light yellow */
 }
-.day-lar .day-type, .day-franco .day-type, .day-medical .day-type, .day-comisión .day-type {
-    background-color: #ffc107;
-    color: #000;
-}
-
-.day-lar .day-type, .day-franco .day-type, .day-medical .day-type, .day-comisión .day-type {
+.day-lar .day-type, .day-franco .day-type, .day-medical .day-type, .day-licencia .day-type, .day-comisión .day-type {
     background-color: #ffc107;
     color: #000;
 }
