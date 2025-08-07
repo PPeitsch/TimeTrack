@@ -50,9 +50,11 @@ def get_monthly_log_data(year, month):
         current_date = start_date
         while current_date <= end_date:
             day_type = "Work Day"
-            # Logic precedence: An explicit entry overrides holidays and weekends.
             entry = entries_map.get(current_date)
-            if entry:
+
+            if entry is not None:
+                # An explicit entry exists, it takes highest precedence.
+                # If absence_code is None, it's an explicit "Work Day".
                 day_type = entry.absence_code or "Work Day"
             elif current_date in holidays_set:
                 day_type = "Holiday"
@@ -77,7 +79,7 @@ def get_monthly_log_data(year, month):
 def update_day_types():
     """
     Updates the type for a list of dates.
-    "Work Day" is treated as the default, which means deleting any existing override.
+    Handles a special "DEFAULT" type to revert to the base calendar state.
     """
     data = request.json
     if not data or "dates" not in data or "day_type" not in data:
@@ -87,26 +89,29 @@ def update_day_types():
     new_day_type = data["day_type"]
 
     try:
-        for entry_date in dates_to_update:
-            existing_entry = ScheduleEntry.query.filter_by(
-                employee_id=1, date=entry_date
-            ).first()
+        if new_day_type == "DEFAULT":
+            # Revert to default by deleting the override entry.
+            ScheduleEntry.query.filter(
+                ScheduleEntry.employee_id == 1, ScheduleEntry.date.in_(dates_to_update)
+            ).delete(synchronize_session=False)
+        else:
+            # For any other type, create or update entries.
+            new_absence_code = None if new_day_type == "Work Day" else new_day_type
+            for entry_date in dates_to_update:
+                existing_entry = ScheduleEntry.query.filter_by(
+                    employee_id=1, date=entry_date
+                ).first()
 
-            if new_day_type == "Work Day":
-                # If reverting to Work Day, delete the override entry if it exists.
                 if existing_entry:
-                    db.session.delete(existing_entry)
-            else:
-                # If setting an absence, create or update the entry.
-                if existing_entry:
-                    existing_entry.absence_code = new_day_type
-                    existing_entry.entries = []  # Ensure entries are cleared
+                    existing_entry.absence_code = new_absence_code
+                    if new_absence_code:
+                        existing_entry.entries = []
                 else:
                     new_entry = ScheduleEntry(
                         employee_id=1,
                         date=entry_date,
                         entries=[],
-                        absence_code=new_day_type,
+                        absence_code=new_absence_code,
                     )
                     db.session.add(new_entry)
 
