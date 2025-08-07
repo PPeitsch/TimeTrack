@@ -1,9 +1,10 @@
 from calendar import monthrange
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
 
-from flask import Blueprint, jsonify, render_template
+from flask import Blueprint, jsonify, render_template, request
 
-from app.models.models import Holiday, ScheduleEntry
+from app.db.database import db
+from app.models.models import AbsenceCode, Holiday, ScheduleEntry
 
 monthly_log_bp = Blueprint("monthly_log", __name__, url_prefix="/monthly-log")
 
@@ -59,4 +60,48 @@ def get_monthly_log_data(year, month):
         return jsonify(days_data)
 
     except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@monthly_log_bp.route("/api/update-days", methods=["POST"])
+def update_day_types():
+    """
+    Updates the type for a list of dates.
+    """
+    data = request.json
+    if not data or "dates" not in data or "day_type" not in data:
+        return jsonify({"error": "Invalid request body"}), 400
+
+    dates_to_update = [datetime.strptime(d, "%Y-%m-%d").date() for d in data["dates"]]
+    new_day_type = data["day_type"]
+
+    # We will treat "Work Day" as the default state (no absence code)
+    new_absence_code = None if new_day_type == "Work Day" else new_day_type
+
+    try:
+        for entry_date in dates_to_update:
+            existing_entry = ScheduleEntry.query.filter_by(
+                employee_id=1, date=entry_date
+            ).first()
+
+            if existing_entry:
+                # Update existing entry
+                existing_entry.absence_code = new_absence_code
+                # Clear time entries if it becomes an absence day
+                if new_absence_code:
+                    existing_entry.entries = []
+            elif new_absence_code:
+                # Create a new entry only if it's an absence
+                new_entry = ScheduleEntry(
+                    employee_id=1,
+                    date=entry_date,
+                    entries=[],
+                    absence_code=new_absence_code,
+                )
+                db.session.add(new_entry)
+
+        db.session.commit()
+        return jsonify({"status": "success"})
+    except Exception as e:
+        db.session.rollback()
         return jsonify({"error": str(e)}), 500
