@@ -14,7 +14,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Your new fix here.
 
 
-## [1.0.8] - 2025-08-06
+## [1.0.9] - 2025-08-07
+
+### Fixed
+- Resolved a bug in the "Monthly Log" calendar where the "Edit Day Type" modal was not being populated with absence codes. This was caused by an error in the database initialization script that failed to seed the `absence_codes` table.
+- Corrected an asynchronous flow issue in the frontend JavaScript to ensure the modal's dropdown is populated only after the absence codes have been successfully fetched from the API.
+
+
+## [1.0.8] - 2025-08-07
 
 ### Fixed
 - The automatic release workflow no longer adds a redundant "TimeTrack" prefix to the GitHub release title, which now consists only of the version tag.
@@ -100,6 +107,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 [Unreleased]: https://github.com/PPeitsch/TimeTrack/compare/v1.0.1...HEAD
+[1.0.9]: https://github.com/PPeitsch/TimeTrack/compare/v1.0.8...v1.0.9
+[1.0.8]: https://github.com/PPeitsch/TimeTrack/compare/v1.0.7...v1.0.8
 [1.0.7]: https://github.com/PPeitsch/TimeTrack/compare/v1.0.6...v1.0.7
 [1.0.6]: https://github.com/PPeitsch/TimeTrack/compare/v1.0.5...v1.0.6
 [1.0.5]: https://github.com/PPeitsch/TimeTrack/compare/v1.0.4...v1.0.5

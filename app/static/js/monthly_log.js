@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Existing selectors
+    // Selectors
     const yearSelect = document.getElementById('yearSelect');
     const monthSelect = document.getElementById('monthSelect');
     const calendarGrid = document.getElementById('calendarGrid');
@@ -8,8 +8,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const nextMonthBtn = document.getElementById('nextMonth');
     const prevYearBtn = document.getElementById('prevYear');
     const nextYearBtn = document.getElementById('nextYear');
-
-    // Modal selectors
     const editDayModalEl = document.getElementById('editDayModal');
     const editDayModal = new bootstrap.Modal(editDayModalEl);
     const selectedDateEl = document.getElementById('selectedDate');
@@ -18,27 +16,30 @@ document.addEventListener('DOMContentLoaded', function() {
 
     let currentDate = new Date();
     let selectedDates = [];
-    let absenceCodes = [];
     let isMouseDown = false;
+    // No longer need a global variable for absence codes
 
     async function fetchAbsenceCodes() {
         try {
             const response = await fetch('/monthly-log/api/absence-codes');
             if (!response.ok) throw new Error('Failed to fetch absence codes');
-            absenceCodes = await response.json();
+            return await response.json();
         } catch (error) {
             console.error(error);
+            return [];
         }
     }
 
-    function populateDayTypeSelect() {
+    function populateDayTypeSelect(absenceCodes) {
         dayTypeSelect.innerHTML = '<option value="Work Day">Work Day</option>';
-        absenceCodes.forEach(code => {
-            const option = document.createElement('option');
-            option.value = code;
-            option.textContent = code.replace(/_/g, ' ');
-            dayTypeSelect.appendChild(option);
-        });
+        if (absenceCodes && absenceCodes.length > 0) {
+            absenceCodes.forEach(code => {
+                const option = document.createElement('option');
+                option.value = code;
+                option.textContent = code.replace(/_/g, ' ');
+                dayTypeSelect.appendChild(option);
+            });
+        }
     }
 
     function populateSelectors() {
@@ -82,7 +83,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const dayType = daysMap.get(dateStr) || 'Work Day';
                 dayCell.classList.add('day-cell');
                 dayCell.dataset.date = dateStr;
-                if (dayType !== 'Weekend') {
+                if (dayType !== 'Weekend' && dayType !== 'Holiday') {
                      dayCell.addEventListener('mousedown', (e) => handleMouseDown(e.currentTarget));
                      dayCell.addEventListener('mouseover', (e) => handleMouseOver(e.currentTarget));
                 }
@@ -98,16 +99,15 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // --- Multi-select Logic ---
     function handleMouseDown(cell) {
-        if (cell.classList.contains('blank') || cell.classList.contains('day-weekend')) return;
+        if (cell.classList.contains('blank')) return;
         isMouseDown = true;
         clearSelection();
         toggleSelection(cell);
     }
 
     function handleMouseOver(cell) {
-        if (!isMouseDown || cell.classList.contains('blank') || cell.classList.contains('day-weekend')) return;
+        if (!isMouseDown || cell.classList.contains('blank')) return;
         toggleSelection(cell);
     }
 
@@ -187,8 +187,9 @@ document.addEventListener('DOMContentLoaded', function() {
     async function init() {
         populateSelectors();
         updateSelectors();
-        await fetchAbsenceCodes();
-        populateDayTypeSelect();
+        // Await the fetch and *then* pass the result to the population function
+        const absenceCodes = await fetchAbsenceCodes();
+        populateDayTypeSelect(absenceCodes);
         await renderCalendar();
     }
 
