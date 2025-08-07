@@ -14,6 +14,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Your new fix here.
 
 
+## [1.0.7] - 2025-08-06
+
+### Added
+- **Monthly Calendar View:** Implemented a new primary interface at `/monthly-log` for managing daily log types. It displays a full month calendar with color-coded day types (Work Day, Weekend, Holiday, Absences).
+- **Interactive Day Type Management:** Users can now click on a single day or click-and-drag to select multiple days to open an editing modal.
+- **Bulk Updates:** The new modal allows changing the type for single or multiple days at once (e.g., assigning a week of vacation).
+- New API endpoints (`/api/monthly-log/<year>/<month>` and `/api/update-days`) to support the new calendar view's data fetching and update operations.
+- New API endpoint (`/api/absence-codes`) to dynamically populate the editing modal.
+
+### Changed
+- The primary navigation now includes a "Calendar Log" link to the new view, making it a central feature of the application.
+
+
 ## [1.0.6] - 2025-08-06
 
 ### Changed
@@ -81,6 +94,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 [Unreleased]: https://github.com/PPeitsch/TimeTrack/compare/v1.0.1...HEAD
+[1.0.7]: https://github.com/PPeitsch/TimeTrack/compare/v1.0.6...v1.0.7
 [1.0.6]: https://github.com/PPeitsch/TimeTrack/compare/v1.0.5...v1.0.6
 [1.0.5]: https://github.com/PPeitsch/TimeTrack/compare/v1.0.4...v1.0.5
 [1.0.4]: https://github.com/PPeitsch/TimeTrack/compare/v1.0.3...v1.0.4
