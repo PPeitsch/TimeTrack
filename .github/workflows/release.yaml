@@ -41,6 +41,6 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           body_path: RELEASE_NOTES.md
-          name: TimeTrack ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
           draft: false
           prerelease: ${{ contains(github.ref_name, '-alpha') || contains(github.ref_name, '-beta') }}
