@@ -39,6 +39,31 @@
         </div>
     </div>
 </div>
+
+<!-- Edit Day Modal -->
+<div class="modal fade" id="editDayModal" tabindex="-1" aria-labelledby="editDayModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editDayModalLabel">Edit Day Type</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Selected Date: <strong id="selectedDate"></strong></p>
+                <div class="mb-3">
+                    <label for="dayTypeSelect" class="form-label">New Day Type</label>
+                    <select class="form-select" id="dayTypeSelect">
+                        <!-- Options will be populated by JavaScript -->
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="saveDayTypeBtn">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block scripts %}

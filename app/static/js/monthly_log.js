@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
+    // Existing selectors
     const yearSelect = document.getElementById('yearSelect');
     const monthSelect = document.getElementById('monthSelect');
     const calendarGrid = document.getElementById('calendarGrid');
@@ -8,13 +9,41 @@ document.addEventListener('DOMContentLoaded', function() {
     const prevYearBtn = document.getElementById('prevYear');
     const nextYearBtn = document.getElementById('nextYear');
 
+    // New modal selectors
+    const editDayModalEl = document.getElementById('editDayModal');
+    const editDayModal = new bootstrap.Modal(editDayModalEl);
+    const selectedDateEl = document.getElementById('selectedDate');
+    const dayTypeSelect = document.getElementById('dayTypeSelect');
+    const saveDayTypeBtn = document.getElementById('saveDayTypeBtn');
+
     let currentDate = new Date();
+    let selectedDateForEdit = null;
+    let absenceCodes = [];
+
+    async function fetchAbsenceCodes() {
+        try {
+            const response = await fetch('/monthly-log/api/absence-codes');
+            if (!response.ok) throw new Error('Failed to fetch absence codes');
+            absenceCodes = await response.json();
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    function populateDayTypeSelect() {
+        dayTypeSelect.innerHTML = '<option value="Work Day">Work Day</option>';
+        absenceCodes.forEach(code => {
+            const option = document.createElement('option');
+            option.value = code;
+            option.textContent = code.replace(/_/g, ' ');
+            dayTypeSelect.appendChild(option);
+        });
+    }
 
     function populateSelectors() {
         const currentYear = new Date().getFullYear();
         const startYear = currentYear - 5;
         const endYear = currentYear + 5;
-
         yearSelect.innerHTML = '';
         for (let year = startYear; year <= endYear; year++) {
             const option = document.createElement('option');
@@ -22,11 +51,7 @@ document.addEventListener('DOMContentLoaded', function() {
             option.textContent = year;
             yearSelect.appendChild(option);
         }
-
-        const months = [
-            "January", "February", "March", "April", "May", "June",
-            "July", "August", "September", "October", "November", "December"
-        ];
+        const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
         monthSelect.innerHTML = '';
         months.forEach((month, index) => {
             const option = document.createElement('option');
@@ -44,44 +69,33 @@ document.addEventListener('DOMContentLoaded', function() {
     async function renderCalendar() {
         loadingIndicator.style.display = 'block';
         calendarGrid.innerHTML = '';
-
         const year = currentDate.getFullYear();
         const month = currentDate.getMonth();
-
         try {
             const response = await fetch(`/monthly-log/api/${year}/${month + 1}`);
             if (!response.ok) throw new Error('Failed to fetch calendar data');
             const daysData = await response.json();
             const daysMap = new Map(daysData.map(d => [d.date, d.type]));
-
             const firstDayOfMonth = new Date(year, month, 1);
             const daysInMonth = new Date(year, month + 1, 0).getDate();
             const startDayOfWeek = firstDayOfMonth.getDay();
-
-            // Create blank cells for days before the first of the month
             for (let i = 0; i < startDayOfWeek; i++) {
                 const blankCell = document.createElement('div');
                 blankCell.classList.add('day-cell', 'blank');
                 calendarGrid.appendChild(blankCell);
             }
-
-            // Create cells for each day of the month
             for (let day = 1; day <= daysInMonth; day++) {
                 const dayCell = document.createElement('div');
                 const date = new Date(year, month, day);
                 const dateStr = date.toISOString().split('T')[0];
                 const dayType = daysMap.get(dateStr) || 'Work Day';
-
                 dayCell.classList.add('day-cell');
                 dayCell.dataset.date = dateStr;
-                dayCell.innerHTML = `
-                    <div class="day-number">${day}</div>
-                    <div class="day-type">${dayType.replace(/_/g, ' ')}</div>
-                `;
-
-                // Add class based on day type for styling
+                if (dayType !== 'Weekend') {
+                     dayCell.addEventListener('click', () => handleDayClick(dateStr, dayType));
+                }
+                dayCell.innerHTML = `<div class="day-number">${day}</div><div class="day-type">${dayType.replace(/_/g, ' ')}</div>`;
                 dayCell.classList.add(`day-${dayType.toLowerCase().split(' ')[0]}`);
-
                 calendarGrid.appendChild(dayCell);
             }
         } catch (error) {
@@ -89,6 +103,31 @@ document.addEventListener('DOMContentLoaded', function() {
             calendarGrid.innerHTML = '<div class="alert alert-danger">Could not load calendar data.</div>';
         } finally {
             loadingIndicator.style.display = 'none';
+        }
+    }
+
+    function handleDayClick(dateStr, currentType) {
+        selectedDateForEdit = dateStr;
+        selectedDateEl.textContent = new Date(dateStr.replace(/-/g, '/')).toLocaleDateString();
+        dayTypeSelect.value = currentType;
+        editDayModal.show();
+    }
+
+    async function saveDayType() {
+        if (!selectedDateForEdit) return;
+        const newDayType = dayTypeSelect.value;
+        try {
+            const response = await fetch('/monthly-log/api/update-days', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ dates: [selectedDateForEdit], day_type: newDayType })
+            });
+            if (!response.ok) throw new Error('Failed to save changes');
+            editDayModal.hide();
+            await renderCalendar();
+        } catch (error) {
+            console.error(error);
+            alert('Error saving changes. Please try again.');
         }
     }
 
@@ -104,20 +143,23 @@ document.addEventListener('DOMContentLoaded', function() {
         renderCalendar();
     }
 
+    // Event Listeners
     prevMonthBtn.addEventListener('click', () => changeMonth(-1));
     nextMonthBtn.addEventListener('click', () => changeMonth(1));
     prevYearBtn.addEventListener('click', () => changeYear(-1));
     nextYearBtn.addEventListener('click', () => changeYear(1));
-    yearSelect.addEventListener('change', () => {
-        currentDate.setFullYear(parseInt(yearSelect.value));
-        renderCalendar();
-    });
-    monthSelect.addEventListener('change', () => {
-        currentDate.setMonth(parseInt(monthSelect.value));
-        renderCalendar();
-    });
+    yearSelect.addEventListener('change', () => { currentDate.setFullYear(parseInt(yearSelect.value)); renderCalendar(); });
+    monthSelect.addEventListener('change', () => { currentDate.setMonth(parseInt(monthSelect.value)); renderCalendar(); });
+    saveDayTypeBtn.addEventListener('click', saveDayType);
 
-    populateSelectors();
-    updateSelectors();
-    renderCalendar();
+    // Initial setup
+    async function init() {
+        populateSelectors();
+        updateSelectors();
+        await fetchAbsenceCodes();
+        populateDayTypeSelect();
+        await renderCalendar();
+    }
+
+    init();
 });

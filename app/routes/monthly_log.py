@@ -15,6 +15,16 @@ def view_monthly_log():
     return render_template("monthly_log.html")
 
 
+@monthly_log_bp.route("/api/absence-codes", methods=["GET"])
+def get_absence_codes():
+    """Returns a list of available absence codes."""
+    try:
+        codes = AbsenceCode.query.all()
+        return jsonify([code.code for code in codes])
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 @monthly_log_bp.route("/api/<int:year>/<int:month>", methods=["GET"])
 def get_monthly_log_data(year, month):
     """
@@ -75,7 +85,6 @@ def update_day_types():
     dates_to_update = [datetime.strptime(d, "%Y-%m-%d").date() for d in data["dates"]]
     new_day_type = data["day_type"]
 
-    # We will treat "Work Day" as the default state (no absence code)
     new_absence_code = None if new_day_type == "Work Day" else new_day_type
 
     try:
@@ -85,13 +94,10 @@ def update_day_types():
             ).first()
 
             if existing_entry:
-                # Update existing entry
                 existing_entry.absence_code = new_absence_code
-                # Clear time entries if it becomes an absence day
                 if new_absence_code:
                     existing_entry.entries = []
             elif new_absence_code:
-                # Create a new entry only if it's an absence
                 new_entry = ScheduleEntry(
                     employee_id=1,
                     date=entry_date,
