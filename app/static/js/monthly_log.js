@@ -12,35 +12,38 @@ document.addEventListener('DOMContentLoaded', function() {
     const editDayModal = new bootstrap.Modal(editDayModalEl);
     const selectedDateEl = document.getElementById('selectedDate');
     const dayTypeSelect = document.getElementById('dayTypeSelect');
+    const dayTypeSelectLabel = document.getElementById('dayTypeSelectLabel');
     const saveDayTypeBtn = document.getElementById('saveDayTypeBtn');
 
     let currentDate = new Date();
     let selectedDates = [];
     let isMouseDown = false;
-    // No longer need a global variable for absence codes
+    let absenceCodes = [];
 
     async function fetchAbsenceCodes() {
         try {
             const response = await fetch('/monthly-log/api/absence-codes');
             if (!response.ok) throw new Error('Failed to fetch absence codes');
-            return await response.json();
+            absenceCodes = await response.json();
         } catch (error) {
             console.error(error);
-            return [];
         }
     }
 
-    function populateDayTypeSelect(absenceCodes) {
-        dayTypeSelect.innerHTML = '<option value="Work Day">Work Day</option>';
+    function populateDayTypeSelect() {
+        dayTypeSelect.innerHTML = '';
+        // Add special "Default" option first
+        dayTypeSelect.add(new Option("(Revert to Default)", "DEFAULT"));
+        dayTypeSelect.add(new Option("Work Day", "Work Day"));
+
         if (absenceCodes && absenceCodes.length > 0) {
             absenceCodes.forEach(code => {
-                const option = document.createElement('option');
-                option.value = code;
-                option.textContent = code.replace(/_/g, ' ');
-                dayTypeSelect.appendChild(option);
+                dayTypeSelect.add(new Option(code.replace(/_/g, ' '), code));
             });
         }
     }
+
+    // ... (el resto de las funciones de JS no cambian)
 
     function populateSelectors() {
         const currentYear = new Date().getFullYear();
@@ -83,10 +86,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 const dayType = daysMap.get(dateStr) || 'Work Day';
                 dayCell.classList.add('day-cell');
                 dayCell.dataset.date = dateStr;
-                if (dayType !== 'Weekend' && dayType !== 'Holiday') {
-                     dayCell.addEventListener('mousedown', (e) => handleMouseDown(e.currentTarget));
-                     dayCell.addEventListener('mouseover', (e) => handleMouseOver(e.currentTarget));
-                }
+                dayCell.addEventListener('mousedown', (e) => handleMouseDown(e.currentTarget));
+                dayCell.addEventListener('mouseover', (e) => handleMouseOver(e.currentTarget));
                 dayCell.innerHTML = `<div class="day-number">${day}</div><div class="day-type">${dayType.replace(/_/g, ' ')}</div>`;
                 dayCell.classList.add(`day-${dayType.toLowerCase().split(' ')[0]}`);
                 calendarGrid.appendChild(dayCell);
@@ -136,8 +137,12 @@ document.addEventListener('DOMContentLoaded', function() {
         if (selectedDates.length === 0) return;
         if (selectedDates.length === 1) {
             selectedDateEl.textContent = new Date(selectedDates[0].replace(/-/g, '/')).toLocaleDateString();
+            const cell = calendarGrid.querySelector(`[data-date="${selectedDates[0]}"]`);
+            const currentType = cell.querySelector('.day-type').textContent;
+            dayTypeSelectLabel.textContent = `Change Type (Current: ${currentType})`;
         } else {
             selectedDateEl.textContent = `${selectedDates.length} days selected`;
+            dayTypeSelectLabel.textContent = 'Set New Type for All Selected Days';
         }
         editDayModal.show();
     }
@@ -187,9 +192,8 @@ document.addEventListener('DOMContentLoaded', function() {
     async function init() {
         populateSelectors();
         updateSelectors();
-        // Await the fetch and *then* pass the result to the population function
-        const absenceCodes = await fetchAbsenceCodes();
-        populateDayTypeSelect(absenceCodes);
+        await fetchAbsenceCodes();
+        populateDayTypeSelect();
         await renderCalendar();
     }
 

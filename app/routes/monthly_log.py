@@ -52,8 +52,10 @@ def get_monthly_log_data(year, month):
             day_type = "Work Day"
             entry = entries_map.get(current_date)
 
-            if entry and entry.absence_code:
-                day_type = entry.absence_code
+            if entry is not None:
+                # An explicit entry exists, it takes highest precedence.
+                # If absence_code is None, it's an explicit "Work Day".
+                day_type = entry.absence_code or "Work Day"
             elif current_date in holidays_set:
                 day_type = "Holiday"
             elif current_date.weekday() >= 5:
@@ -77,6 +79,7 @@ def get_monthly_log_data(year, month):
 def update_day_types():
     """
     Updates the type for a list of dates.
+    Handles a special "DEFAULT" type to revert to the base calendar state.
     """
     data = request.json
     if not data or "dates" not in data or "day_type" not in data:
@@ -85,26 +88,32 @@ def update_day_types():
     dates_to_update = [datetime.strptime(d, "%Y-%m-%d").date() for d in data["dates"]]
     new_day_type = data["day_type"]
 
-    new_absence_code = None if new_day_type == "Work Day" else new_day_type
-
     try:
-        for entry_date in dates_to_update:
-            existing_entry = ScheduleEntry.query.filter_by(
-                employee_id=1, date=entry_date
-            ).first()
+        if new_day_type == "DEFAULT":
+            # Revert to default by deleting the override entry.
+            ScheduleEntry.query.filter(
+                ScheduleEntry.employee_id == 1, ScheduleEntry.date.in_(dates_to_update)
+            ).delete(synchronize_session=False)
+        else:
+            # For any other type, create or update entries.
+            new_absence_code = None if new_day_type == "Work Day" else new_day_type
+            for entry_date in dates_to_update:
+                existing_entry = ScheduleEntry.query.filter_by(
+                    employee_id=1, date=entry_date
+                ).first()
 
-            if existing_entry:
-                existing_entry.absence_code = new_absence_code
-                if new_absence_code:
-                    existing_entry.entries = []
-            elif new_absence_code:
-                new_entry = ScheduleEntry(
-                    employee_id=1,
-                    date=entry_date,
-                    entries=[],
-                    absence_code=new_absence_code,
-                )
-                db.session.add(new_entry)
+                if existing_entry:
+                    existing_entry.absence_code = new_absence_code
+                    if new_absence_code:
+                        existing_entry.entries = []
+                else:
+                    new_entry = ScheduleEntry(
+                        employee_id=1,
+                        date=entry_date,
+                        entries=[],
+                        absence_code=new_absence_code,
+                    )
+                    db.session.add(new_entry)
 
         db.session.commit()
         return jsonify({"status": "success"})
