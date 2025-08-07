@@ -14,7 +14,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Your new fix here.
 
 
-## [1.1.0] - 2025-08-06
+## [1.1.1] - 2025-08-07
+
+### Changed
+- Users can now select and modify weekends and holidays in the "Monthly Log" calendar. This allows logging work hours on non-standard workdays.
+
+
+## [1.1.0] - 2025-08-07
 
 ### Fixed
 - Resolved a CSS bug in the "Monthly Log" calendar where day types with multiple words (e.g., "LICENCIA MÉDICA") were unreadable due to poor color contrast.
@@ -113,6 +119,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 [Unreleased]: https://github.com/PPeitsch/TimeTrack/compare/v1.0.1...HEAD
+[1.1.1]: https://github.com/PPeitsch/TimeTrack/compare/v1.1.0....v1.1.1
+[1.1.0]: https://github.com/PPeitsch/TimeTrack/compare/v1.0.9...v1.1.0
 [1.0.9]: https://github.com/PPeitsch/TimeTrack/compare/v1.0.8...v1.0.9
 [1.0.8]: https://github.com/PPeitsch/TimeTrack/compare/v1.0.7...v1.0.8
 [1.0.7]: https://github.com/PPeitsch/TimeTrack/compare/v1.0.6...v1.0.7
