@@ -17,7 +17,6 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentDate = new Date();
     let selectedDates = [];
     let isMouseDown = false;
-    // No longer need a global variable for absence codes
 
     async function fetchAbsenceCodes() {
         try {
@@ -83,10 +82,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 const dayType = daysMap.get(dateStr) || 'Work Day';
                 dayCell.classList.add('day-cell');
                 dayCell.dataset.date = dateStr;
-                if (dayType !== 'Weekend' && dayType !== 'Holiday') {
-                     dayCell.addEventListener('mousedown', (e) => handleMouseDown(e.currentTarget));
-                     dayCell.addEventListener('mouseover', (e) => handleMouseOver(e.currentTarget));
-                }
+
+                // Remove the conditional to allow all days to be selectable
+                dayCell.addEventListener('mousedown', (e) => handleMouseDown(e.currentTarget));
+                dayCell.addEventListener('mouseover', (e) => handleMouseOver(e.currentTarget));
+
                 dayCell.innerHTML = `<div class="day-number">${day}</div><div class="day-type">${dayType.replace(/_/g, ' ')}</div>`;
                 dayCell.classList.add(`day-${dayType.toLowerCase().split(' ')[0]}`);
                 calendarGrid.appendChild(dayCell);
@@ -187,7 +187,6 @@ document.addEventListener('DOMContentLoaded', function() {
     async function init() {
         populateSelectors();
         updateSelectors();
-        // Await the fetch and *then* pass the result to the population function
         const absenceCodes = await fetchAbsenceCodes();
         populateDayTypeSelect(absenceCodes);
         await renderCalendar();
