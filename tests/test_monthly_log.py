@@ -38,7 +38,6 @@ class TestMonthlyLogRoutes:
         response = client.get("/monthly-log/api/absence-codes")
         assert response.status_code == 500
         data = json.loads(response.data)
-        assert "error" in data
         assert data["error"] == "DB Error"
 
     def test_get_monthly_log_data_api(self, app, default_employee_id):
@@ -77,29 +76,63 @@ class TestMonthlyLogRoutes:
         data = json.loads(response.data)
         assert data["error"] == "DB Error"
 
-    def test_update_day_types_api(self, app, default_employee_id):
-        """Test updating day types via the POST API."""
+    def test_update_day_types_api_creates_and_reverts(self, app, default_employee_id):
+        """Test creating a new absence and reverting it to a work day."""
         client = app.test_client()
         target_date = date(2025, 9, 1)
 
+        # Create a new absence entry
         payload_create = {"dates": [target_date.isoformat()], "day_type": "LAR"}
-        response = client.post("/monthly-log/api/update-days", json=payload_create)
-        assert response.status_code == 200
+        client.post("/monthly-log/api/update-days", json=payload_create)
         with app.app_context():
             entry = ScheduleEntry.query.filter_by(
                 date=target_date, employee_id=default_employee_id
             ).first()
-            assert entry is not None
-            assert entry.absence_code == "LAR"
+            assert entry is not None and entry.absence_code == "LAR"
+
+        # Revert the absence back to a Work Day
+        payload_revert = {"dates": [target_date.isoformat()], "day_type": "Work Day"}
+        client.post("/monthly-log/api/update-days", json=payload_revert)
+        with app.app_context():
+            entry = ScheduleEntry.query.filter_by(
+                date=target_date, employee_id=default_employee_id
+            ).first()
+            assert entry is not None and entry.absence_code is None
+
+    def test_update_day_types_modifies_existing(self, app, default_employee_id):
+        """Test that updating an existing entry to an absence clears its time entries."""
+        client = app.test_client()
+        target_date = date(2025, 9, 5)
+
+        # 1. Create an initial entry with some time data
+        with app.app_context():
+            initial_entry = ScheduleEntry(
+                employee_id=default_employee_id,
+                date=target_date,
+                entries=[{"entry": "09:00", "exit": "17:00"}],
+                absence_code=None,
+            )
+            db.session.add(initial_entry)
+            db.session.commit()
+
+        # 2. Call the API to change the day type to an absence
+        payload_update = {"dates": [target_date.isoformat()], "day_type": "MEDICAL"}
+        response = client.post("/monthly-log/api/update-days", json=payload_update)
+        assert response.status_code == 200
+
+        # 3. Verify the entry was updated and its time entries were cleared
+        with app.app_context():
+            updated_entry = ScheduleEntry.query.filter_by(date=target_date).first()
+            assert updated_entry is not None
+            assert updated_entry.absence_code == "MEDICAL"
+            assert updated_entry.entries == []
 
     def test_update_day_types_api_exception(self, client, mocker, default_employee_id):
         """Test exception handling for the update day types API."""
         mocker.patch("app.routes.monthly_log.db.session.commit").side_effect = (
             Exception("Commit Failed")
         )
-        mocker.patch(
-            "app.routes.monthly_log.db.session.rollback"
-        )  # Mock rollback to check it's called
+        mocker.patch("app.routes.monthly_log.db.session.rollback")
 
         payload = {"dates": ["2025-09-02"], "day_type": "MEDICAL"}
         response = client.post("/monthly-log/api/update-days", json=payload)
@@ -107,8 +140,7 @@ class TestMonthlyLogRoutes:
         assert response.status_code == 500
         data = json.loads(response.data)
         assert data["error"] == "Commit Failed"
-        # Ensure rollback was called
-        assert db.session.rollback.called
+        db.session.rollback.assert_called_once()
 
     def test_update_day_types_bad_request(self, client):
         """Test that the update endpoint handles bad requests."""
