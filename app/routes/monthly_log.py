@@ -15,16 +15,6 @@ def view_monthly_log():
     return render_template("monthly_log.html")
 
 
-@monthly_log_bp.route("/api/absence-codes", methods=["GET"])
-def get_absence_codes():
-    """Returns a list of available absence codes."""
-    try:
-        codes = AbsenceCode.query.all()
-        return jsonify([code.code for code in codes])
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
 @monthly_log_bp.route("/api/<int:year>/<int:month>", methods=["GET"])
 def get_monthly_log_data(year, month):
     """
