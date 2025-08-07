@@ -14,6 +14,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Your new fix here.
 
 
+## [1.0.8] - 2025-08-06
+
+### Fixed
+- The automatic release workflow no longer adds a redundant "TimeTrack" prefix to the GitHub release title, which now consists only of the version tag.
+
+
 ## [1.0.7] - 2025-08-06
 
 ### Added
