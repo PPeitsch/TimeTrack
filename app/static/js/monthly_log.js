@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const prevYearBtn = document.getElementById('prevYear');
     const nextYearBtn = document.getElementById('nextYear');
 
-    // New modal selectors
+    // Modal selectors
     const editDayModalEl = document.getElementById('editDayModal');
     const editDayModal = new bootstrap.Modal(editDayModalEl);
     const selectedDateEl = document.getElementById('selectedDate');
@@ -17,8 +17,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const saveDayTypeBtn = document.getElementById('saveDayTypeBtn');
 
     let currentDate = new Date();
-    let selectedDateForEdit = null;
+    let selectedDates = [];
     let absenceCodes = [];
+    let isMouseDown = false;
 
     async function fetchAbsenceCodes() {
         try {
@@ -45,20 +46,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const startYear = currentYear - 5;
         const endYear = currentYear + 5;
         yearSelect.innerHTML = '';
-        for (let year = startYear; year <= endYear; year++) {
-            const option = document.createElement('option');
-            option.value = year;
-            option.textContent = year;
-            yearSelect.appendChild(option);
-        }
+        for (let year = startYear; year <= endYear; year++) yearSelect.add(new Option(year, year));
         const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
         monthSelect.innerHTML = '';
-        months.forEach((month, index) => {
-            const option = document.createElement('option');
-            option.value = index;
-            option.textContent = month;
-            monthSelect.appendChild(option);
-        });
+        months.forEach((month, index) => monthSelect.add(new Option(month, index)));
     }
 
     function updateSelectors() {
@@ -92,7 +83,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 dayCell.classList.add('day-cell');
                 dayCell.dataset.date = dateStr;
                 if (dayType !== 'Weekend') {
-                     dayCell.addEventListener('click', () => handleDayClick(dateStr, dayType));
+                     dayCell.addEventListener('mousedown', (e) => handleMouseDown(e.currentTarget));
+                     dayCell.addEventListener('mouseover', (e) => handleMouseOver(e.currentTarget));
                 }
                 dayCell.innerHTML = `<div class="day-number">${day}</div><div class="day-type">${dayType.replace(/_/g, ' ')}</div>`;
                 dayCell.classList.add(`day-${dayType.toLowerCase().split(' ')[0]}`);
@@ -106,24 +98,62 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    function handleDayClick(dateStr, currentType) {
-        selectedDateForEdit = dateStr;
-        selectedDateEl.textContent = new Date(dateStr.replace(/-/g, '/')).toLocaleDateString();
-        dayTypeSelect.value = currentType;
+    // --- Multi-select Logic ---
+    function handleMouseDown(cell) {
+        if (cell.classList.contains('blank') || cell.classList.contains('day-weekend')) return;
+        isMouseDown = true;
+        clearSelection();
+        toggleSelection(cell);
+    }
+
+    function handleMouseOver(cell) {
+        if (!isMouseDown || cell.classList.contains('blank') || cell.classList.contains('day-weekend')) return;
+        toggleSelection(cell);
+    }
+
+    function handleMouseUp() {
+        if (!isMouseDown) return;
+        isMouseDown = false;
+        openEditModal();
+    }
+
+    function toggleSelection(cell) {
+        cell.classList.toggle('day-selected');
+        const date = cell.dataset.date;
+        if (cell.classList.contains('day-selected')) {
+            if (!selectedDates.includes(date)) selectedDates.push(date);
+        } else {
+            selectedDates = selectedDates.filter(d => d !== date);
+        }
+    }
+
+    function clearSelection() {
+        selectedDates = [];
+        document.querySelectorAll('.day-selected').forEach(cell => cell.classList.remove('day-selected'));
+    }
+
+    function openEditModal() {
+        if (selectedDates.length === 0) return;
+        if (selectedDates.length === 1) {
+            selectedDateEl.textContent = new Date(selectedDates[0].replace(/-/g, '/')).toLocaleDateString();
+        } else {
+            selectedDateEl.textContent = `${selectedDates.length} days selected`;
+        }
         editDayModal.show();
     }
 
     async function saveDayType() {
-        if (!selectedDateForEdit) return;
+        if (selectedDates.length === 0) return;
         const newDayType = dayTypeSelect.value;
         try {
             const response = await fetch('/monthly-log/api/update-days', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ dates: [selectedDateForEdit], day_type: newDayType })
+                body: JSON.stringify({ dates: selectedDates, day_type: newDayType })
             });
             if (!response.ok) throw new Error('Failed to save changes');
             editDayModal.hide();
+            clearSelection();
             await renderCalendar();
         } catch (error) {
             console.error(error);
@@ -151,8 +181,9 @@ document.addEventListener('DOMContentLoaded', function() {
     yearSelect.addEventListener('change', () => { currentDate.setFullYear(parseInt(yearSelect.value)); renderCalendar(); });
     monthSelect.addEventListener('change', () => { currentDate.setMonth(parseInt(monthSelect.value)); renderCalendar(); });
     saveDayTypeBtn.addEventListener('click', saveDayType);
+    document.addEventListener('mouseup', handleMouseUp);
+    editDayModalEl.addEventListener('hidden.bs.modal', clearSelection);
 
-    // Initial setup
     async function init() {
         populateSelectors();
         updateSelectors();
