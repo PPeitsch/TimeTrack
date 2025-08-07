@@ -53,6 +53,7 @@ def initialize_database_manually():
         from app.db.database import db
         from app.models.models import Holiday
         from app.services.holiday_service import get_holiday_provider
+        from app.utils.init_data import init_data  # Import the data seeder
 
         print("✓ Módulos importados correctamente")
 
@@ -62,6 +63,10 @@ def initialize_database_manually():
         with app.app_context():
             db.create_all()
             print("✓ Tablas creadas correctamente")
+
+            # Populate initial data (absence codes, default employee)
+            init_data()
+            print("✓ Datos iniciales (códigos de ausencia) poblados.")
 
             populate = (
                 input(
@@ -86,7 +91,6 @@ def initialize_database_manually():
                         print(f"⚠️ No se encontraron feriados para {year}.")
 
                 if all_holidays:
-                    # Use a set to automatically handle potential duplicates before insertion
                     unique_holidays = {h.date: h for h in all_holidays}.values()
 
                     db.session.query(Holiday).delete()
@@ -100,7 +104,6 @@ def initialize_database_manually():
         return True, "Base de datos inicializada correctamente"
 
     except Exception as e:
-        # This block will now handle errors more gracefully.
         error_message = f"Error durante la inicialización manual: {e}"
         print(f"❌ {error_message}")
         if app:
