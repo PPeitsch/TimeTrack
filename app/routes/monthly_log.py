@@ -1,11 +1,17 @@
 from calendar import monthrange
 from datetime import date, timedelta
 
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, render_template
 
 from app.models.models import Holiday, ScheduleEntry
 
 monthly_log_bp = Blueprint("monthly_log", __name__, url_prefix="/monthly-log")
+
+
+@monthly_log_bp.route("/", methods=["GET"])
+def view_monthly_log():
+    """Renders the main calendar view page."""
+    return render_template("monthly_log.html")
 
 
 @monthly_log_bp.route("/api/<int:year>/<int:month>", methods=["GET"])
@@ -18,10 +24,9 @@ def get_monthly_log_data(year, month):
         days_in_month = monthrange(year, month)[1]
         end_date = date(year, month, days_in_month)
 
-        # Fetch all relevant data for the month in optimized queries
         entries_query = ScheduleEntry.query.filter(
             ScheduleEntry.date.between(start_date, end_date),
-            ScheduleEntry.employee_id == 1,  # Default employee ID
+            ScheduleEntry.employee_id == 1,
         ).all()
         entries_map = {entry.date: entry for entry in entries_query}
 
@@ -30,18 +35,17 @@ def get_monthly_log_data(year, month):
         ).all()
         holidays_set = {h.date for h in holidays_query}
 
-        # Build the list of days for the month
         days_data = []
         current_date = start_date
         while current_date <= end_date:
-            day_type = "Work Day"  # Default type
+            day_type = "Work Day"
             entry = entries_map.get(current_date)
 
             if entry and entry.absence_code:
                 day_type = entry.absence_code
             elif current_date in holidays_set:
                 day_type = "Holiday"
-            elif current_date.weekday() >= 5:  # 5: Saturday, 6: Sunday
+            elif current_date.weekday() >= 5:
                 day_type = "Weekend"
 
             days_data.append(

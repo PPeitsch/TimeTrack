@@ -79,3 +79,86 @@
     background-color: #e9ecef;
     color: #212529;
 }
+
+/* Calendar view styles */
+.calendar-header {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    font-weight: bold;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #dee2e6;
+    margin-bottom: 0.5rem;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+}
+
+.day-cell {
+    border: 1px solid #e9ecef;
+    min-height: 100px;
+    padding: 8px;
+    border-radius: 4px;
+    background-color: #fff;
+    transition: background-color 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+}
+
+.day-cell:hover {
+    background-color: #f8f9fa;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.day-cell.blank {
+    background-color: #f8f9fa;
+    cursor: default;
+}
+
+.day-number {
+    font-weight: 500;
+    font-size: 0.9rem;
+    color: #495057;
+}
+
+.day-type {
+    font-size: 0.8rem;
+    margin-top: 4px;
+    padding: 2px 4px;
+    border-radius: 4px;
+    text-align: center;
+    color: white;
+    text-transform: capitalize;
+}
+
+/* Day type specific colors */
+.day-work {
+    background-color: #e9f5ff; /* Light blue */
+}
+.day-work .day-type {
+    background-color: #0d6efd;
+}
+
+.day-weekend {
+    background-color: #f8f9fa; /* Light grey */
+}
+.day-weekend .day-type {
+    background-color: #6c757d;
+}
+
+.day-holiday {
+    background-color: #fff0f5; /* Light pink */
+}
+.day-holiday .day-type {
+    background-color: #dc3545;
+}
+
+.day-lar, .day-franco, .day-medical, .day-comisión {
+    background-color: #fffbe6; /* Light yellow */
+}
+.day-lar .day-type, .day-franco .day-type, .day-medical .day-type, .day-comisión .day-type {
+    background-color: #ffc107;
+    color: #000;
+}
