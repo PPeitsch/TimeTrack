@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, render_template, request
 
 from app.db.database import db
-from app.models.models import AbsenceCode
+from app.models.models import AbsenceCode, ScheduleEntry
 
 settings_bp = Blueprint("settings", __name__, url_prefix="/settings")
 
@@ -38,7 +38,7 @@ def create_absence_code():
 
     existing_code = AbsenceCode.query.filter_by(code=new_code_str).first()
     if existing_code:
-        return jsonify({"error": "Code already exists"}), 409  # Conflict
+        return jsonify({"error": "Code already exists"}), 409
 
     try:
         new_code = AbsenceCode(code=new_code_str)
@@ -61,11 +61,10 @@ def update_absence_code(code_id):
     if not new_code_str:
         return jsonify({"error": "Code cannot be empty"}), 400
 
-    code_to_update = AbsenceCode.query.get(code_id)
+    code_to_update = db.session.get(AbsenceCode, code_id)
     if not code_to_update:
         return jsonify({"error": "Code not found"}), 404
 
-    # Check if the new name conflicts with another existing code
     existing_code = AbsenceCode.query.filter(
         AbsenceCode.id != code_id, AbsenceCode.code == new_code_str
     ).first()
@@ -84,9 +83,14 @@ def update_absence_code(code_id):
 @settings_bp.route("/api/absence-codes/<int:code_id>", methods=["DELETE"])
 def delete_absence_code(code_id):
     """Deletes an absence code."""
-    code_to_delete = AbsenceCode.query.get(code_id)
+    code_to_delete = db.session.get(AbsenceCode, code_id)
     if not code_to_delete:
         return jsonify({"error": "Code not found"}), 404
+
+    # Manually check if the code is in use before attempting to delete.
+    is_in_use = ScheduleEntry.query.filter_by(absence_code=code_to_delete.code).first()
+    if is_in_use:
+        return jsonify({"error": "Cannot delete code, it is currently in use."}), 409
 
     try:
         db.session.delete(code_to_delete)
@@ -94,10 +98,4 @@ def delete_absence_code(code_id):
         return jsonify({"status": "success"}), 200
     except Exception as e:
         db.session.rollback()
-        # Handle cases where the code is in use (foreign key constraint)
-        if "violates foreign key constraint" in str(e).lower():
-            return (
-                jsonify({"error": "Cannot delete code, it is currently in use."}),
-                409,
-            )
         return jsonify({"error": str(e)}), 500
