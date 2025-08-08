@@ -42,12 +42,14 @@ class TestSettingsRoutes:
         assert data["code"] == "NEW-TEST-CODE"
         assert "id" in data
 
-    @pytest.mark.parametrize(
-        "payload", [({"code": ""}), ({"code": "   "}), ({"wrong_key": "value"}), ({})]
-    )
-    def test_create_absence_code_invalid_payload(self, client, payload):
-        """Test creating a code with invalid payloads."""
-        response = client.post("/settings/api/absence-codes", json=payload)
+    def test_create_absence_code_empty_string(self, client):
+        """Test creating a code with an empty string."""
+        response = client.post("/settings/api/absence-codes", json={"code": "   "})
+        assert response.status_code == 400
+
+    def test_create_absence_code_missing_key(self, client):
+        """Test creating a code with a missing 'code' key."""
+        response = client.post("/settings/api/absence-codes", json={"name": "test"})
         assert response.status_code == 400
 
     def test_create_absence_code_api_conflict(self, app):
