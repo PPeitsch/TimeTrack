@@ -14,6 +14,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Your new fix here.
 
 
+## [1.2.0] - 2025-08-07
+
+### Added
+- **CRUD Management for Absence Codes:**
+  - Implemented a new "Settings" page at `/settings/absences` for full CRUD (Create, Read, Update, Delete) management of absence codes.
+  - Created a set of RESTful API endpoints under `/settings/api/absence-codes` to support the new management interface.
+  - Added a comprehensive test suite (`tests/test_settings.py`) with 100% code coverage for the new backend routes and logic.
+
+### Changed
+- The "Manual Entry" dropdown is now dynamically populated with the user-managed absence codes from the database, replacing the previous hardcoded list.
+- The "Calendar Log" view now fetches absence codes from the new centralized API endpoint, ensuring consistency across the application.
+
+### Fixed
+- Prevented the deletion of absence codes that are currently in use in any `ScheduleEntry`, ensuring data integrity.
+
+
 ## [1.1.1] - 2025-08-07
 
 ### Changed
