@@ -42,14 +42,12 @@ class TestSettingsRoutes:
         assert data["code"] == "NEW-TEST-CODE"
         assert "id" in data
 
-    def test_create_absence_code_empty_string(self, client):
-        """Test creating a code with an empty string."""
-        response = client.post("/settings/api/absence-codes", json={"code": "   "})
-        assert response.status_code == 400
-
-    def test_create_absence_code_missing_key(self, client):
-        """Test creating a code with a missing 'code' key."""
-        response = client.post("/settings/api/absence-codes", json={"name": "test"})
+    @pytest.mark.parametrize(
+        "payload", [({"code": "   "}), ({"code": ""}), ({"wrong_key": "v"}), ({})]
+    )
+    def test_create_absence_code_invalid_payloads(self, client, payload):
+        """Test creating a code with various invalid payloads."""
+        response = client.post("/settings/api/absence-codes", json=payload)
         assert response.status_code == 400
 
     def test_create_absence_code_api_conflict(self, app):
@@ -77,6 +75,16 @@ class TestSettingsRoutes:
         assert response.status_code == 200
         data = json.loads(response.data)
         assert data["code"] == "NEW-NAME"
+
+    @pytest.mark.parametrize(
+        "payload", [({"code": "   "}), ({"code": ""}), ({"wrong_key": "v"}), ({})]
+    )
+    def test_update_absence_code_invalid_payloads(self, client, payload):
+        """Test updating a code with various invalid payloads."""
+        # We only need an ID that exists for the endpoint to proceed to validation.
+        # The actual ID doesn't matter since the request will fail before DB access.
+        response = client.put("/settings/api/absence-codes/1", json=payload)
+        assert response.status_code == 400
 
     def test_update_absence_code_not_found(self, client):
         """Test updating a code that does not exist."""
