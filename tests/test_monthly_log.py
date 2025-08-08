@@ -16,29 +16,11 @@ class TestMonthlyLogRoutes:
         assert response.status_code == 200
         assert b"Monthly Log Management" in response.data
 
-    def test_get_absence_codes_api(self, app):
-        """Test that the API returns a list of absence codes."""
-        with app.app_context():
-            db.session.add(AbsenceCode(code="LAR"))
-            db.session.add(AbsenceCode(code="MEDICAL"))
-            db.session.commit()
-
+    def test_get_absence_codes_api_is_moved(self, app):
+        """Test that the old absence codes API URL is no longer available."""
         client = app.test_client()
         response = client.get("/monthly-log/api/absence-codes")
-        assert response.status_code == 200
-        data = json.loads(response.data)
-        assert "LAR" in data
-        assert "MEDICAL" in data
-
-    def test_get_absence_codes_api_exception(self, client, mocker):
-        """Test exception handling for the absence codes API."""
-        mocker.patch("app.routes.monthly_log.AbsenceCode.query").all.side_effect = (
-            Exception("DB Error")
-        )
-        response = client.get("/monthly-log/api/absence-codes")
-        assert response.status_code == 500
-        data = json.loads(response.data)
-        assert data["error"] == "DB Error"
+        assert response.status_code == 404
 
     def test_get_monthly_log_data_api(self, app, default_employee_id):
         """Test that the API returns correct day types for a month."""
@@ -81,7 +63,6 @@ class TestMonthlyLogRoutes:
         client = app.test_client()
         target_date = date(2025, 9, 1)
 
-        # Create a new absence entry
         payload_create = {"dates": [target_date.isoformat()], "day_type": "LAR"}
         client.post("/monthly-log/api/update-days", json=payload_create)
         with app.app_context():
@@ -90,14 +71,13 @@ class TestMonthlyLogRoutes:
             ).first()
             assert entry is not None and entry.absence_code == "LAR"
 
-        # Revert the absence back to a Work Day
-        payload_revert = {"dates": [target_date.isoformat()], "day_type": "Work Day"}
+        payload_revert = {"dates": [target_date.isoformat()], "day_type": "DEFAULT"}
         client.post("/monthly-log/api/update-days", json=payload_revert)
         with app.app_context():
             entry = ScheduleEntry.query.filter_by(
                 date=target_date, employee_id=default_employee_id
             ).first()
-            assert entry is not None and entry.absence_code is None
+            assert entry is None
 
     def test_update_day_types_modifies_existing(self, app, default_employee_id):
         """Test that updating an existing entry to an absence clears its time entries."""

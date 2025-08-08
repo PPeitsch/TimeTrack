@@ -14,7 +14,8 @@ manual_entry = Blueprint("manual_entry", __name__)
 @manual_entry.route("/entry", methods=["GET"])
 def show_entry_form():
     employees = Employee.query.all()
-    absence_codes = AbsenceCode.query.all()
+    # Fetch codes dynamically from the database
+    absence_codes = AbsenceCode.query.order_by(AbsenceCode.code).all()
     return render_template(
         "manual_entry.html", employees=employees, absence_codes=absence_codes
     )
@@ -33,47 +34,34 @@ def save_entry():
     if not validate_date(date_str):
         return jsonify({"error": "Invalid date format"}), 400
 
-    # Skip validation if it's an absence day
     absence_code = data.get("absence_code")
 
-    # For work days, validate entries
     if absence_code is None:
         entries = data.get("entries")
         if entries is None:
             return jsonify({"error": "Entries are required for work day"}), 400
-
-        # Check if entries is empty
         if not entries:
             return jsonify({"error": "No time entries provided for work day"}), 400
-
-        # Validate the entries
         is_valid, error = validate_entries(entries)
         if not is_valid:
             return jsonify({"error": error}), 400
 
-    # Convert date string to date object
     entry_date = datetime.strptime(date_str, "%Y-%m-%d").date()
-
-    # Get employee_id safely
     employee_id = data.get("employee_id")
     if employee_id is None:
         return jsonify({"error": "Employee ID is required"}), 400
 
-    # Check if an entry already exists for this date and employee
     existing_entry = ScheduleEntry.query.filter_by(
         employee_id=employee_id, date=entry_date
     ).first()
 
-    # Get entries safely
     entries = data.get("entries", [])
 
     if existing_entry:
-        # Update existing entry
         existing_entry.entries = [] if absence_code else entries
         existing_entry.absence_code = absence_code
         db.session.commit()
     else:
-        # Create new entry
         schedule_entry = ScheduleEntry(
             employee_id=employee_id,
             date=entry_date,
@@ -83,7 +71,6 @@ def save_entry():
         db.session.add(schedule_entry)
         db.session.commit()
 
-    # Calculate hours if not an absence
     if absence_code is None:
         hours = calculate_daily_hours(entries)
         return jsonify({"status": "success", "hours": hours})
@@ -98,7 +85,7 @@ def get_entry(date):
 
     entry = ScheduleEntry.query.filter_by(
         date=datetime.strptime(date, "%Y-%m-%d").date(),
-        employee_id=1,  # Default employee ID until login is implemented
+        employee_id=1,
     ).first()
 
     if entry:

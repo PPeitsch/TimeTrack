@@ -20,13 +20,13 @@
                         <label class="form-label">Type</label>
                         <select class="form-select" id="entryType">
                             <option value="WORK">Work Day</option>
-                            <option value="LAR">LAR</option>
-                            <option value="FRANCO">Franco Compensatorio</option>
-                            <option value="MEDICAL">Licencia Médica</option>
+                            <!-- Dynamically populate absence codes -->
+                            {% for code in absence_codes %}
+                            <option value="{{ code.code }}">{{ code.code }}</option>
+                            {% endfor %}
                         </select>
                     </div>
 
-                    <!-- New container for work day specific fields -->
                     <div id="workDayFields">
                         <div id="timeEntries">
                             <div class="row mb-3 time-entry">
