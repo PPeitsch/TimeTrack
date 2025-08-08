@@ -17,7 +17,6 @@ class TestSettingsRoutes:
     def test_get_absence_codes_api(self, app):
         """Test GET all absence codes are returned and ordered correctly."""
         with app.app_context():
-            # Create codes out of order to test sorting
             db.session.add(AbsenceCode(code="Z-CODE"))
             db.session.add(AbsenceCode(code="A-CODE"))
             db.session.commit()
@@ -27,9 +26,7 @@ class TestSettingsRoutes:
         assert response.status_code == 200
         data = json.loads(response.data)
 
-        # We expect at least the two codes we created
         assert len(data) >= 2
-        # Verify they are sorted alphabetically by code
         assert data[0]["code"] == "A-CODE"
         assert data[-1]["code"] == "Z-CODE"
 
@@ -46,7 +43,6 @@ class TestSettingsRoutes:
     def test_create_absence_code_api_conflict(self, app):
         """Test that creating a code that already exists returns a conflict."""
         client = app.test_client()
-        # Pre-condition: Create the code first
         with app.app_context():
             db.session.add(AbsenceCode(code="EXISTING-CODE"))
             db.session.commit()
@@ -58,7 +54,6 @@ class TestSettingsRoutes:
     def test_update_absence_code_api(self, app):
         """Test PUT to update an absence code."""
         client = app.test_client()
-        # Pre-condition: Create the code to be updated
         with app.app_context():
             code = AbsenceCode(code="OLD-NAME")
             db.session.add(code)
@@ -74,7 +69,6 @@ class TestSettingsRoutes:
     def test_delete_absence_code_api(self, app):
         """Test DELETE to remove an absence code."""
         client = app.test_client()
-        # Pre-condition: Create the code to be deleted
         with app.app_context():
             code_to_delete = AbsenceCode(code="TO-DELETE")
             db.session.add(code_to_delete)
@@ -84,7 +78,6 @@ class TestSettingsRoutes:
         response = client.delete(f"/settings/api/absence-codes/{code_id}")
         assert response.status_code == 200
 
-        # Verify it's gone
         with app.app_context():
             code = db.session.get(AbsenceCode, code_id)
             assert code is None
@@ -92,18 +85,17 @@ class TestSettingsRoutes:
     def test_delete_absence_code_in_use(self, app, default_employee_id):
         """Test that a code in use cannot be deleted."""
         client = app.test_client()
-        # Pre-conditions: Create the code and a schedule entry that uses it
         with app.app_context():
             code_in_use = AbsenceCode(code="IN-USE-CODE")
             db.session.add(code_in_use)
             db.session.commit()
             code_id = code_in_use.id
 
-            # Use a proper date object, not a string
             schedule_entry = ScheduleEntry(
                 employee_id=default_employee_id,
                 date=date(2025, 10, 10),
                 absence_code="IN-USE-CODE",
+                entries=[]  # Add missing non-nullable field
             )
             db.session.add(schedule_entry)
             db.session.commit()
