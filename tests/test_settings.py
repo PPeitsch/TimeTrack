@@ -1,6 +1,8 @@
 import json
 from datetime import date
 
+import pytest
+
 from app.db.database import db
 from app.models.models import AbsenceCode, ScheduleEntry
 
@@ -40,6 +42,14 @@ class TestSettingsRoutes:
         assert data["code"] == "NEW-TEST-CODE"
         assert "id" in data
 
+    @pytest.mark.parametrize(
+        "payload", [({"code": ""}), ({"code": "   "}), ({"wrong_key": "value"}), ({})]
+    )
+    def test_create_absence_code_invalid_payload(self, client, payload):
+        """Test creating a code with invalid payloads."""
+        response = client.post("/settings/api/absence-codes", json=payload)
+        assert response.status_code == 400
+
     def test_create_absence_code_api_conflict(self, app):
         """Test that creating a code that already exists returns a conflict."""
         client = app.test_client()
@@ -66,6 +76,26 @@ class TestSettingsRoutes:
         data = json.loads(response.data)
         assert data["code"] == "NEW-NAME"
 
+    def test_update_absence_code_not_found(self, client):
+        """Test updating a code that does not exist."""
+        response = client.put("/settings/api/absence-codes/999", json={"code": "ANY"})
+        assert response.status_code == 404
+
+    def test_update_absence_code_conflict(self, app):
+        """Test updating a code to a name that already exists."""
+        client = app.test_client()
+        with app.app_context():
+            db.session.add(AbsenceCode(code="CODE-A"))
+            code_b = AbsenceCode(code="CODE-B")
+            db.session.add(code_b)
+            db.session.commit()
+            code_b_id = code_b.id
+
+        response = client.put(
+            f"/settings/api/absence-codes/{code_b_id}", json={"code": "CODE-A"}
+        )
+        assert response.status_code == 409
+
     def test_delete_absence_code_api(self, app):
         """Test DELETE to remove an absence code."""
         client = app.test_client()
@@ -82,6 +112,11 @@ class TestSettingsRoutes:
             code = db.session.get(AbsenceCode, code_id)
             assert code is None
 
+    def test_delete_absence_code_not_found(self, client):
+        """Test deleting a code that does not exist."""
+        response = client.delete("/settings/api/absence-codes/999")
+        assert response.status_code == 404
+
     def test_delete_absence_code_in_use(self, app, default_employee_id):
         """Test that a code in use cannot be deleted."""
         client = app.test_client()
@@ -95,7 +130,7 @@ class TestSettingsRoutes:
                 employee_id=default_employee_id,
                 date=date(2025, 10, 10),
                 absence_code="IN-USE-CODE",
-                entries=[]  # Add missing non-nullable field
+                entries=[],
             )
             db.session.add(schedule_entry)
             db.session.commit()
@@ -104,3 +139,49 @@ class TestSettingsRoutes:
         assert response.status_code == 409
         data = json.loads(response.data)
         assert "Cannot delete code, it is currently in use" in data["error"]
+
+    def test_get_codes_db_error(self, client, mocker):
+        """Test generic exception for GET endpoint."""
+        mocker.patch("app.routes.settings.AbsenceCode.query").order_by.side_effect = (
+            Exception("DB Error")
+        )
+        response = client.get("/settings/api/absence-codes")
+        assert response.status_code == 500
+
+    def test_create_code_db_error(self, client, mocker):
+        """Test generic exception for POST endpoint."""
+        mocker.patch("app.routes.settings.db.session.commit").side_effect = Exception(
+            "DB Error"
+        )
+        response = client.post("/settings/api/absence-codes", json={"code": "ANY"})
+        assert response.status_code == 500
+
+    def test_update_code_db_error(self, app, mocker):
+        """Test generic exception for PUT endpoint."""
+        client = app.test_client()
+        with app.app_context():
+            code = AbsenceCode(code="ANY")
+            db.session.add(code)
+            db.session.commit()
+            code_id = code.id
+        mocker.patch("app.routes.settings.db.session.commit").side_effect = Exception(
+            "DB Error"
+        )
+        response = client.put(
+            f"/settings/api/absence-codes/{code_id}", json={"code": "NEW"}
+        )
+        assert response.status_code == 500
+
+    def test_delete_code_db_error(self, app, mocker):
+        """Test generic exception for DELETE endpoint."""
+        client = app.test_client()
+        with app.app_context():
+            code = AbsenceCode(code="ANY")
+            db.session.add(code)
+            db.session.commit()
+            code_id = code.id
+        mocker.patch("app.routes.settings.db.session.commit").side_effect = Exception(
+            "DB Error"
+        )
+        response = client.delete(f"/settings/api/absence-codes/{code_id}")
+        assert response.status_code == 500
