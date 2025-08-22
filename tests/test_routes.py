@@ -339,6 +339,44 @@ class TestRoutes(unittest.TestCase):
         self.assertIn("entries", entry)
         self.assertIn("total_hours", entry)
 
+    def test_monthly_logs_with_absence(self):
+        # Create an absence entry
+        with self.app.app_context():
+            entry_date = date(2025, 4, 15)
+            absence_entry = ScheduleEntry(
+                employee_id=1, date=entry_date, entries=[], absence_code="VAC"
+            )
+            db.session.add(absence_entry)
+            db.session.commit()
+
+        # Test getting monthly logs for the month with the absence
+        response = self.client.get("/logs/monthly/2025/4")
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.data)
+
+        # Find the absence entry in the response
+        absence_found = False
+        for entry in data:
+            if entry["date"] == "2025-04-15":
+                self.assertEqual(entry["type"], "VAC")
+                self.assertEqual(entry["total_hours"], 0)
+                absence_found = True
+                break
+        self.assertTrue(absence_found, "Absence entry not found in response")
+
+    def test_monthly_logs_exception(self):
+        with self.app.app_context():
+            with patch("app.routes.time_log.ScheduleEntry.query") as mock_query:
+                # Configure the mock to raise an exception when used
+                mock_query.filter.side_effect = Exception("Database connection failed")
+
+                # Test that the exception is handled and a 500 error is returned
+                response = self.client.get("/logs/monthly/2025/5")
+                self.assertEqual(response.status_code, 500)
+                data = json.loads(response.data)
+                self.assertIn("error", data)
+                self.assertEqual(data["error"], "Database connection failed")
+
 
 if __name__ == "__main__":
     unittest.main()
