@@ -14,6 +14,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Your new fix here.
 
 
+## [1.2.2] - 2025-08-22
+
+### Added
+- Increased test coverage for the `manual_entry.py` module from 72% to 98%.
+
+
 ## [1.2.0] - 2025-08-07
 
 ### Added
@@ -137,8 +143,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Flexible database configuration (SQLite/PostgreSQL).
 
 
-[Unreleased]: https://github.com/PPeitsch/TimeTrack/compare/v1.0.1...HEAD
-[1.1.1]: https://github.com/PPeitsch/TimeTrack/compare/v1.1.0....v1.1.1
+[Unreleased]: https://github.com/PPeitsch/TimeTrack/compare/v1.2.2...HEAD
+[1.2.2]: https://github.com/PPeitsch/TimeTrack/compare/v1.2.0...v1.2.2
+[1.2.0]: https://github.com/PPeitsch/TimeTrack/compare/v1.1.1...v1.2.0
+[1.1.1]: https://github.com/PPeitsch/TimeTrack/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/PPeitsch/TimeTrack/compare/v1.0.9...v1.1.0
 [1.0.9]: https://github.com/PPeitsch/TimeTrack/compare/v1.0.8...v1.0.9
 [1.0.8]: https://github.com/PPeitsch/TimeTrack/compare/v1.0.7...v1.0.8
