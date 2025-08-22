@@ -2,6 +2,7 @@ import json
 import unittest
 from datetime import date, datetime
 from unittest.mock import patch
+
 from flask import jsonify
 
 from app.db.database import db
@@ -104,31 +105,60 @@ class TestRoutes(unittest.TestCase):
 
     def test_manual_entry_post_missing_fields(self):
         # Test missing date
-        response = self.client.post("/entry", data=json.dumps({"employee_id": 1}), content_type="application/json")
+        response = self.client.post(
+            "/entry",
+            data=json.dumps({"employee_id": 1}),
+            content_type="application/json",
+        )
         self.assertEqual(response.status_code, 400)
         self.assertEqual(json.loads(response.data)["error"], "Date is required")
 
         # Test missing employee_id
-        response = self.client.post("/entry", data=json.dumps({"date": "2025-03-16", "entries": [{"entry": "09:00", "exit": "17:00"}]}), content_type="application/json")
+        response = self.client.post(
+            "/entry",
+            data=json.dumps(
+                {"date": "2025-03-16", "entries": [{"entry": "09:00", "exit": "17:00"}]}
+            ),
+            content_type="application/json",
+        )
         self.assertEqual(response.status_code, 400)
         self.assertEqual(json.loads(response.data)["error"], "Employee ID is required")
 
         # Test missing entries for work day
-        response = self.client.post("/entry", data=json.dumps({"date": "2025-03-16", "employee_id": 1, "absence_code": None}), content_type="application/json")
+        response = self.client.post(
+            "/entry",
+            data=json.dumps(
+                {"date": "2025-03-16", "employee_id": 1, "absence_code": None}
+            ),
+            content_type="application/json",
+        )
         self.assertEqual(response.status_code, 400)
-        self.assertEqual(json.loads(response.data)["error"], "Entries are required for work day")
+        self.assertEqual(
+            json.loads(response.data)["error"], "Entries are required for work day"
+        )
 
     def test_manual_entry_post_invalid_date(self):
         entry_data = {"date": "invalid-date", "employee_id": 1}
-        response = self.client.post("/entry", data=json.dumps(entry_data), content_type="application/json")
+        response = self.client.post(
+            "/entry", data=json.dumps(entry_data), content_type="application/json"
+        )
         self.assertEqual(response.status_code, 400)
         self.assertEqual(json.loads(response.data)["error"], "Invalid date format")
 
     def test_manual_entry_post_empty_entries(self):
-        entry_data = {"date": "2025-03-16", "employee_id": 1, "entries": [], "absence_code": None}
-        response = self.client.post("/entry", data=json.dumps(entry_data), content_type="application/json")
+        entry_data = {
+            "date": "2025-03-16",
+            "employee_id": 1,
+            "entries": [],
+            "absence_code": None,
+        }
+        response = self.client.post(
+            "/entry", data=json.dumps(entry_data), content_type="application/json"
+        )
         self.assertEqual(response.status_code, 400)
-        self.assertEqual(json.loads(response.data)["error"], "No time entries provided for work day")
+        self.assertEqual(
+            json.loads(response.data)["error"], "No time entries provided for work day"
+        )
 
     def test_manual_entry_update_existing(self):
         # First, create an entry
@@ -138,20 +168,26 @@ class TestRoutes(unittest.TestCase):
             "entries": [{"entry": "09:00", "exit": "12:00"}],
             "absence_code": None,
         }
-        self.client.post("/entry", data=json.dumps(entry_data), content_type="application/json")
+        self.client.post(
+            "/entry", data=json.dumps(entry_data), content_type="application/json"
+        )
 
         # Now, update it
         update_data = {
             "date": "2025-03-18",
             "employee_id": 1,
-            "entries": [{"entry": "09:00", "exit": "13:00"}], # Changed exit time
+            "entries": [{"entry": "09:00", "exit": "13:00"}],  # Changed exit time
             "absence_code": None,
         }
-        response = self.client.post("/entry", data=json.dumps(update_data), content_type="application/json")
+        response = self.client.post(
+            "/entry", data=json.dumps(update_data), content_type="application/json"
+        )
         self.assertEqual(response.status_code, 200)
 
         with self.app.app_context():
-            entry = ScheduleEntry.query.filter_by(date=datetime.strptime("2025-03-18", "%Y-%m-%d").date()).first()
+            entry = ScheduleEntry.query.filter_by(
+                date=datetime.strptime("2025-03-18", "%Y-%m-%d").date()
+            ).first()
             self.assertEqual(len(entry.entries), 1)
             self.assertEqual(entry.entries[0]["exit"], "13:00")
 
@@ -169,7 +205,9 @@ class TestRoutes(unittest.TestCase):
             "entries": [{"entry": "10:00", "exit": "18:00"}],
             "absence_code": None,
         }
-        self.client.post("/entry", data=json.dumps(entry_data), content_type="application/json")
+        self.client.post(
+            "/entry", data=json.dumps(entry_data), content_type="application/json"
+        )
 
         response = self.client.get(f"/entry/{entry_date}")
         self.assertEqual(response.status_code, 200)
@@ -190,14 +228,18 @@ class TestRoutes(unittest.TestCase):
             "entries": [],
             "absence_code": "VAC",
         }
-        response = self.client.post("/entry", data=json.dumps(entry_data), content_type="application/json")
+        response = self.client.post(
+            "/entry", data=json.dumps(entry_data), content_type="application/json"
+        )
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.data)
         self.assertEqual(data["status"], "success")
-        self.assertNotIn("hours", data) # No hours for absence
+        self.assertNotIn("hours", data)  # No hours for absence
 
         with self.app.app_context():
-            entry = ScheduleEntry.query.filter_by(date=datetime.strptime("2025-03-20", "%Y-%m-%d").date()).first()
+            entry = ScheduleEntry.query.filter_by(
+                date=datetime.strptime("2025-03-20", "%Y-%m-%d").date()
+            ).first()
             self.assertIsNotNone(entry)
             self.assertEqual(entry.absence_code, "VAC")
             self.assertEqual(entry.entries, [])
