@@ -18,12 +18,3 @@ class Config:
     # Configuración horaria
     WORKING_HOURS_PER_DAY = 8
     WORKING_DAYS_PER_WEEK = 5
-
-    ABSENCE_CODES = [
-        "LAR",
-        "FRANCO COMPENSATORIO",
-        "LICENCIA MÉDICA",
-        "COMISIÓN DE SERVICIO",
-        "EXAMEN",
-        "LICENCIA SIN GOCE",
-    ]
