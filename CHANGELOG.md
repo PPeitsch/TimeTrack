@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [1.3.1] - 2025-08-23
+
+### Changed
+- Updated the `README.md` file to accurately reflect the current state of the application. The update includes a revised feature list, a corrected project structure diagram, and improved quick start and usage instructions.
+
+
 ## [1.3.0] - 2025-08-23
 
 ### Changed
@@ -158,6 +164,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 
+[1.3.1]: https://github.com/PPeitsch/TimeTrack/compare/v1.3.0...v1.3.1
 [1.3.0]: https://github.com/PPeitsch/TimeTrack/compare/v1.2.3...v1.3.0
 [1.2.3]: https://github.com/PPeitsch/TimeTrack/compare/v1.2.2...v1.2.3
 [1.2.2]: https://github.com/PPeitsch/TimeTrack/compare/v1.2.1...v1.2.2
