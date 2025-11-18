@@ -11,11 +11,13 @@
 
 TimeTrack is a simple yet powerful time tracking application designed for managing work hours, leaves, and holidays. Built with Flask and compatible with PostgreSQL or SQLite, it provides a user-friendly interface for tracking your time and analyzing your work patterns.
 
-![TimeTrack Dashboard](https://via.placeholder.com/800x400?text=TimeTrack+Dashboard)
+![TimeTrack Calendar View](https://via.placeholder.com/800x400?text=TimeTrack+Calendar+View)
 
 ## 🌟 Features
 
+- 🗓️ **Interactive Calendar Log** - Manage your schedule with a drag-and-drop monthly calendar view
 - 📅 **Flexible Time Entry** - Record multiple clock in/out entries per day
+- ⚙️ **Customizable Absence Codes** - Create, edit, and delete your own absence types
 - 🏖️ **Absence Management** - Track leaves, holidays and other time off
 - 📊 **Time Analytics** - View daily, weekly and monthly work summaries
 - 📈 **Automatic Calculations** - Track work hour balances and overtime
