@@ -1,6 +1,16 @@
 from app.db.database import db
 from app.models.models import AbsenceCode, Employee
 
+DEFAULT_ABSENCE_CODES = [
+    "Compensatory Time",
+    "Off-site Duty",
+    "Personal Leave",
+    "Sick Leave",
+    "Study Leave",
+    "Unpaid Leave",
+    "Vacation",
+]
+
 
 def init_data():
     try:
@@ -10,13 +20,7 @@ def init_data():
             db.session.add(default_user)
 
         # Absence codes
-        codes = [
-            "LAR",
-            "FRANCO COMPENSATORIO",
-            "LICENCIA MÉDICA",
-            "COMISIÓN DE SERVICIO",
-        ]
-        for code in codes:
+        for code in DEFAULT_ABSENCE_CODES:
             if not AbsenceCode.query.filter_by(code=code).first():
                 db.session.add(AbsenceCode(code=code))
 
