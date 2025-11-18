@@ -64,6 +64,7 @@ cp .env.example .env
 ```bash
 python init_db.py
 ```
+> **Note:** This script is interactive and may prompt you to import data, such as public holidays.
 
 6. Run the application:
 ```bash
@@ -74,27 +75,31 @@ flask run
 
 ## 📖 Usage
 
-### Manual Time Entry
+The application is organized into several key sections accessible from the main navigation bar.
 
-1. Navigate to "Manual Entry" to record your work hours
-2. Select a date and whether it's a regular work day or absence
-3. For work days, enter your clock-in and clock-out times
-4. You can add multiple time entries per day (e.g., for lunch breaks)
+### Calendar Log
 
-### Time Summary
+This is the main interface for managing your schedule.
+- View an entire month at a glance with color-coded day types.
+- Click and drag to select one or more days to change their type (e.g., assign a week of vacation).
+- Quickly override weekends or holidays to log work on non-standard days.
 
-View a monthly summary of your work hours, including:
-- Required hours based on working days
-- Actual hours worked
-- Balance (overtime or deficit)
-- Daily breakdown with detailed information
+### Manual Entry
 
-### Time Logs
+For detailed time logging on a specific day:
+- Select a date and specify whether it's a workday or an absence.
+- For workdays, enter multiple clock-in and clock-out times to account for breaks.
 
-Access a chronological log of all your time entries, including:
-- Regular work days with specific times
-- Absences and holidays
-- Daily totals
+### Summary
+
+Get a detailed overview of your logged time for any given month:
+- See a summary of required hours, completed hours, and the resulting balance.
+- View a day-by-day breakdown of hours worked versus required hours.
+
+### Settings
+
+Customize the application to fit your needs:
+- Manage absence codes by adding, editing, or deleting types (e.g., "Vacation", "Sick Leave").
 
 ## 📁 Project Structure
 
