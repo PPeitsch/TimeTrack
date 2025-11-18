@@ -104,7 +104,8 @@ TimeTrack/
 │   ├── config/        # Configuration settings
 │   ├── db/            # Database management
 │   ├── models/        # Data models
-│   ├── routes/        # Route handlers
+│   ├── routes/        # Route handlers (Blueprints)
+│   ├── services/      # Business logic (e.g., holiday providers)
 │   ├── static/        # Static assets (JS, CSS)
 │   ├── templates/     # HTML templates
 │   └── utils/         # Utility functions
@@ -112,7 +113,7 @@ TimeTrack/
 ├── tests/             # Test suite
 ├── .env               # Environment configuration
 ├── .env.example       # Example environment configuration
-├── app.py             # Application entry point
+├── run.py             # Application entry point
 ├── init_db.py         # Database initialization script
 └── requirements.txt   # Python dependencies
 ```
