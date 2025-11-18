@@ -11,10 +11,13 @@ def init_data():
 
         # Absence codes
         codes = [
-            "LAR",
-            "FRANCO COMPENSATORIO",
-            "LICENCIA MÉDICA",
-            "COMISIÓN DE SERVICIO",
+            "Compensatory Time",
+            "Off-site Duty",
+            "Personal Leave",
+            "Sick Leave",
+            "Study Leave",
+            "Unpaid Leave",
+            "Vacation",
         ]
         for code in codes:
             if not AbsenceCode.query.filter_by(code=code).first():
