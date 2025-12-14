@@ -163,4 +163,6 @@ cython_debug/
 .idea/
 
 # Database migrations
-migrations/
+# migrations/
+timetrack.db
+uploads/

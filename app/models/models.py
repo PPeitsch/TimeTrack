@@ -27,6 +27,7 @@ class ScheduleEntry(db.Model):  # type: ignore
     date = Column(SQLADate, nullable=False)
     entries = Column(JSON, nullable=False)
     absence_code = Column(String, nullable=True)
+    observation = Column(String, nullable=True)
 
     employee: Mapped["Employee"] = relationship(
         "Employee", back_populates="schedule_entries"
