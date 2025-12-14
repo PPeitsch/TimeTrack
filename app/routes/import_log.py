@@ -49,7 +49,7 @@ def upload_file():
             return redirect(request.url)
 
         if file:
-            filename = secure_filename(file.filename)
+            filename = secure_filename(file.filename or "")
             file_ext = filename.split(".")[-1].lower()
 
             if file_ext not in ["pdf", "xlsx", "xls"]:

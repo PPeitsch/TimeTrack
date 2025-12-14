@@ -13,3 +13,5 @@ pytest-mock==3.12.0
 # Type stubs
 types-requests==2.31.0.20240125
 types-Flask-Migrate==4.0.0
+pandas-stubs==2.2.0.240218
+types-openpyxl==3.1.0.240226

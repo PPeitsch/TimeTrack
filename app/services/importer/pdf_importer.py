@@ -2,7 +2,7 @@ import io
 import re
 from typing import Any, List, Optional
 
-import pdfplumber
+import pdfplumber  # type: ignore
 
 from app.services.importer.protocol import (
     ImporterProtocol,

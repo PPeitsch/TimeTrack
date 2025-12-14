@@ -95,11 +95,11 @@ class ExcelImporter(ImporterProtocol):
             return None
 
         if isinstance(val, pd.Timestamp):
-            return val.strftime("%H:%M")
+            return str(val.strftime("%H:%M"))
 
         # If it's a datetime.time object
         try:
-            return val.strftime("%H:%M")
+            return str(val.strftime("%H:%M"))
         except AttributeError:
             pass
 
