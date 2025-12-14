@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}Import Preview{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow">
+            <div class="card-header bg-info text-dark d-flex justify-content-between align-items-center">
+                <h4 class="mb-0"><i class="bi bi-eye me-2"></i>Import Preview</h4>
+                <div>
+                    <span class="badge bg-success me-2">{{ result.valid_records }} Valid</span>
+                    <span class="badge bg-danger">{{ result.total_records - result.valid_records }} Invalid</span>
+                </div>
+            </div>
+            <div class="card-body">
+                {% if result.errors %}
+                <div class="alert alert-warning">
+                    <strong>Parsing Issues:</strong>
+                    <ul>
+                        {% for error in result.errors %}
+                        <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+
+                <div class="table-responsive mb-4">
+                    <table class="table table-hover table-bordered">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Date</th>
+                                <th>Entry</th>
+                                <th>Exit</th>
+                                <th>Observation</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for record in result.records %}
+                            <tr class="{{ 'table-success' if record.is_valid else 'table-danger' }}">
+                                <td>{{ record.date }}</td>
+                                <td>{{ record.entry_time or '-' }}</td>
+                                <td>{{ record.exit_time or '-' }}</td>
+                                <td>{{ record.observation or '-' }}</td>
+                                <td>
+                                    {% if record.is_valid %}
+                                    <i class="bi bi-check-circle-fill text-success"></i> OK
+                                    {% else %}
+                                    <i class="bi bi-exclamation-triangle-fill text-danger"></i> {{ record.error_message
+                                    }}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <form action="{{ url_for('import_log.cancel', upload_id=upload_id) }}" method="POST">
+                        <button type="submit" class="btn btn-secondary">
+                            <i class="bi bi-x-circle me-1"></i> Cancel
+                        </button>
+                    </form>
+
+                    {% if result.valid_records > 0 %}
+                    <form action="{{ url_for('import_log.confirm', upload_id=upload_id) }}" method="POST">
+                        <button type="submit" class="btn btn-success btn-lg">
+                            <i class="bi bi-save me-1"></i> Import {{ result.valid_records }} Records
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

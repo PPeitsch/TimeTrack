@@ -24,4 +24,8 @@ def create_app(config_object):
     app.register_blueprint(monthly_log_bp)
     app.register_blueprint(settings_bp)
 
+    from app.routes.import_log import import_log_bp
+
+    app.register_blueprint(import_log_bp)
+
     return app
