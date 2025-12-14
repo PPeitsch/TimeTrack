@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [1.3.2] - 2025-12-12
+
+### Added
+- Added `AGENTS.md` and `WORKFLOW.md` to provide guidelines and workflows for AI agents.
+
+
 ## [1.3.1] - 2025-08-23
 
 ### Changed
@@ -163,6 +169,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Flexible database configuration (SQLite/PostgreSQL).
 
 
+
+[1.3.2]: https://github.com/PPeitsch/TimeTrack/compare/v1.3.1...v1.3.2
 
 [1.3.1]: https://github.com/PPeitsch/TimeTrack/compare/v1.3.0...v1.3.1
 [1.3.0]: https://github.com/PPeitsch/TimeTrack/compare/v1.2.3...v1.3.0
