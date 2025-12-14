@@ -1,5 +1,5 @@
 from flask import Flask, redirect, url_for
-from flask_migrate import Migrate
+from flask_migrate import Migrate  # type: ignore
 
 from app.db.database import db, init_db
 from app.routes.main import main

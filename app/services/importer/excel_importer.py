@@ -1,7 +1,7 @@
 import io
 from typing import Any, List, Optional
 
-import pandas as pd
+import pandas as pd  # type: ignore
 
 from app.services.importer.protocol import (
     ImporterProtocol,
