@@ -57,10 +57,16 @@ jobs:
         FLASK_APP: app:create_app('app.config.config.Config')
         SECRET_KEY: test-key
       run: |
-        pytest tests/ --cov=app --cov-report=xml
+        pytest tests/ --cov=app --cov-report=xml --junitxml=junit.xml
 
-    - name: Upload coverage reports to Codecov
+    - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v5
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         slug: PPeitsch/TimeTrack
+
+    - name: Upload test results to Codecov
+      if: ${{ !cancelled() }}
+      uses: codecov/test-results-action@v1
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}

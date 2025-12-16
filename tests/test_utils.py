@@ -156,6 +156,22 @@ class TestValidators(unittest.TestCase):
         self.assertFalse(is_workday(saturday))
         self.assertFalse(is_workday(sunday))
 
+    def test_validate_entries_invalid_time_values(self):
+        """Test validate_entries with times that fail strptime."""
+        # Entry time that looks valid format but causes ValueError
+        entries = [{"entry": "25:00", "exit": "17:00"}]
+        is_valid, error = validate_entries(entries)
+        self.assertFalse(is_valid)
+        # Should fail on format check due to regex not matching 25:xx
+        self.assertIn("time", error.lower())
+
+    def test_validate_entries_invalid_format_error(self):
+        """Test validate_entries with format that fails validation."""
+        entries = [{"entry": "09:60", "exit": "17:00"}]  # Invalid minute
+        is_valid, error = validate_entries(entries)
+        self.assertFalse(is_valid)
+        self.assertIn("time", error.lower())
+
 
 if __name__ == "__main__":
     unittest.main()
