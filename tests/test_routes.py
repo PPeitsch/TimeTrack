@@ -377,6 +377,62 @@ class TestRoutes(unittest.TestCase):
                 self.assertIn("error", data)
                 self.assertEqual(data["error"], "Database connection failed")
 
+    def test_daily_summary_with_absence(self):
+        """Test daily summary for a day with an absence code."""
+        with self.app.app_context():
+            entry_date = date(2025, 3, 18)  # Tuesday
+            absence_entry = ScheduleEntry(
+                employee_id=1,
+                date=entry_date,
+                entries=[],
+                absence_code="VACATION",
+            )
+            db.session.add(absence_entry)
+            db.session.commit()
+
+        response = self.client.get("/summary/daily/2025-03-18")
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.data)
+        self.assertEqual(data["type"], "VACATION")
+        self.assertEqual(data["hours"], 0.0)
+        self.assertEqual(data["required"], 0.0)
+
+    def test_daily_summary_weekend(self):
+        """Test daily summary for a weekend day."""
+        # 2025-03-15 is a Saturday
+        response = self.client.get("/summary/daily/2025-03-15")
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.data)
+        self.assertEqual(data["type"], "Weekend")
+        self.assertEqual(data["required"], 0.0)
+
+    def test_daily_summary_holiday(self):
+        """Test daily summary for a holiday."""
+        from app.models.models import Holiday
+
+        with self.app.app_context():
+            # Add a holiday
+            holiday = Holiday(date=date(2025, 3, 19), description="Test Holiday")
+            db.session.add(holiday)
+            db.session.commit()
+
+        response = self.client.get("/summary/daily/2025-03-19")
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.data)
+        self.assertEqual(data["type"], "Holiday")
+        self.assertEqual(data["required"], 0.0)
+
+    def test_daily_summary_workday_no_entry(self):
+        """Test daily summary for a weekday with no entry recorded."""
+        # 2025-03-24 is a Monday with no entry
+        response = self.client.get("/summary/daily/2025-03-24")
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.data)
+        self.assertEqual(data["type"], "Work Day")
+        self.assertEqual(data["hours"], 0.0)
+        self.assertEqual(data["required"], 8.0)
+        self.assertEqual(data["difference"], -8.0)
+
 
 if __name__ == "__main__":
     unittest.main()
