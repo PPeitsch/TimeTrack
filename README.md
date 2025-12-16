@@ -6,7 +6,7 @@
 [![Black](https://img.shields.io/badge/Code%20Style-Black-black.svg)](https://github.com/psf/black)
 [![GitHub license](https://img.shields.io/github/license/PPeitsch/TimeTrack.svg)](LICENSE)
 [![Contributions welcome](https://img.shields.io/badge/Contributions-welcome-brightgreen.svg)](CONTRIBUTING.md)
-[![Code coverage](https://img.shields.io/badge/Coverage-86%25-green.svg)](https://codecov.io/)
+[![codecov](https://codecov.io/gh/PPeitsch/TimeTrack/graph/badge.svg)](https://codecov.io/gh/PPeitsch/TimeTrack)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
 TimeTrack is a simple yet powerful time tracking application designed for managing work hours, leaves, and holidays. Built with Flask and compatible with PostgreSQL or SQLite, it provides a user-friendly interface for tracking your time and analyzing your work patterns.
