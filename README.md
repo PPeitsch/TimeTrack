@@ -11,7 +11,6 @@
 
 TimeTrack is a simple yet powerful time tracking application designed for managing work hours, leaves, and holidays. Built with Flask and compatible with PostgreSQL or SQLite, it provides a user-friendly interface for tracking your time and analyzing your work patterns.
 
-![TimeTrack Calendar View](https://via.placeholder.com/800x400?text=TimeTrack+Calendar+View)
 
 ## 🌟 Features
 
@@ -71,7 +70,7 @@ python init_db.py
 flask run
 ```
 
-7. Access the application at http://localhost:5000
+7. Access the application at `http://localhost:5000`
 
 ## 📖 Usage
 
