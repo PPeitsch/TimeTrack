@@ -6,6 +6,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [1.5.0] - 2025-12-15
+
+### Added
+- **Comprehensive Test Coverage:** Increased test coverage from 75% to 98% (Issue #29).
+  - Added `test_init_db.py`: 15 tests for environment parsing and database info extraction.
+  - Added `test_init_data.py`: 8 tests for data seeding functions.
+  - Added `test_import_log.py`: 18 tests for import routes.
+  - Added `test_pdf_importer.py`: 19 tests for PDF parsing.
+  - Expanded Excel importer tests with 15 edge cases.
+  - Expanded route tests with 7 time summary edge cases.
+- Added `.coveragerc` configuration to exclude interactive scripts from coverage.
+- Integrated Codecov test results action for improved CI reporting.
+- Dynamic Codecov coverage badge in README.
+
+### Changed
+- Improved CI workflow with `junitxml` output for better test reporting.
+
+
 ## [1.4.0] - 2025-12-14
 
 ### Added
@@ -182,6 +200,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 
+[1.5.0]: https://github.com/PPeitsch/TimeTrack/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/PPeitsch/TimeTrack/compare/v1.3.2...v1.4.0
 [1.3.2]: https://github.com/PPeitsch/TimeTrack/compare/v1.3.1...v1.3.2
 
