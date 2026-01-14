@@ -173,8 +173,10 @@ def main():
             "FLASK_APP": "run.py",
             "FLASK_ENV": "development",
             "FLASK_DEBUG": "1",
-            "HOLIDAY_PROVIDER": "ARGENTINA_WEBSITE",
-            "HOLIDAYS_BASE_URL": "https://www.argentina.gob.ar/interior/feriados-nacionales-{year}",
+            "FLASK_DEBUG": "1",
+            "HOLIDAY_PROVIDER": "ARGENTINA_API",
+            "HOLIDAYS_BASE_URL": "https://www.argentina.gob.ar/jefatura/feriados-nacionales-{year}",
+            "HOLIDAY_API_URL": "https://api.argentinadatos.com/v1/feriados/{year}",
         }
 
     if "FLASK_APP" not in env_vars or "run.py" not in env_vars.get("FLASK_APP", ""):

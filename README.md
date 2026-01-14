@@ -57,6 +57,7 @@ pip install -r requirements.txt
 ```bash
 cp .env.example .env
 # Edit .env with your preferred settings
+# Note: Ensure HOLIDAY_PROVIDER is set to ARGENTINA_API for reliable holiday data
 ```
 
 5. Initialize the database:
