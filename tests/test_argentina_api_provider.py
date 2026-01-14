@@ -90,3 +90,23 @@ class TestArgentinaApiProvider:
         with patch("requests.get", return_value=mock_response):
             holidays = provider.get_holidays(2025)
             assert holidays == []
+
+    def test_get_holidays_parsing_exceptions(self, mock_response):
+        """
+        Test that parsing exceptions (ValueError, AttributeError) are caught.
+        """
+        year = 2025
+        mock_response.json.return_value = [
+            # Good entry
+            {"fecha": "2025-01-01", "nombre": "Good", "tipo": "inamovible"},
+            # ValueError: Invalid date format (strptime fails)
+            {"fecha": "invalid-01-01", "nombre": "Bad Date Format", "tipo": "inamovible"},
+            # AttributeError: Entry is not a dict (no .get method)
+            "invalid_string_entry",
+        ]
+        provider = ArgentinaApiProvider(api_url="http://fake-api.com/{year}")
+        with patch("requests.get", return_value=mock_response):
+            holidays = provider.get_holidays(year)
+            # Should only contain the valid holiday
+            assert len(holidays) == 1
+            assert holidays[0].description == "Good"
