@@ -12,7 +12,11 @@ class Config:
     HOLIDAY_PROVIDER = os.getenv("HOLIDAY_PROVIDER", "ARGENTINA_WEBSITE")
     HOLIDAYS_BASE_URL = os.getenv(
         "HOLIDAYS_BASE_URL",
-        "https://www.argentina.gob.ar/interior/feriados-nacionales-{year}",
+        "https://www.argentina.gob.ar/jefatura/feriados-nacionales-{year}",
+    )
+    HOLIDAY_API_URL = os.getenv(
+        "HOLIDAY_API_URL",
+        "https://api.argentinadatos.com/v1/feriados/{year}",
     )
 
     # Configuración horaria

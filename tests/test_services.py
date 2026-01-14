@@ -8,6 +8,7 @@ from bs4.element import Tag
 
 from app.config.config import Config
 from app.models.models import Holiday
+from app.services.holiday_providers.argentina_api_provider import ArgentinaApiProvider
 from app.services.holiday_providers.argentina_website_provider import (
     ArgentinaWebsiteProvider,
 )
@@ -131,6 +132,7 @@ class TestHolidayService:
     class MockConfig(Config):
         HOLIDAY_PROVIDER = "ARGENTINA_WEBSITE"
         HOLIDAYS_BASE_URL = "http://fake-url.com/{year}"
+        HOLIDAY_API_URL = "http://fake-api.com/{year}"
 
     def test_get_holiday_provider_success(self):
         """
@@ -171,6 +173,29 @@ class TestHolidayService:
 
         with pytest.raises(ValueError, match="HOLIDAYS_BASE_URL is not configured"):
             get_holiday_provider(MissingUrlConfig)
+
+    def test_get_holiday_provider_api_success(self):
+        """
+        Test that the factory returns the correct API provider instance.
+        """
+
+        class ApiConfig(TestHolidayService.MockConfig):
+            HOLIDAY_PROVIDER = "ARGENTINA_API"
+
+        provider = get_holiday_provider(ApiConfig)
+        assert isinstance(provider, ArgentinaApiProvider)
+
+    def test_get_holiday_provider_api_missing_url(self):
+        """
+        Test that a ValueError is raised if the API URL is missing.
+        """
+
+        class MissingApiUrlConfig(TestHolidayService.MockConfig):
+            HOLIDAY_PROVIDER = "ARGENTINA_API"
+            HOLIDAY_API_URL = None  # type: ignore[assignment]
+
+        with pytest.raises(ValueError, match="HOLIDAY_API_URL is not configured"):
+            get_holiday_provider(MissingApiUrlConfig)
 
     def test_get_holiday_provider_not_implemented(self):
         """

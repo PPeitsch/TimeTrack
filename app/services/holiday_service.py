@@ -1,5 +1,6 @@
 from flask import Config
 
+from app.services.holiday_providers.argentina_api_provider import ArgentinaApiProvider
 from app.services.holiday_providers.argentina_website_provider import (
     ArgentinaWebsiteProvider,
 )
@@ -7,7 +8,10 @@ from app.services.holiday_providers.base import HolidayProvider
 
 # A mapping of provider names to their corresponding classes.
 # This makes it easy to add new providers in the future.
-PROVIDER_MAP = {"ARGENTINA_WEBSITE": ArgentinaWebsiteProvider}
+PROVIDER_MAP = {
+    "ARGENTINA_WEBSITE": ArgentinaWebsiteProvider,
+    "ARGENTINA_API": ArgentinaApiProvider,
+}
 
 
 def get_holiday_provider(config: Config) -> HolidayProvider:
@@ -27,7 +31,13 @@ def get_holiday_provider(config: Config) -> HolidayProvider:
         base_url = getattr(config, "HOLIDAYS_BASE_URL", None)
         if not base_url:
             raise ValueError("HOLIDAYS_BASE_URL is not configured.")
-        return provider_class(base_url=base_url)
+        return ArgentinaWebsiteProvider(base_url=base_url)
+
+    if provider_name.upper() == "ARGENTINA_API":
+        api_url = getattr(config, "HOLIDAY_API_URL", None)
+        if not api_url:
+            raise ValueError("HOLIDAY_API_URL is not configured.")
+        return ArgentinaApiProvider(api_url=api_url)
 
     # This part would be extended for other providers
     # For now, we raise an error if the provider is in the map but has no
