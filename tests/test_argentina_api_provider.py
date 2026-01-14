@@ -100,7 +100,11 @@ class TestArgentinaApiProvider:
             # Good entry
             {"fecha": "2025-01-01", "nombre": "Good", "tipo": "inamovible"},
             # ValueError: Invalid date format (strptime fails)
-            {"fecha": "invalid-01-01", "nombre": "Bad Date Format", "tipo": "inamovible"},
+            {
+                "fecha": "invalid-01-01",
+                "nombre": "Bad Date Format",
+                "tipo": "inamovible",
+            },
             # AttributeError: Entry is not a dict (no .get method)
             "invalid_string_entry",
         ]

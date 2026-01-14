@@ -8,9 +8,7 @@ from bs4.element import Tag
 
 from app.config.config import Config
 from app.models.models import Holiday
-from app.services.holiday_providers.argentina_api_provider import (
-    ArgentinaApiProvider,
-)
+from app.services.holiday_providers.argentina_api_provider import ArgentinaApiProvider
 from app.services.holiday_providers.argentina_website_provider import (
     ArgentinaWebsiteProvider,
 )
