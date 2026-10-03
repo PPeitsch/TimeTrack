@@ -1,0 +1,13 @@
+.git
+.github
+.env
+.venv
+venv
+instance
+uploads
+tests
+**/__pycache__
+.mypy_cache
+.pytest_cache
+.coverage
+*.db
