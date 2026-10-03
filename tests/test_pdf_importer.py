@@ -110,6 +110,26 @@ class TestPDFImporter:
         assert result.valid_records == 1
 
     @patch("app.services.importer.pdf_importer.pdfplumber")
+    def test_headers_match_whole_words(self, mock_pdfplumber, importer):
+        """A header containing "in" or "out" as a substring is not a time column."""
+        mock_page = MagicMock()
+        mock_page.extract_tables.return_value = [
+            [
+                ["Date", "In", "Out", "Login method", "Checkout notes"],
+                ["2025-03-10", "09:00", "17:00", "badge", "ok"],
+            ]
+        ]
+        mock_pdf = MagicMock()
+        mock_pdf.pages = [mock_page]
+        mock_pdfplumber.open.return_value.__enter__.return_value = mock_pdf
+
+        result = importer.parse(b"fake pdf content")
+        assert result.valid_records == 1
+        record = result.records[0]
+        assert (record.entry_time, record.exit_time) == ("09:00", "17:00")
+        assert record.observation == "ok"
+
+    @patch("app.services.importer.pdf_importer.pdfplumber")
     def test_parse_pdf_with_dd_mm_yyyy_date(self, mock_pdfplumber, importer):
         """Test parsing PDF with DD/MM/YYYY date format."""
         mock_page = MagicMock()

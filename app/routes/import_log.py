@@ -1,10 +1,5 @@
-import dataclasses
-import json
 import logging
 import os
-import pathlib
-import shutil
-import tempfile
 import time
 import uuid
 from datetime import datetime
@@ -24,7 +19,7 @@ from werkzeug.utils import secure_filename
 
 from app.auth import current_employee_id
 from app.db.database import db
-from app.models.models import Employee, ScheduleEntry
+from app.models.models import ScheduleEntry
 from app.services.importer.factory import ImporterFactory
 from app.services.importer.protocol import ImportResult, TimeEntryRecord
 from app.utils.validators import validate_entries
