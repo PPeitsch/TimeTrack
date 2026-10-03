@@ -9,7 +9,6 @@ class ImporterFactory:
     _importers: Dict[str, Type[ImporterProtocol]] = {
         "pdf": PDFImporter,
         "xlsx": ExcelImporter,
-        "xls": ExcelImporter,
     }
 
     @classmethod

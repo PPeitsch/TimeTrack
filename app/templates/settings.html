@@ -44,12 +44,12 @@
         <section class="card h-100" id="import" aria-labelledby="importTitle">
             <div class="card-body">
                 <h2 class="h5" id="importTitle">{{ _('Import hours') }}</h2>
-                <p class="small text-body-secondary">{{ _('Upload a PDF or Excel report (xlsx, xls) with date, entry, exit and observation columns. You will see a preview before anything is saved.') }}</p>
+                <p class="small text-body-secondary">{{ _('Upload a PDF or Excel report (xlsx) with date, entry, exit and observation columns. You will see a preview before anything is saved.') }}</p>
                 <form method="POST" action="{{ url_for('import_log.upload_file') }}" enctype="multipart/form-data">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <div class="mb-3">
                         <label for="file" class="form-label">{{ _('File') }}</label>
-                        <input class="form-control" type="file" id="file" name="file" accept=".pdf,.xlsx,.xls" required>
+                        <input class="form-control" type="file" id="file" name="file" accept=".pdf,.xlsx" required>
                     </div>
                     <button type="submit" class="btn btn-primary">
                         {{ icon('upload', 'me-1') }} {{ _('Upload and preview') }}

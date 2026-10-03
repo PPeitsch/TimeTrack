@@ -1,30 +1,37 @@
 import io
 from datetime import datetime, time
 
-import pandas as pd
 import pytest
+from openpyxl import Workbook
 
 from app.services.importer.excel_importer import ExcelImporter
 from app.services.importer.factory import ImporterFactory
 from app.services.importer.pdf_importer import PDFImporter
 
 
+def _xlsx(data):
+    """Build an .xlsx in memory: headers in the first row, one list per column."""
+    workbook = Workbook()
+    sheet = workbook.active
+    headers = list(data)
+    sheet.append(headers)
+    for values in zip(*(data[h] for h in headers)):
+        sheet.append(list(values))
+    output = io.BytesIO()
+    workbook.save(output)
+    output.seek(0)
+    return output
+
+
 class TestExcelImporter:
     def test_parse_valid_excel(self):
-        # Create a sample dataframe
         data = {
             "Fecha": ["2025-01-01", "2025-01-02"],
             "Entrada": ["09:00", "09:30"],
             "Salida": ["18:00", "18:30"],
             "Observación": ["Test 1", "Test 2"],
         }
-        df = pd.DataFrame(data)
-
-        # Write to bytes
-        output = io.BytesIO()
-        with pd.ExcelWriter(output, engine="openpyxl") as writer:
-            df.to_excel(writer, index=False)
-        output.seek(0)
+        output = _xlsx(data)
 
         importer = ExcelImporter()
         result = importer.parse(output.read())
@@ -42,11 +49,7 @@ class TestExcelImporter:
     def test_parse_invalid_excel(self):
         # Missing required columns
         data = {"WrongColumn": ["2025-01-01"]}
-        df = pd.DataFrame(data)
-        output = io.BytesIO()
-        with pd.ExcelWriter(output, engine="openpyxl") as writer:
-            df.to_excel(writer, index=False)
-        output.seek(0)
+        output = _xlsx(data)
 
         importer = ExcelImporter()
         result = importer.parse(output.read())
@@ -60,11 +63,7 @@ class TestExcelImporter:
             "Entrada": ["09:00", "10:00", "09:30"],
             "Salida": ["18:00", "17:00", "18:30"],
         }
-        df = pd.DataFrame(data)
-        output = io.BytesIO()
-        with pd.ExcelWriter(output, engine="openpyxl") as writer:
-            df.to_excel(writer, index=False)
-        output.seek(0)
+        output = _xlsx(data)
 
         importer = ExcelImporter()
         result = importer.parse(output.read())
@@ -73,17 +72,13 @@ class TestExcelImporter:
         assert result.total_records == 2
 
     def test_parse_excel_with_timestamp_dates(self):
-        """Test parsing Excel with pandas Timestamp dates."""
+        """Test parsing Excel with real date cells."""
         data = {
-            "Fecha": [pd.Timestamp("2025-01-01"), pd.Timestamp("2025-01-02")],
+            "Fecha": [datetime(2025, 1, 1), datetime(2025, 1, 2)],
             "Entrada": ["09:00", "09:30"],
             "Salida": ["18:00", "18:30"],
         }
-        df = pd.DataFrame(data)
-        output = io.BytesIO()
-        with pd.ExcelWriter(output, engine="openpyxl") as writer:
-            df.to_excel(writer, index=False)
-        output.seek(0)
+        output = _xlsx(data)
 
         importer = ExcelImporter()
         result = importer.parse(output.read())
@@ -98,11 +93,7 @@ class TestExcelImporter:
             "Entrada": ["09:00"],
             "Salida": ["18:00"],
         }
-        df = pd.DataFrame(data)
-        output = io.BytesIO()
-        with pd.ExcelWriter(output, engine="openpyxl") as writer:
-            df.to_excel(writer, index=False)
-        output.seek(0)
+        output = _xlsx(data)
 
         importer = ExcelImporter()
         result = importer.parse(output.read())
@@ -119,11 +110,7 @@ class TestExcelImporter:
             "Entrada": ["invalid-time"],
             "Salida": ["18:00"],
         }
-        df = pd.DataFrame(data)
-        output = io.BytesIO()
-        with pd.ExcelWriter(output, engine="openpyxl") as writer:
-            df.to_excel(writer, index=False)
-        output.seek(0)
+        output = _xlsx(data)
 
         importer = ExcelImporter()
         result = importer.parse(output.read())
@@ -139,11 +126,7 @@ class TestExcelImporter:
             "Entrada": ["09:00"],
             "Salida": ["not-a-time"],
         }
-        df = pd.DataFrame(data)
-        output = io.BytesIO()
-        with pd.ExcelWriter(output, engine="openpyxl") as writer:
-            df.to_excel(writer, index=False)
-        output.seek(0)
+        output = _xlsx(data)
 
         importer = ExcelImporter()
         result = importer.parse(output.read())
@@ -160,11 +143,7 @@ class TestExcelImporter:
             "Out": ["18:00"],
             "Notes": ["Test note"],
         }
-        df = pd.DataFrame(data)
-        output = io.BytesIO()
-        with pd.ExcelWriter(output, engine="openpyxl") as writer:
-            df.to_excel(writer, index=False)
-        output.seek(0)
+        output = _xlsx(data)
 
         importer = ExcelImporter()
         result = importer.parse(output.read())
@@ -181,17 +160,41 @@ class TestExcelImporter:
             "Salida": ["18:00"],
             "Observación": [None],
         }
-        df = pd.DataFrame(data)
-        output = io.BytesIO()
-        with pd.ExcelWriter(output, engine="openpyxl") as writer:
-            df.to_excel(writer, index=False)
-        output.seek(0)
+        output = _xlsx(data)
 
         importer = ExcelImporter()
         result = importer.parse(output.read())
 
         assert result.total_records == 1
         assert result.records[0].observation is None
+
+    def test_parse_excel_with_time_cells(self):
+        """Times stored as Excel times, not text."""
+        data = {
+            "Fecha": [datetime(2025, 1, 1)],
+            "Entrada": [time(9, 0)],
+            "Salida": [time(18, 15)],
+        }
+        result = ExcelImporter().parse(_xlsx(data).read())
+
+        assert result.valid_records == 1
+        assert result.records[0].entry_time == "09:00"
+        assert result.records[0].exit_time == "18:15"
+
+    def test_headers_match_whole_words(self):
+        """A header containing "in" or "out" as a substring is not a time column."""
+        data = {
+            "Date": ["2025-01-01"],
+            "In": ["09:00"],
+            "Out": ["18:00"],
+            "Login method": ["badge"],
+            "Checkout notes": ["ok"],
+        }
+        result = ExcelImporter().parse(_xlsx(data).read())
+
+        record = result.records[0]
+        assert (record.entry_time, record.exit_time) == ("09:00", "18:00")
+        assert record.observation == "ok"
 
     def test_parse_excel_exception_handling(self):
         """Test that parsing errors are caught."""
@@ -202,16 +205,16 @@ class TestExcelImporter:
         assert "Error parsing Excel" in result.errors[0]
 
     def test_format_time_with_timestamp(self):
-        """Test _format_time with pandas Timestamp."""
+        """Test _format_time with a datetime cell."""
         importer = ExcelImporter()
-        ts = pd.Timestamp("2025-01-01 09:30:00")
+        ts = datetime(2025, 1, 1, 9, 30)
         result = importer._format_time(ts)
         assert result == "09:30"
 
     def test_format_time_with_na(self):
-        """Test _format_time with NA value."""
+        """Test _format_time with an empty cell."""
         importer = ExcelImporter()
-        result = importer._format_time(pd.NA)
+        result = importer._format_time(None)
         assert result is None
 
     def test_format_time_with_time_object(self):
@@ -237,6 +240,7 @@ class TestImporterFactory:
         with pytest.raises(ValueError):
             ImporterFactory.get_importer("test.txt")
 
-    def test_get_importer_xls(self):
-        """Test that .xls extension works."""
-        assert isinstance(ImporterFactory.get_importer("test.xls"), ExcelImporter)
+    def test_get_importer_xls_is_not_supported(self):
+        """Legacy .xls files cannot be read without xlrd."""
+        with pytest.raises(ValueError):
+            ImporterFactory.get_importer("test.xls")

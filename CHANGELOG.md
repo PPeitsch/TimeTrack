@@ -8,6 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Excel import reads `.xlsx` files with `openpyxl` directly; `pandas` is no longer a dependency (smaller install and Docker image).
+
+### Removed
+- `.xls` upload. Those files could never be read (the `xlrd` engine was not installed); save them as `.xlsx`.
+
+### Fixed
+- Excel import matches column headers by whole word, like the PDF import (a header such as "Login method" was taken as the entry column).
+
 ## [2.0.0] - 2026-10-03
 
 First release prepared for self-hosting by others: login, a simpler interface, English and Spanish, holidays for any country and Docker.
