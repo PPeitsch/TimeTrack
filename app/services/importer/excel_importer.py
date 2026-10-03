@@ -1,8 +1,10 @@
 import io
-from typing import Any, List, Optional
+from datetime import date, datetime, time
+from typing import Any, Dict, List, Optional
 
-import pandas as pd  # type: ignore
+from openpyxl import load_workbook  # type: ignore
 
+from app.services.importer.columns import column_kind
 from app.services.importer.protocol import (
     ImporterProtocol,
     ImportResult,
@@ -12,52 +14,43 @@ from app.utils.validators import validate_date, validate_time_format
 
 
 class ExcelImporter(ImporterProtocol):
+    """Reads .xlsx files: the first row holds the headers, one day per row."""
+
     def parse(self, file_content: Any) -> ImportResult:
         records: List[TimeEntryRecord] = []
         errors: List[str] = []
 
         try:
-            # Read Excel file
-            df = pd.read_excel(io.BytesIO(file_content))
+            workbook = load_workbook(
+                io.BytesIO(file_content), read_only=True, data_only=True
+            )
+            rows = workbook.active.iter_rows(values_only=True)
+            headers = next(rows, ())
 
-            # Normalize headers
-            df.columns = df.columns.astype(str).str.lower().str.strip()
-
-            # Map columns
-            col_map = {}
-            for col in df.columns:
-                if "fecha" in col or "date" in col:
-                    col_map["date"] = col
-                elif "entrada" in col or "in" in col:
-                    col_map["entry"] = col
-                elif "salida" in col or "out" in col:
-                    col_map["exit"] = col
-                elif "observ" in col or "note" in col:
-                    col_map["obs"] = col
+            # Map each kind of column to its index (first match wins).
+            col_map: Dict[str, int] = {}
+            for idx, header in enumerate(headers):
+                kind = column_kind(str(header)) if header is not None else None
+                if kind and kind not in col_map:
+                    col_map[kind] = idx
 
             if "date" not in col_map:
                 errors.append("Could not find 'Fecha' or 'Date' column")
                 return ImportResult([], 0, 0, errors)
 
-            for _, row in df.iterrows():
-                date_val = row[col_map["date"]]
-                if pd.isna(date_val):
+            for row in rows:
+                date_val = _cell(row, col_map.get("date"))
+                if _is_empty(date_val):
                     continue
 
-                # Handle dates
-                if isinstance(date_val, pd.Timestamp):
+                if isinstance(date_val, (datetime, date)):
                     date_str = date_val.strftime("%Y-%m-%d")
                 else:
                     date_str = str(date_val).strip()
 
-                entry_val = (
-                    row.get(col_map.get("entry")) if "entry" in col_map else None
-                )
-                exit_val = row.get(col_map.get("exit")) if "exit" in col_map else None
-                obs_val = row.get(col_map.get("obs")) if "obs" in col_map else None
-
-                entry_str = self._format_time(entry_val)
-                exit_str = self._format_time(exit_val)
+                entry_str = self._format_time(_cell(row, col_map.get("entry")))
+                exit_str = self._format_time(_cell(row, col_map.get("exit")))
+                obs_val = _cell(row, col_map.get("obs"))
 
                 # Logic for validating
                 is_valid = True
@@ -78,11 +71,13 @@ class ExcelImporter(ImporterProtocol):
                         date=date_str,
                         entry_time=entry_str,
                         exit_time=exit_str,
-                        observation=str(obs_val) if pd.notna(obs_val) else None,
+                        observation=None if _is_empty(obs_val) else str(obs_val),
                         is_valid=is_valid,
                         error_message=error_msg,
                     )
                 )
+
+            workbook.close()
 
         except Exception as e:
             errors.append(f"Error parsing Excel: {str(e)}")
@@ -91,18 +86,20 @@ class ExcelImporter(ImporterProtocol):
         return ImportResult(records, len(records), valid_records, errors)
 
     def _format_time(self, val: Any) -> Optional[str]:
-        if pd.isna(val):
+        if _is_empty(val):
             return None
 
-        if isinstance(val, pd.Timestamp):
-            return str(val.strftime("%H:%M"))
+        if isinstance(val, (datetime, time)):
+            return val.strftime("%H:%M")
 
-        # If it's a datetime.time object
-        try:
-            return str(val.strftime("%H:%M"))
-        except AttributeError:
-            pass
+        return str(val).strip()
 
-        s = str(val).strip()
-        # Basic fixes
-        return s
+
+def _cell(row: tuple, idx: Optional[int]) -> Any:
+    if idx is None or idx >= len(row):
+        return None
+    return row[idx]
+
+
+def _is_empty(val: Any) -> bool:
+    return val is None or (isinstance(val, str) and not val.strip())

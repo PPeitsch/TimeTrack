@@ -32,7 +32,7 @@ import_log_bp = Blueprint("import_log", __name__, url_prefix="/import")
 # Configure upload folder
 UPLOAD_FOLDER = os.path.join(os.getcwd(), "uploads")
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-ALLOWED_EXTENSIONS = ("pdf", "xlsx", "xls")
+ALLOWED_EXTENSIONS = ("pdf", "xlsx")
 # overwrite: imported times replace the day's times; skip: days that already
 # have an entry are left alone.
 IMPORT_MODES = ("overwrite", "skip")
