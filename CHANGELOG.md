@@ -35,6 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - README rewritten for self-hosting: Docker quick start, manual installation, configuration and command reference, and screenshots (`docs/screenshots/`).
 - Contributing guide, pull request and issue templates ask for a checkbox instead of an emoji in the title; commit guidelines follow Conventional Commits. `SECURITY.md` points to GitHub private vulnerability reporting and lists the app's actual protections. `AGENTS.md` and `WORKFLOW.md` are OS-neutral.
 - Helper scripts no longer print emojis.
+- `beautifulsoup4` pinned to the stable 4.13.4 instead of a beta; unused imports removed from the import routes; `app.routes` exports every blueprint.
 - `init_db.py` builds the schema with the migrations (`flask db upgrade`) instead of `db.create_all()`, so there is a single path for the schema; it can also load demo data and no longer prints emojis.
 - Old URLs (`/monthly-log/`, `/entry`, `/summary/`, `/logs/`, `/settings/absences`, `/import/`) redirect to the new screens.
 - The calendar starts weeks on Monday and no longer shifts days in UTC+ timezones.
@@ -52,6 +53,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - API errors no longer leak exception details to the client; they are logged instead.
 
 ### Fixed
+- PDF import matches column headers by whole word: a header such as "Login method" or "Checkout notes" was taken as the entry or exit column because it contains "in" / "out".
 - Renaming an absence code also renames it on the days that use it (they used to keep the old, orphaned code).
 - Importing a record without times no longer wipes the hours already logged for that day; records with a single time or with exit before entry are flagged as invalid in the preview.
 - Reverting days to default in the calendar keeps logged hours and observations; only the override is removed.

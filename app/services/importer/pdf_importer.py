@@ -11,6 +11,24 @@ from app.services.importer.protocol import (
 )
 from app.utils.validators import validate_date, validate_time_format
 
+# Header words for each column, matched as whole words: a substring match on
+# "in" / "out" would also hit headers like "Overtime" or "Checkout notes".
+COLUMN_WORDS = {
+    "date": {"fecha", "date", "day", "dia", "día"},
+    "entry": {"entrada", "ingreso", "in", "entry", "start"},
+    "exit": {"salida", "egreso", "out", "exit", "end"},
+    "obs": {"observacion", "observación", "observaciones", "obs", "note", "notes"},
+}
+
+
+def _column_kind(header: str) -> Optional[str]:
+    """Return which column a header names ("date", "entry", ...), if any."""
+    words = set(re.findall(r"\w+", header))
+    for kind, names in COLUMN_WORDS.items():
+        if words & names:
+            return kind
+    return None
+
 
 class PDFImporter(ImporterProtocol):
     def parse(self, file_content: Any) -> ImportResult:
@@ -46,14 +64,9 @@ class PDFImporter(ImporterProtocol):
             if "fecha" in row_clean or "date" in row_clean:
                 # Map columns
                 for col_idx, val in enumerate(row_clean):
-                    if "fecha" in val or "date" in val:
-                        header_map["date"] = col_idx
-                    elif "entrada" in val or "in" in val:
-                        header_map["entry"] = col_idx
-                    elif "salida" in val or "out" in val:
-                        header_map["exit"] = col_idx
-                    elif "observ" in val or "note" in val:
-                        header_map["obs"] = col_idx
+                    kind = _column_kind(val)
+                    if kind and kind not in header_map:
+                        header_map[kind] = col_idx
                 data_start_idx = idx + 1
                 break
 
