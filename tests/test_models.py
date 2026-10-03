@@ -14,6 +14,7 @@ class TestModels(unittest.TestCase):
         class TestConfig(Config):
             TESTING = True
             SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
+            HOLIDAY_AUTO_FETCH = False
             LOGIN_DISABLED = True
             WTF_CSRF_ENABLED = False
 

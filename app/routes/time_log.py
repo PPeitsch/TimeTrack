@@ -1,11 +1,10 @@
 from calendar import monthrange
-from datetime import datetime, timedelta
+from datetime import date
 
-from flask import Blueprint, current_app, jsonify, render_template, request
+from flask import Blueprint, current_app, jsonify, render_template
 
 from app.auth import current_employee_id
-from app.models.models import ScheduleEntry
-from app.utils.time_calculator import calculate_daily_hours
+from app.services.calendar_service import resolve_days
 
 time_log = Blueprint("time_log", __name__, url_prefix="/logs")
 
@@ -17,48 +16,24 @@ def show_logs():
 
 @time_log.route("/monthly/<int:year>/<int:month>", methods=["GET"])
 def get_monthly_logs(year, month):
+    """List the days of the month that have an explicit entry."""
     try:
-        # Get start and end dates for the month
-        start_date = datetime(year, month, 1).date()
-        _, days_in_month = monthrange(year, month)
-        end_date = datetime(year, month, days_in_month).date()
-
-        # Get entries for the month
-        entries = (
-            ScheduleEntry.query.filter(
-                ScheduleEntry.date.between(start_date, end_date),
-                ScheduleEntry.employee_id == current_employee_id(),
-            )
-            .order_by(ScheduleEntry.date)
-            .all()
+        start_date = date(year, month, 1)
+        end_date = date(year, month, monthrange(year, month)[1])
+        days = resolve_days(current_employee_id(), start_date, end_date)
+        return jsonify(
+            [
+                {
+                    "date": d.date.strftime("%Y-%m-%d"),
+                    "type": d.type,
+                    "entries": d.entries,
+                    "total_hours": d.worked,
+                    "observation": d.observation,
+                }
+                for d in days
+                if d.has_entry
+            ]
         )
-
-        # Format entries for display
-        formatted_entries = []
-        for entry in entries:
-            if entry.absence_code:
-                # If it's an absence day
-                formatted_entries.append(
-                    {
-                        "date": entry.date.strftime("%Y-%m-%d"),
-                        "type": entry.absence_code,
-                        "entries": [],
-                        "total_hours": 0,
-                    }
-                )
-            else:
-                # If it's a regular work day
-                hours = calculate_daily_hours(entry.entries)
-                formatted_entries.append(
-                    {
-                        "date": entry.date.strftime("%Y-%m-%d"),
-                        "type": "Work Day",
-                        "entries": entry.entries,
-                        "total_hours": hours,
-                    }
-                )
-
-        return jsonify(formatted_entries)
     except Exception:
         current_app.logger.exception("Unhandled error")
         return jsonify({"error": "Internal server error"}), 500

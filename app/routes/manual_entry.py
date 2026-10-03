@@ -36,6 +36,10 @@ def save_entry():
         return jsonify({"error": "Invalid date format"}), 400
 
     absence_code = data.get("absence_code")
+    if absence_code is not None and not (
+        AbsenceCode.query.filter_by(code=absence_code).first()
+    ):
+        return jsonify({"error": "Unknown absence code"}), 400
 
     if absence_code is None:
         entries = data.get("entries")

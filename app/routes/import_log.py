@@ -8,7 +8,7 @@ import tempfile
 import time
 import uuid
 from datetime import datetime
-from typing import List
+from typing import List, Tuple
 
 from flask import (
     Blueprint,
@@ -25,8 +25,8 @@ from app.auth import current_employee_id
 from app.db.database import db
 from app.models.models import Employee, ScheduleEntry
 from app.services.importer.factory import ImporterFactory
-from app.services.importer.protocol import ImportResult
-from app.utils.time_calculator import calculate_daily_hours
+from app.services.importer.protocol import ImportResult, TimeEntryRecord
+from app.utils.validators import validate_entries
 
 logger = logging.getLogger(__name__)
 
@@ -37,6 +37,9 @@ import_log_bp = Blueprint("import_log", __name__, url_prefix="/import")
 UPLOAD_FOLDER = os.path.join(os.getcwd(), "uploads")
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 ALLOWED_EXTENSIONS = ("pdf", "xlsx", "xls")
+# overwrite: imported times replace the day's times; skip: days that already
+# have an entry are left alone.
+IMPORT_MODES = ("overwrite", "skip")
 
 
 @import_log_bp.route("/", methods=["GET", "POST"])
@@ -81,10 +84,7 @@ def preview(upload_id):
         return redirect(url_for("import_log.upload_file"))
 
     try:
-        importer = ImporterFactory.get_importer(filepath)
-        with open(filepath, "rb") as f:
-            content = f.read()
-            result = importer.parse(content)
+        result = _parse(filepath)
 
         return render_template(
             "import_preview.html", result=result, upload_id=upload_id
@@ -103,53 +103,21 @@ def confirm(upload_id):
         return redirect(url_for("import_log.upload_file"))
 
     try:
-        importer = ImporterFactory.get_importer(filepath)
-        with open(filepath, "rb") as f:
-            content = f.read()
-            result = importer.parse(content)
+        result = _parse(filepath)
 
-        # Import valid records
-        count = 0
-        employee_id = current_employee_id()
-
-        for record in result.records:
-            if not record.is_valid:
-                continue
-
-            # Check duplicate/overwrite?
-            entry_date = datetime.strptime(record.date, "%Y-%m-%d").date()
-            existing = ScheduleEntry.query.filter_by(
-                employee_id=employee_id, date=entry_date
-            ).first()
-
-            entries_data = []
-            if record.entry_time and record.exit_time:
-                entries_data.append(
-                    {"entry": record.entry_time, "exit": record.exit_time}
-                )
-
-            if existing:
-                existing.entries = entries_data
-                existing.observation = record.observation
-                # If valid entries exist, we assume normal work day, so unset absence?
-                if entries_data:
-                    existing.absence_code = None
-            else:
-                new_entry = ScheduleEntry(
-                    employee_id=employee_id,
-                    date=entry_date,
-                    entries=entries_data,
-                    observation=record.observation,
-                )
-                db.session.add(new_entry)
-            count += 1
-
+        mode = request.form.get("mode", "overwrite")
+        if mode not in IMPORT_MODES:
+            mode = "overwrite"
+        imported, skipped = _apply_records(result.records, current_employee_id(), mode)
         db.session.commit()
 
         # Cleanup
         os.remove(filepath)
 
-        flash(f"Successfully imported {count} records", "success")
+        message = f"Imported {imported} records"
+        if skipped:
+            message += f", skipped {skipped} (existing days or nothing to import)"
+        flash(message, "success")
         return redirect(url_for("monthly_log.view_monthly_log"))
 
     except Exception:
@@ -200,3 +168,86 @@ def _cleanup_stale_uploads():
                 os.remove(path)
         except OSError:
             logger.warning("Could not remove stale upload %s", path)
+
+
+def _parse(filepath: str) -> ImportResult:
+    """Parse an upload and flag records whose times cannot be imported."""
+    importer = ImporterFactory.get_importer(filepath)
+    with open(filepath, "rb") as f:
+        result = importer.parse(f.read())
+
+    for record in result.records:
+        if not record.is_valid:
+            continue
+        if bool(record.entry_time) != bool(record.exit_time):
+            record.is_valid = False
+            record.error_message = "Entry and exit times must both be present"
+        elif record.entry_time and record.exit_time:
+            is_valid, error = validate_entries(
+                [{"entry": record.entry_time, "exit": record.exit_time}]
+            )
+            if not is_valid:
+                record.is_valid = False
+                record.error_message = error
+    result.valid_records = sum(1 for r in result.records if r.is_valid)
+    return result
+
+
+def _apply_records(
+    records: List[TimeEntryRecord], employee_id: int, mode: str
+) -> Tuple[int, int]:
+    """Write valid records for the employee. Returns (imported, skipped).
+
+    A record without times never clears the hours already logged for that day;
+    it only sets the observation.
+    """
+    imported = skipped = 0
+    for record in records:
+        if not record.is_valid:
+            continue
+
+        entry_date = datetime.strptime(record.date, "%Y-%m-%d").date()
+        existing = ScheduleEntry.query.filter_by(
+            employee_id=employee_id, date=entry_date
+        ).first()
+        has_times = bool(record.entry_time and record.exit_time)
+
+        if existing is not None and mode == "skip":
+            skipped += 1
+            continue
+
+        if not has_times:
+            if not record.observation:
+                skipped += 1
+                continue
+            if existing is not None:
+                existing.observation = record.observation
+            else:
+                db.session.add(
+                    ScheduleEntry(
+                        employee_id=employee_id,
+                        date=entry_date,
+                        entries=[],
+                        observation=record.observation,
+                    )
+                )
+            imported += 1
+            continue
+
+        entries_data = [{"entry": record.entry_time, "exit": record.exit_time}]
+        if existing is not None:
+            existing.entries = entries_data
+            existing.absence_code = None
+            if record.observation:
+                existing.observation = record.observation
+        else:
+            db.session.add(
+                ScheduleEntry(
+                    employee_id=employee_id,
+                    date=entry_date,
+                    entries=entries_data,
+                    observation=record.observation,
+                )
+            )
+        imported += 1
+    return imported, skipped
