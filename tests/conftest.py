@@ -9,7 +9,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")
 from app import create_app
 from app.config.config import Config
 from app.db.database import db
-from app.models.models import Employee, ScheduleEntry
+from app.models.models import AbsenceCode, Employee, ScheduleEntry
 
 
 class TestConfig(Config):
@@ -87,3 +87,12 @@ def sample_entries(app, default_employee_id):
 
         db.session.commit()
         return entries
+
+
+@pytest.fixture
+def absence_codes(app):
+    """Create the absence codes used by calendar tests."""
+    with app.app_context():
+        for code in ("LAR", "MEDICAL"):
+            db.session.add(AbsenceCode(code=code))
+        db.session.commit()

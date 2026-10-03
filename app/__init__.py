@@ -1,4 +1,6 @@
-from flask import Flask, redirect, url_for
+import secrets
+
+from flask import Flask, flash, redirect, request, url_for
 from flask_migrate import Migrate  # type: ignore
 
 from app.db.database import db, init_db
@@ -13,6 +15,7 @@ from app.routes.time_summary import time_summary
 def create_app(config_object):
     app = Flask(__name__)
     app.config.from_object(config_object)
+    _ensure_secret_key(app)
 
     init_db(app)
     migrate = Migrate(app, db)
@@ -28,4 +31,22 @@ def create_app(config_object):
 
     app.register_blueprint(import_log_bp)
 
+    @app.errorhandler(413)
+    def file_too_large(_error):
+        flash("File is too large", "error")
+        return redirect(request.referrer or url_for("import_log.upload_file"))
+
     return app
+
+
+def _ensure_secret_key(app: Flask) -> None:
+    """Fail fast without SECRET_KEY, except in debug/testing where a random one is fine."""
+    if app.config.get("SECRET_KEY"):
+        return
+    if app.debug or app.testing:
+        app.config["SECRET_KEY"] = secrets.token_hex(32)
+        return
+    raise RuntimeError(
+        "SECRET_KEY is not set. Define it in the environment or in .env "
+        "(e.g. python -c 'import secrets; print(secrets.token_hex(32))')."
+    )

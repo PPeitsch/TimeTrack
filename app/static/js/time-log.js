@@ -141,14 +141,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     } else {
                         entriesHtml = '<ul class="mb-0">';
                         log.entries.forEach(entry => {
-                            entriesHtml += `<li>${entry.entry} - ${entry.exit}</li>`;
+                            entriesHtml += `<li>${escapeHTML(entry.entry)} - ${escapeHTML(entry.exit)}</li>`;
                         });
                         entriesHtml += '</ul>';
                     }
 
                     row.innerHTML = `
                         <td>${formattedDate}</td>
-                        <td>${log.type}</td>
+                        <td>${escapeHTML(log.type)}</td>
                         <td>${entriesHtml}</td>
                         <td>${log.total_hours.toFixed(1)}</td>
                     `;
@@ -161,7 +161,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.log('Fetch aborted');
             } else {
                 console.error('Error loading logs:', error);
-                logTable.innerHTML = `<tr><td colspan="4" class="text-center text-danger">Error loading data: ${error.message}</td></tr>`;
+                logTable.innerHTML = `<tr><td colspan="4" class="text-center text-danger">Error loading data: ${escapeHTML(error.message)}</td></tr>`;
             }
         } finally {
             hideLoading();

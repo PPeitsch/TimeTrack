@@ -375,7 +375,7 @@ class TestRoutes(unittest.TestCase):
                 self.assertEqual(response.status_code, 500)
                 data = json.loads(response.data)
                 self.assertIn("error", data)
-                self.assertEqual(data["error"], "Database connection failed")
+                self.assertEqual(data["error"], "Internal server error")
 
     def test_daily_summary_with_absence(self):
         """Test daily summary for a day with an absence code."""

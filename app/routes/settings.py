@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, render_template, request
+from flask import Blueprint, current_app, jsonify, render_template, request
 
 from app.db.database import db
 from app.models.models import AbsenceCode, ScheduleEntry
@@ -21,8 +21,9 @@ def get_absence_codes():
     try:
         codes = AbsenceCode.query.order_by(AbsenceCode.code).all()
         return jsonify([{"id": code.id, "code": code.code} for code in codes])
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    except Exception:
+        current_app.logger.exception("Unhandled error")
+        return jsonify({"error": "Internal server error"}), 500
 
 
 @settings_bp.route("/api/absence-codes", methods=["POST"])
@@ -45,9 +46,10 @@ def create_absence_code():
         db.session.add(new_code)
         db.session.commit()
         return jsonify({"id": new_code.id, "code": new_code.code}), 201
-    except Exception as e:
+    except Exception:
         db.session.rollback()
-        return jsonify({"error": str(e)}), 500
+        current_app.logger.exception("Unhandled error")
+        return jsonify({"error": "Internal server error"}), 500
 
 
 @settings_bp.route("/api/absence-codes/<int:code_id>", methods=["PUT"])
@@ -75,9 +77,10 @@ def update_absence_code(code_id):
         code_to_update.code = new_code_str
         db.session.commit()
         return jsonify({"id": code_to_update.id, "code": code_to_update.code})
-    except Exception as e:
+    except Exception:
         db.session.rollback()
-        return jsonify({"error": str(e)}), 500
+        current_app.logger.exception("Unhandled error")
+        return jsonify({"error": "Internal server error"}), 500
 
 
 @settings_bp.route("/api/absence-codes/<int:code_id>", methods=["DELETE"])
@@ -96,6 +99,7 @@ def delete_absence_code(code_id):
         db.session.delete(code_to_delete)
         db.session.commit()
         return jsonify({"status": "success"}), 200
-    except Exception as e:
+    except Exception:
         db.session.rollback()
-        return jsonify({"error": str(e)}), 500
+        current_app.logger.exception("Unhandled error")
+        return jsonify({"error": "Internal server error"}), 500

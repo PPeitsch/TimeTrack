@@ -1,7 +1,7 @@
 from calendar import monthrange
 from datetime import date, datetime, timedelta
 
-from flask import Blueprint, jsonify, render_template, request
+from flask import Blueprint, current_app, jsonify, render_template, request
 
 from app.db.database import db
 from app.models.models import AbsenceCode, Holiday, ScheduleEntry
@@ -61,8 +61,9 @@ def get_monthly_log_data(year, month):
 
         return jsonify(days_data)
 
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    except Exception:
+        current_app.logger.exception("Unhandled error")
+        return jsonify({"error": "Internal server error"}), 500
 
 
 @monthly_log_bp.route("/api/update-days", methods=["POST"])
@@ -75,8 +76,18 @@ def update_day_types():
     if not data or "dates" not in data or "day_type" not in data:
         return jsonify({"error": "Invalid request body"}), 400
 
-    dates_to_update = [datetime.strptime(d, "%Y-%m-%d").date() for d in data["dates"]]
+    try:
+        dates_to_update = [
+            datetime.strptime(d, "%Y-%m-%d").date() for d in data["dates"]
+        ]
+    except (TypeError, ValueError):
+        return jsonify({"error": "Invalid date format"}), 400
+
     new_day_type = data["day_type"]
+    if new_day_type not in ("DEFAULT", "Work Day") and not (
+        AbsenceCode.query.filter_by(code=new_day_type).first()
+    ):
+        return jsonify({"error": "Unknown day type"}), 400
 
     try:
         if new_day_type == "DEFAULT":
@@ -107,6 +118,7 @@ def update_day_types():
 
         db.session.commit()
         return jsonify({"status": "success"})
-    except Exception as e:
+    except Exception:
         db.session.rollback()
-        return jsonify({"error": str(e)}), 500
+        current_app.logger.exception("Unhandled error")
+        return jsonify({"error": "Internal server error"}), 500

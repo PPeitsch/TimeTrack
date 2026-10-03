@@ -56,9 +56,11 @@ class TestMonthlyLogRoutes:
         response = client.get("/monthly-log/api/2025/8")
         assert response.status_code == 500
         data = json.loads(response.data)
-        assert data["error"] == "DB Error"
+        assert data["error"] == "Internal server error"
 
-    def test_update_day_types_api_creates_and_reverts(self, app, default_employee_id):
+    def test_update_day_types_api_creates_and_reverts(
+        self, app, default_employee_id, absence_codes
+    ):
         """Test creating a new absence and reverting it to a work day."""
         client = app.test_client()
         target_date = date(2025, 9, 1)
@@ -79,7 +81,9 @@ class TestMonthlyLogRoutes:
             ).first()
             assert entry is None
 
-    def test_update_day_types_modifies_existing(self, app, default_employee_id):
+    def test_update_day_types_modifies_existing(
+        self, app, default_employee_id, absence_codes
+    ):
         """Test that updating an existing entry to an absence clears its time entries."""
         client = app.test_client()
         target_date = date(2025, 9, 5)
@@ -107,7 +111,9 @@ class TestMonthlyLogRoutes:
             assert updated_entry.absence_code == "MEDICAL"
             assert updated_entry.entries == []
 
-    def test_update_day_types_api_exception(self, client, mocker, default_employee_id):
+    def test_update_day_types_api_exception(
+        self, client, mocker, default_employee_id, absence_codes
+    ):
         """Test exception handling for the update day types API."""
         mocker.patch("app.routes.monthly_log.db.session.commit").side_effect = (
             Exception("Commit Failed")
@@ -119,7 +125,7 @@ class TestMonthlyLogRoutes:
 
         assert response.status_code == 500
         data = json.loads(response.data)
-        assert data["error"] == "Commit Failed"
+        assert data["error"] == "Internal server error"
         db.session.rollback.assert_called_once()
 
     def test_update_day_types_bad_request(self, client):

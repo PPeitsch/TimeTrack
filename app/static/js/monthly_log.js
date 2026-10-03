@@ -89,7 +89,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 dayCell.dataset.date = dateStr;
                 dayCell.addEventListener('mousedown', (e) => handleMouseDown(e.currentTarget));
                 dayCell.addEventListener('mouseover', (e) => handleMouseOver(e.currentTarget));
-                dayCell.innerHTML = `<div class="day-number">${day}</div><div class="day-type">${dayType.replace(/_/g, ' ')}</div>`;
+                dayCell.innerHTML = `<div class="day-number">${day}</div><div class="day-type">${escapeHTML(dayType.replace(/_/g, ' '))}</div>`;
                 dayCell.classList.add(`day-${dayType.toLowerCase().split(' ')[0]}`);
                 calendarGrid.appendChild(dayCell);
             }
