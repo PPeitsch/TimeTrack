@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.0] - 2026-10-03
+
+First release prepared for self-hosting by others: login, a simpler interface, English and Spanish, holidays for any country and Docker.
+
+**Upgrading from 1.x:** every page now requires a login and the app refuses to start without `SECRET_KEY`. After updating, run `flask db upgrade` (two new migrations), set `SECRET_KEY` and create the login with `flask user set-password <username>`.
+
 ### Added
 - **Simpler navigation:** four screens instead of seven. *Today* (day, week and month balance), *Calendar* (month grid with a side panel to edit a day's type, times and observation, and multi-day editing by dragging or Shift+click), *Reports* (month table with totals and CSV export) and *Settings* (absence codes and file import).
 - `GET /api/days/<year>/<month>` and `PUT /api/days/<date>` for the calendar.
@@ -22,7 +28,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Demo mode (`DEMO_MODE`, `DEMO_USERNAME`, `DEMO_PASSWORD`) that shows the demo credentials on the login page.
 - Basic login rate limiting (10 failed attempts per IP every 15 minutes) and hardened session cookies (`SESSION_COOKIE_SECURE`).
 - Migration `a1c4e2f9b7d3` adding `username` and `password_hash` to `employees`.
-
 - `app/services/calendar_service.py`: one place that decides each day's type, worked and required hours; used by the calendar, the summary and the time log.
 - Holidays load automatically the first time a year is viewed (`HOLIDAY_AUTO_FETCH`, tracked in the new `holiday_years` table, migration `b7e3d1a2c4f6`) and can be reloaded with `flask holidays refresh [YEAR ...]`.
 - Import preview lets you choose between replacing the times of existing days or skipping them.
@@ -268,6 +273,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 
+[Unreleased]: https://github.com/PPeitsch/TimeTrack/compare/v2.0.0...HEAD
+[2.0.0]: https://github.com/PPeitsch/TimeTrack/compare/v1.5.2...v2.0.0
 [1.5.2]: https://github.com/PPeitsch/TimeTrack/compare/v1.5.1...v1.5.2
 [1.5.1]: https://github.com/PPeitsch/TimeTrack/compare/v1.5.0...v1.5.1
 [1.5.0]: https://github.com/PPeitsch/TimeTrack/compare/v1.4.0...v1.5.0
