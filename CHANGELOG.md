@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Toast notifications instead of browser `alert()` dialogs.
 - **Dark mode**, following the OS preference, with a light/dark toggle in the navbar (remembered per browser).
 - Design tokens: every color is defined once in `static/css/style.css` (`--tt-*`) and Bootstrap's variables are mapped onto them.
+- **English / Spanish interface** with Flask-Babel: EN / ES switch in the navbar and on the login page (stored in the session), falling back to the browser's language. Dates, weekday names and server messages follow the language; JavaScript texts come from `js_messages()`.
 - Own SVG icon set (`static/img/icons.svg`, `_icons.html` macro) that takes the theme color, replacing the Bootstrap Icons font.
 - **Login:** single-user authentication with Flask-Login (`/login`, `/logout`); every page and API requires a session (APIs answer `401` JSON).
 - CSRF protection with Flask-WTF on forms and on every state-changing `fetch` (token sent as `X-CSRFToken`).

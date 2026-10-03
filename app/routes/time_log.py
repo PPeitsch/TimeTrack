@@ -2,6 +2,7 @@ from calendar import monthrange
 from datetime import date
 
 from flask import Blueprint, current_app, jsonify, redirect, url_for
+from flask_babel import gettext as _
 
 from app.auth import current_employee_id
 from app.services.calendar_service import resolve_days
@@ -37,4 +38,4 @@ def get_monthly_logs(year, month):
         )
     except Exception:
         current_app.logger.exception("Unhandled error")
-        return jsonify({"error": "Internal server error"}), 500
+        return jsonify({"error": _("Internal server error")}), 500

@@ -1,4 +1,5 @@
 from flask import Blueprint, current_app, jsonify, redirect, request, url_for
+from flask_babel import gettext as _
 
 from app.db.database import db
 from app.models.models import AbsenceCode, ScheduleEntry
@@ -23,7 +24,7 @@ def get_absence_codes():
         return jsonify([{"id": code.id, "code": code.code} for code in codes])
     except Exception:
         current_app.logger.exception("Unhandled error")
-        return jsonify({"error": "Internal server error"}), 500
+        return jsonify({"error": _("Internal server error")}), 500
 
 
 @settings_bp.route("/api/absence-codes", methods=["POST"])
@@ -31,15 +32,15 @@ def create_absence_code():
     """Creates a new absence code."""
     data = request.json
     if not data or not data.get("code"):
-        return jsonify({"error": "Code is required"}), 400
+        return jsonify({"error": _("Code is required")}), 400
 
     new_code_str = data["code"].strip()
     if not new_code_str:
-        return jsonify({"error": "Code cannot be empty"}), 400
+        return jsonify({"error": _("Code cannot be empty")}), 400
 
     existing_code = AbsenceCode.query.filter_by(code=new_code_str).first()
     if existing_code:
-        return jsonify({"error": "Code already exists"}), 409
+        return jsonify({"error": _("Code already exists")}), 409
 
     try:
         new_code = AbsenceCode(code=new_code_str)
@@ -49,7 +50,7 @@ def create_absence_code():
     except Exception:
         db.session.rollback()
         current_app.logger.exception("Unhandled error")
-        return jsonify({"error": "Internal server error"}), 500
+        return jsonify({"error": _("Internal server error")}), 500
 
 
 @settings_bp.route("/api/absence-codes/<int:code_id>", methods=["PUT"])
@@ -57,21 +58,21 @@ def update_absence_code(code_id):
     """Updates an existing absence code."""
     data = request.json
     if not data or not data.get("code"):
-        return jsonify({"error": "Code is required"}), 400
+        return jsonify({"error": _("Code is required")}), 400
 
     new_code_str = data["code"].strip()
     if not new_code_str:
-        return jsonify({"error": "Code cannot be empty"}), 400
+        return jsonify({"error": _("Code cannot be empty")}), 400
 
     code_to_update = db.session.get(AbsenceCode, code_id)
     if not code_to_update:
-        return jsonify({"error": "Code not found"}), 404
+        return jsonify({"error": _("Code not found")}), 404
 
     existing_code = AbsenceCode.query.filter(
         AbsenceCode.id != code_id, AbsenceCode.code == new_code_str
     ).first()
     if existing_code:
-        return jsonify({"error": "Another code with this name already exists"}), 409
+        return jsonify({"error": _("Another code with this name already exists")}), 409
 
     try:
         # Days store the code as text: rename them in the same transaction so
@@ -86,7 +87,7 @@ def update_absence_code(code_id):
     except Exception:
         db.session.rollback()
         current_app.logger.exception("Unhandled error")
-        return jsonify({"error": "Internal server error"}), 500
+        return jsonify({"error": _("Internal server error")}), 500
 
 
 @settings_bp.route("/api/absence-codes/<int:code_id>", methods=["DELETE"])
@@ -94,12 +95,12 @@ def delete_absence_code(code_id):
     """Deletes an absence code."""
     code_to_delete = db.session.get(AbsenceCode, code_id)
     if not code_to_delete:
-        return jsonify({"error": "Code not found"}), 404
+        return jsonify({"error": _("Code not found")}), 404
 
     # Manually check if the code is in use before attempting to delete.
     is_in_use = ScheduleEntry.query.filter_by(absence_code=code_to_delete.code).first()
     if is_in_use:
-        return jsonify({"error": "Cannot delete code, it is currently in use."}), 409
+        return jsonify({"error": _("Cannot delete code, it is currently in use.")}), 409
 
     try:
         db.session.delete(code_to_delete)
@@ -108,4 +109,4 @@ def delete_absence_code(code_id):
     except Exception:
         db.session.rollback()
         current_app.logger.exception("Unhandled error")
-        return jsonify({"error": "Internal server error"}), 500
+        return jsonify({"error": _("Internal server error")}), 500

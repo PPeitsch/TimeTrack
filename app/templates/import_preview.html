@@ -1,14 +1,14 @@
 {% extends "base.html" %}
 {% from "_icons.html" import icon %}
 
-{% block title %}Import Preview{% endblock %}
+{% block title %}{{ _('Import preview') }}{% endblock %}
 
 {% block content %}
 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-    <h1 class="h3 mb-0">Import preview</h1>
+    <h1 class="h3 mb-0">{{ _('Import preview') }}</h1>
     <div>
-        <span class="badge text-bg-success me-2">{{ result.valid_records }} valid</span>
-        <span class="badge text-bg-danger">{{ result.total_records - result.valid_records }} invalid</span>
+        <span class="badge text-bg-success me-2">{{ _('%(count)s valid', count=result.valid_records) }}</span>
+        <span class="badge text-bg-danger">{{ _('%(count)s invalid', count=result.total_records - result.valid_records) }}</span>
     </div>
 </div>
 <div class="row">
@@ -17,7 +17,7 @@
             <div class="card-body">
                 {% if result.errors %}
                 <div class="alert alert-warning">
-                    <strong>Parsing Issues:</strong>
+                    <strong>{{ _('Problems reading the file:') }}</strong>
                     <ul>
                         {% for error in result.errors %}
                         <li>{{ error }}</li>
@@ -30,11 +30,11 @@
                     <table class="table table-hover align-middle">
                         <thead>
                             <tr>
-                                <th>Date</th>
-                                <th>Entry</th>
-                                <th>Exit</th>
-                                <th>Observation</th>
-                                <th>Status</th>
+                                <th scope="col">{{ _('Date') }}</th>
+                                <th scope="col">{{ _('Entry') }}</th>
+                                <th scope="col">{{ _('Exit') }}</th>
+                                <th scope="col">{{ _('Observation') }}</th>
+                                <th scope="col">{{ _('Status') }}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -62,7 +62,7 @@
                     <form action="{{ url_for('import_log.cancel', upload_id=upload_id) }}" method="POST">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <button type="submit" class="btn btn-secondary">
-                            {{ icon('x', 'me-1') }} Cancel
+                            {{ icon('x', 'me-1') }} {{ _('Cancel') }}
                         </button>
                     </form>
 
@@ -72,15 +72,15 @@
                         <div class="mb-2">
                             <div class="form-check form-check-inline">
                                 <input class="form-check-input" type="radio" name="mode" id="modeOverwrite" value="overwrite" checked>
-                                <label class="form-check-label" for="modeOverwrite">Replace times of existing days</label>
+                                <label class="form-check-label" for="modeOverwrite">{{ _('Replace times of existing days') }}</label>
                             </div>
                             <div class="form-check form-check-inline">
                                 <input class="form-check-input" type="radio" name="mode" id="modeSkip" value="skip">
-                                <label class="form-check-label" for="modeSkip">Skip days that already have data</label>
+                                <label class="form-check-label" for="modeSkip">{{ _('Skip days that already have data') }}</label>
                             </div>
                         </div>
                         <button type="submit" class="btn btn-success btn-lg">
-                            {{ icon('save', 'me-1') }} Import {{ result.valid_records }} Records
+                            {{ icon('save', 'me-1') }} {{ _('Import %(count)s records', count=result.valid_records) }}
                         </button>
                     </form>
                     {% endif %}

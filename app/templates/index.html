@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% from "_icons.html" import icon %}
 
-{% block title %}Today{% endblock %}
+{% block title %}{{ _('Today') }}{% endblock %}
 
 {% macro balance(value) -%}
 <span class="{{ 'balance-positive' if value >= 0 else 'balance-negative' }}">{{ value | hours(signed=True) }}</span>
@@ -10,11 +10,11 @@
 {% block content %}
 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
     <div>
-        <h1 class="h3 mb-0">Today</h1>
-        <p class="text-body-secondary mb-0">{{ today.date.strftime('%A, %d %B %Y') }}</p>
+        <h1 class="h3 mb-0">{{ _('Today') }}</h1>
+        <p class="text-body-secondary mb-0">{{ today.date | dateformat('full') }}</p>
     </div>
     <a class="btn btn-primary" href="{{ url_for('main.calendar', day=today.date.isoformat()) }}">
-        {{ icon('pencil', 'me-1') }} Log today
+        {{ icon('pencil', 'me-1') }} {{ _('Log today') }}
     </a>
 </div>
 
@@ -22,17 +22,17 @@
     <div class="col-md-4">
         <section class="card h-100" aria-labelledby="todayTitle">
             <div class="card-body">
-                <h2 class="h6 text-body-secondary" id="todayTitle">Today</h2>
+                <h2 class="h6 text-body-secondary" id="todayTitle">{{ _('Today') }}</h2>
                 <p class="stat-value mb-1">{{ today.worked | hours }}</p>
                 <p class="mb-2 small text-body-secondary">
-                    {{ today.type }}{% if today.type == 'Work Day' and today.base_type != 'Work Day' %} ({{ today.base_type }}, extra hours){% endif %}{% if today.required %} &middot; {{ today.required | hours }} required{% endif %}
+                    {{ day_label(today.type) }}{% if today.type == 'Work Day' and today.base_type != 'Work Day' %} ({{ _('%(type)s, extra hours', type=day_label(today.base_type)) }}){% endif %}{% if today.required %} &middot; {{ _('%(hours)s required', hours=today.required | hours) }}{% endif %}
                 </p>
                 {% if today.entries %}
                 <ul class="list-unstyled small mb-0">
                     {% for e in today.entries %}<li>{{ e.entry }} - {{ e.exit }}</li>{% endfor %}
                 </ul>
                 {% elif not today.absence_code %}
-                <p class="small mb-0 text-body-secondary">No hours logged yet.</p>
+                <p class="small mb-0 text-body-secondary">{{ _('No hours logged yet.') }}</p>
                 {% endif %}
             </div>
         </section>
@@ -40,18 +40,18 @@
     <div class="col-md-4">
         <section class="card h-100" aria-labelledby="weekTitle">
             <div class="card-body">
-                <h2 class="h6 text-body-secondary" id="weekTitle">This week, to date</h2>
+                <h2 class="h6 text-body-secondary" id="weekTitle">{{ _('This week, to date') }}</h2>
                 <p class="stat-value mb-1">{{ balance(week.difference) }}</p>
-                <p class="small text-body-secondary mb-0">{{ week.total | hours }} worked of {{ week.required | hours }} required</p>
+                <p class="small text-body-secondary mb-0">{{ _('%(worked)s worked of %(required)s required', worked=week.total | hours, required=week.required | hours) }}</p>
             </div>
         </section>
     </div>
     <div class="col-md-4">
         <section class="card h-100" aria-labelledby="monthTitle">
             <div class="card-body">
-                <h2 class="h6 text-body-secondary" id="monthTitle">This month, to date</h2>
+                <h2 class="h6 text-body-secondary" id="monthTitle">{{ _('This month, to date') }}</h2>
                 <p class="stat-value mb-1">{{ balance(month.difference) }}</p>
-                <p class="small text-body-secondary mb-0">{{ month.total | hours }} worked of {{ month.required | hours }} required</p>
+                <p class="small text-body-secondary mb-0">{{ _('%(worked)s worked of %(required)s required', worked=month.total | hours, required=month.required | hours) }}</p>
             </div>
         </section>
     </div>

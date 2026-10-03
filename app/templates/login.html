@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Log in{% endblock %}
+{% block title %}{{ _('Log in') }}{% endblock %}
 
 {% block nav %}{% endblock %}
 
@@ -9,32 +9,34 @@
     <div class="col-sm-10 col-md-6 col-lg-4">
         <div class="card shadow-sm mt-4">
             <div class="card-body p-4">
-                <h1 class="h4 mb-4 text-center">Log in to TimeTrack</h1>
+                <div class="d-flex justify-content-end mb-2">{% include "_language_switch.html" %}</div>
+                <h1 class="h4 mb-4 text-center">{{ _('Log in to TimeTrack') }}</h1>
 
                 {% if demo_username %}
                 <div class="alert alert-info small" role="note">
-                    This is a demo. Log in with user <strong>{{ demo_username }}</strong>
-                    and password <strong>{{ demo_password }}</strong>.
+                    {{ _('This is a demo. Log in with user %(user)s and password %(password)s.',
+                         user=('<strong>%s</strong>' % (demo_username | e)) | safe,
+                         password=('<strong>%s</strong>' % (demo_password | e)) | safe) }}
                 </div>
                 {% endif %}
 
                 <form method="POST">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <div class="mb-3">
-                        <label for="username" class="form-label">Username</label>
+                        <label for="username" class="form-label">{{ _('Username') }}</label>
                         <input type="text" class="form-control" id="username" name="username"
                                value="{{ username or demo_username or '' }}" autocomplete="username" required autofocus>
                     </div>
                     <div class="mb-3">
-                        <label for="password" class="form-label">Password</label>
+                        <label for="password" class="form-label">{{ _('Password') }}</label>
                         <input type="password" class="form-control" id="password" name="password"
                                autocomplete="current-password" required>
                     </div>
                     <div class="form-check mb-3">
                         <input class="form-check-input" type="checkbox" id="remember" name="remember" value="1">
-                        <label class="form-check-label" for="remember">Remember me</label>
+                        <label class="form-check-label" for="remember">{{ _('Remember me') }}</label>
                     </div>
-                    <button type="submit" class="btn btn-primary w-100">Log in</button>
+                    <button type="submit" class="btn btn-primary w-100">{{ _('Log in') }}</button>
                 </form>
             </div>
         </div>

@@ -2,6 +2,7 @@ from calendar import monthrange
 from datetime import date, datetime
 
 from flask import Blueprint, current_app, jsonify, redirect, url_for
+from flask_babel import gettext as _
 
 from app.auth import current_employee_id
 from app.services.calendar_service import resolve_day, resolve_days, summarize
@@ -20,7 +21,7 @@ def get_daily_summary(date):
     try:
         date_obj = datetime.strptime(date, "%Y-%m-%d").date()
     except ValueError:
-        return jsonify({"error": "Invalid date format"}), 400
+        return jsonify({"error": _("Invalid date format")}), 400
 
     try:
         day = resolve_day(current_employee_id(), date_obj)
@@ -35,7 +36,7 @@ def get_daily_summary(date):
         )
     except Exception:
         current_app.logger.exception("Unhandled error")
-        return jsonify({"error": "Internal server error"}), 500
+        return jsonify({"error": _("Internal server error")}), 500
 
 
 @time_summary.route("/monthly/<int:year>/<int:month>", methods=["GET"])
@@ -47,4 +48,4 @@ def get_monthly_summary(year, month):
         return jsonify(summarize(days))
     except Exception:
         current_app.logger.exception("Unhandled error")
-        return jsonify({"error": "Internal server error"}), 500
+        return jsonify({"error": _("Internal server error")}), 500

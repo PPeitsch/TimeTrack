@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import Any, Dict, Optional, cast
 
 from flask import Blueprint, jsonify, redirect, request, url_for
+from flask_babel import gettext as _
 
 from app.auth import current_employee_id
 from app.db.database import db
@@ -22,27 +23,27 @@ def show_entry_form():
 def save_entry():
     data = request.json
     if data is None:
-        return jsonify({"error": "No JSON data provided"}), 400
+        return jsonify({"error": _("No JSON data provided")}), 400
 
     date_str = data.get("date")
     if date_str is None:
-        return jsonify({"error": "Date is required"}), 400
+        return jsonify({"error": _("Date is required")}), 400
 
     if not validate_date(date_str):
-        return jsonify({"error": "Invalid date format"}), 400
+        return jsonify({"error": _("Invalid date format")}), 400
 
     absence_code = data.get("absence_code")
     if absence_code is not None and not (
         AbsenceCode.query.filter_by(code=absence_code).first()
     ):
-        return jsonify({"error": "Unknown absence code"}), 400
+        return jsonify({"error": _("Unknown absence code")}), 400
 
     if absence_code is None:
         entries = data.get("entries")
         if entries is None:
-            return jsonify({"error": "Entries are required for work day"}), 400
+            return jsonify({"error": _("Entries are required for work day")}), 400
         if not entries:
-            return jsonify({"error": "No time entries provided for work day"}), 400
+            return jsonify({"error": _("No time entries provided for work day")}), 400
         is_valid, error = validate_entries(entries)
         if not is_valid:
             return jsonify({"error": error}), 400
@@ -81,7 +82,7 @@ def save_entry():
 @manual_entry.route("/entry/<date>", methods=["GET"])
 def get_entry(date):
     if not validate_date(date):
-        return jsonify({"error": "Invalid date format"}), 400
+        return jsonify({"error": _("Invalid date format")}), 400
 
     entry = ScheduleEntry.query.filter_by(
         date=datetime.strptime(date, "%Y-%m-%d").date(),

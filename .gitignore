@@ -52,9 +52,11 @@ coverage.xml
 .pytest_cache/
 cover/
 
-# Translations
+# Translations (the app's compiled catalogs and template are versioned)
 *.mo
 *.pot
+!app/translations/*/LC_MESSAGES/messages.mo
+!app/translations/messages.pot
 
 # Django stuff:
 *.log

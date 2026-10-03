@@ -1,0 +1,440 @@
+# Translations template for PROJECT.
+# Copyright (C) 2026 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-10-03 01:51-0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#, python-format
+msgid "\"Default\" follows the base calendar: %(type)s."
+msgstr ""
+
+msgid "\"Default\" removes the override; days with logged hours keep them."
+msgstr ""
+
+#, python-format
+msgid "%(count)s days selected"
+msgstr ""
+
+#, python-format
+msgid "%(count)s days updated."
+msgstr ""
+
+#, python-format
+msgid "%(count)s invalid"
+msgstr ""
+
+#, python-format
+msgid "%(count)s valid"
+msgstr ""
+
+#, python-format
+msgid "%(hours)s required"
+msgstr ""
+
+#, python-format
+msgid "%(hours)s worked"
+msgstr ""
+
+#, python-format
+msgid "%(type)s, extra hours"
+msgstr ""
+
+#, python-format
+msgid "%(worked)s worked of %(required)s required"
+msgstr ""
+
+msgid "Absence"
+msgstr ""
+
+msgid "Absence codes"
+msgstr ""
+
+msgid "Actions"
+msgstr ""
+
+msgid "Add"
+msgstr ""
+
+msgid "Add time range"
+msgstr ""
+
+msgid "Another code with this name already exists"
+msgstr ""
+
+msgid "Apply"
+msgstr ""
+
+msgid "Balance"
+msgstr ""
+
+msgid "Calendar"
+msgstr ""
+
+msgid "Cancel"
+msgstr ""
+
+msgid "Cannot delete code, it is currently in use."
+msgstr ""
+
+msgid ""
+"Click a day to edit it. Drag across days, or Shift+click, to change "
+"several at once."
+msgstr ""
+
+msgid "Close"
+msgstr ""
+
+msgid "Code"
+msgstr ""
+
+msgid "Code added."
+msgstr ""
+
+msgid "Code already exists"
+msgstr ""
+
+msgid "Code cannot be empty"
+msgstr ""
+
+msgid "Code deleted."
+msgstr ""
+
+msgid "Code is required"
+msgstr ""
+
+msgid "Code not found"
+msgstr ""
+
+msgid "Code renamed."
+msgstr ""
+
+msgid "Could not add the code."
+msgstr ""
+
+msgid "Could not delete the code."
+msgstr ""
+
+msgid "Could not load the absence codes."
+msgstr ""
+
+msgid "Could not load the calendar."
+msgstr ""
+
+msgid "Could not rename the code."
+msgstr ""
+
+msgid "Could not save the changes."
+msgstr ""
+
+msgid "Could not save the day."
+msgstr ""
+
+msgid "Date"
+msgstr ""
+
+msgid "Date is required"
+msgstr ""
+
+msgid "Day saved."
+msgstr ""
+
+msgid "Day type"
+msgstr ""
+
+msgid "Default"
+msgstr ""
+
+msgid "Default (base calendar)"
+msgstr ""
+
+msgid "Delete"
+msgstr ""
+
+msgid "Delete this absence code? This cannot be undone."
+msgstr ""
+
+msgid "Entries are required for work day"
+msgstr ""
+
+msgid "Entry"
+msgstr ""
+
+msgid "Entry and exit times are required"
+msgstr ""
+
+msgid "Entry and exit times must both be present"
+msgstr ""
+
+msgid "Entry time"
+msgstr ""
+
+msgid "Error importing data."
+msgstr ""
+
+msgid "Error parsing file. Check that it has the expected format."
+msgstr ""
+
+msgid "Exit"
+msgstr ""
+
+msgid "Exit time"
+msgstr ""
+
+msgid "Exit time must be after entry time"
+msgstr ""
+
+msgid "File"
+msgstr ""
+
+msgid "File is too large"
+msgstr ""
+
+msgid "File not found or expired"
+msgstr ""
+
+msgid "Has observation"
+msgstr ""
+
+msgid "Holiday"
+msgstr ""
+
+#, python-format
+msgid "Hours per day, %(month)s"
+msgstr ""
+
+#, python-format
+msgid "Import %(count)s records"
+msgstr ""
+
+msgid "Import hours"
+msgstr ""
+
+msgid "Import preview"
+msgstr ""
+
+#, python-format
+msgid "Imported %(count)s records."
+msgstr ""
+
+msgid "Internal server error"
+msgstr ""
+
+msgid "Invalid date format"
+msgstr ""
+
+msgid "Invalid month"
+msgstr ""
+
+msgid "Invalid request body"
+msgstr ""
+
+msgid "Invalid time format (use HH:MM)"
+msgstr ""
+
+msgid "Invalid time values"
+msgstr ""
+
+msgid "Invalid username or password."
+msgstr ""
+
+msgid "Language"
+msgstr ""
+
+msgid "Loading..."
+msgstr ""
+
+msgid "Log in"
+msgstr ""
+
+msgid "Log in to TimeTrack"
+msgstr ""
+
+msgid "Log out"
+msgstr ""
+
+msgid "Log today"
+msgstr ""
+
+msgid "Month"
+msgstr ""
+
+msgid "New code"
+msgstr ""
+
+msgid "New code, e.g. Vacation"
+msgstr ""
+
+msgid "Next month"
+msgstr ""
+
+msgid "No JSON data provided"
+msgstr ""
+
+msgid "No absence codes yet."
+msgstr ""
+
+#, python-format
+msgid "No absence codes yet. Create them in %(link)s."
+msgstr ""
+
+msgid "No entries provided"
+msgstr ""
+
+msgid "No file part"
+msgstr ""
+
+msgid "No hours logged yet."
+msgstr ""
+
+msgid "No selected file"
+msgstr ""
+
+msgid "No time entries provided for work day"
+msgstr ""
+
+msgid "Observation"
+msgstr ""
+
+msgid "Password"
+msgstr ""
+
+msgid "Previous month"
+msgstr ""
+
+msgid "Problems reading the file:"
+msgstr ""
+
+msgid "Remember me"
+msgstr ""
+
+msgid "Remove time range"
+msgstr ""
+
+msgid "Rename"
+msgstr ""
+
+msgid "Rename absence code"
+msgstr ""
+
+msgid "Replace times of existing days"
+msgstr ""
+
+msgid "Reports"
+msgstr ""
+
+msgid "Required"
+msgstr ""
+
+msgid "Save"
+msgstr ""
+
+msgid "Set all selected days to"
+msgstr ""
+
+msgid "Settings"
+msgstr ""
+
+#, python-format
+msgid "Signed in as %(name)s"
+msgstr ""
+
+msgid "Skip days that already have data"
+msgstr ""
+
+#, python-format
+msgid "Skipped %(count)s (existing days or nothing to import)."
+msgstr ""
+
+msgid "Status"
+msgstr ""
+
+msgid "Switch to dark theme"
+msgstr ""
+
+msgid "Switch to light theme"
+msgstr ""
+
+#, python-format
+msgid "This is a demo. Log in with user %(user)s and password %(password)s."
+msgstr ""
+
+msgid "This month, to date"
+msgstr ""
+
+msgid "This week, to date"
+msgstr ""
+
+msgid "Times"
+msgstr ""
+
+msgid "Today"
+msgstr ""
+
+msgid "Toggle navigation"
+msgstr ""
+
+msgid "Too many failed attempts. Try again in a few minutes."
+msgstr ""
+
+msgid "Total"
+msgstr ""
+
+msgid "Type"
+msgstr ""
+
+msgid ""
+"Types of absence you can assign to a day (vacation, sick leave...). "
+"Renaming a code also renames it on the days that use it."
+msgstr ""
+
+msgid "Unknown absence code"
+msgstr ""
+
+msgid "Unknown day type"
+msgstr ""
+
+msgid "Unsupported file type"
+msgstr ""
+
+msgid ""
+"Upload a PDF or Excel report (xlsx, xls) with date, entry, exit and "
+"observation columns. You will see a preview before anything is saved."
+msgstr ""
+
+msgid "Upload and preview"
+msgstr ""
+
+msgid "Username"
+msgstr ""
+
+msgid "Weekend"
+msgstr ""
+
+msgid "Work"
+msgstr ""
+
+msgid "Work Day"
+msgstr ""
+
+msgid "Worked"
+msgstr ""
+
+msgid "You have been logged out."
+msgstr ""
+
+msgid "kind must be one of: work, absence, default"
+msgstr ""
+

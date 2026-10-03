@@ -21,6 +21,7 @@ from flask import (
     request,
     url_for,
 )
+from flask_babel import gettext as _
 from flask_login import (  # type: ignore
     LoginManager,
     current_user,
@@ -39,7 +40,7 @@ csrf = CSRFProtect()
 auth_bp = Blueprint("auth", __name__)
 
 # Endpoints reachable without a session.
-PUBLIC_ENDPOINTS = {"auth.login", "static"}
+PUBLIC_ENDPOINTS = {"auth.login", "static", "i18n.set_language"}
 
 # Failed login attempts per client IP, kept in memory (single process is enough
 # for a self-hosted single-user app).
@@ -111,7 +112,7 @@ def login():
     if request.method == "POST":
         ip = request.remote_addr or "unknown"
         if _too_many_attempts(ip):
-            flash("Too many failed attempts. Try again in a few minutes.", "error")
+            flash(_("Too many failed attempts. Try again in a few minutes."), "error")
             return render_template("login.html", **context), 429
 
         username = (request.form.get("username") or "").strip()
@@ -120,7 +121,7 @@ def login():
 
         if user is None or not user.check_password(password):
             _failed_logins[ip].append(time.monotonic())
-            flash("Invalid username or password.", "error")
+            flash(_("Invalid username or password."), "error")
             return render_template("login.html", username=username, **context), 401
 
         _failed_logins.pop(ip, None)
@@ -133,7 +134,7 @@ def login():
 @auth_bp.route("/logout", methods=["POST"])
 def logout():
     logout_user()
-    flash("You have been logged out.", "success")
+    flash(_("You have been logged out."), "success")
     return redirect(url_for("auth.login"))
 
 

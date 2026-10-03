@@ -1,0 +1,10 @@
+{# EN / ES switch. POST with CSRF; returns to the current page. #}
+<form action="" method="POST" class="d-flex align-items-center lang-switch" aria-label="{{ _('Language') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="next" value="{{ request.full_path.rstrip('?') }}">
+    {% for code, name in LANGUAGES.items() %}
+    <button type="submit" formaction="{{ url_for('i18n.set_language', code=code) }}"
+        class="btn btn-link nav-link px-2 {{ 'active' if code == current_language }}"
+        lang="{{ code }}" title="{{ name }}" {% if code == current_language %}aria-current="true"{% endif %}>{{ code | upper }}</button>
+    {% endfor %}
+</form>

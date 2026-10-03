@@ -1,0 +1,445 @@
+# Spanish translations for PROJECT.
+# Copyright (C) 2026 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-10-03 01:51-0300\n"
+"PO-Revision-Date: 2026-10-03 01:51-0300\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: es\n"
+"Language-Team: es <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#, python-format
+msgid "\"Default\" follows the base calendar: %(type)s."
+msgstr "\"Por defecto\" sigue el calendario base: %(type)s."
+
+msgid "\"Default\" removes the override; days with logged hours keep them."
+msgstr "\"Por defecto\" quita el cambio manual; los días con horas cargadas las conservan."
+
+#, python-format
+msgid "%(count)s days selected"
+msgstr "%(count)s días seleccionados"
+
+#, python-format
+msgid "%(count)s days updated."
+msgstr "%(count)s días actualizados."
+
+#, python-format
+msgid "%(count)s invalid"
+msgstr "%(count)s inválidos"
+
+#, python-format
+msgid "%(count)s valid"
+msgstr "%(count)s válidos"
+
+#, python-format
+msgid "%(hours)s required"
+msgstr "%(hours)s requeridas"
+
+#, python-format
+msgid "%(hours)s worked"
+msgstr "%(hours)s trabajadas"
+
+#, python-format
+msgid "%(type)s, extra hours"
+msgstr "%(type)s, horas extra"
+
+#, python-format
+msgid "%(worked)s worked of %(required)s required"
+msgstr "%(worked)s trabajadas de %(required)s requeridas"
+
+msgid "Absence"
+msgstr "Ausencia"
+
+msgid "Absence codes"
+msgstr "Códigos de ausencia"
+
+msgid "Actions"
+msgstr "Acciones"
+
+msgid "Add"
+msgstr "Agregar"
+
+msgid "Add time range"
+msgstr "Agregar rango horario"
+
+msgid "Another code with this name already exists"
+msgstr "Ya existe otro código con ese nombre"
+
+msgid "Apply"
+msgstr "Aplicar"
+
+msgid "Balance"
+msgstr "Balance"
+
+msgid "Calendar"
+msgstr "Calendario"
+
+msgid "Cancel"
+msgstr "Cancelar"
+
+msgid "Cannot delete code, it is currently in use."
+msgstr "No se puede borrar el código: hay días que lo usan."
+
+msgid "Click a day to edit it. Drag across days, or Shift+click, to change several at once."
+msgstr ""
+"Hacé click en un día para editarlo. Arrastrá sobre varios días, o usá Shift+click, para "
+"cambiarlos juntos."
+
+msgid "Close"
+msgstr "Cerrar"
+
+msgid "Code"
+msgstr "Código"
+
+msgid "Code added."
+msgstr "Código agregado."
+
+msgid "Code already exists"
+msgstr "El código ya existe"
+
+msgid "Code cannot be empty"
+msgstr "El código no puede estar vacío"
+
+msgid "Code deleted."
+msgstr "Código borrado."
+
+msgid "Code is required"
+msgstr "El código es obligatorio"
+
+msgid "Code not found"
+msgstr "No se encontró el código"
+
+msgid "Code renamed."
+msgstr "Código renombrado."
+
+msgid "Could not add the code."
+msgstr "No se pudo agregar el código."
+
+msgid "Could not delete the code."
+msgstr "No se pudo borrar el código."
+
+msgid "Could not load the absence codes."
+msgstr "No se pudieron cargar los códigos de ausencia."
+
+msgid "Could not load the calendar."
+msgstr "No se pudo cargar el calendario."
+
+msgid "Could not rename the code."
+msgstr "No se pudo renombrar el código."
+
+msgid "Could not save the changes."
+msgstr "No se pudieron guardar los cambios."
+
+msgid "Could not save the day."
+msgstr "No se pudo guardar el día."
+
+msgid "Date"
+msgstr "Fecha"
+
+msgid "Date is required"
+msgstr "La fecha es obligatoria"
+
+msgid "Day saved."
+msgstr "Día guardado."
+
+msgid "Day type"
+msgstr "Tipo de día"
+
+msgid "Default"
+msgstr "Por defecto"
+
+msgid "Default (base calendar)"
+msgstr "Por defecto (calendario base)"
+
+msgid "Delete"
+msgstr "Borrar"
+
+msgid "Delete this absence code? This cannot be undone."
+msgstr "¿Borrar este código de ausencia? No se puede deshacer."
+
+msgid "Entries are required for work day"
+msgstr "Un día laboral necesita horarios"
+
+msgid "Entry"
+msgstr "Entrada"
+
+msgid "Entry and exit times are required"
+msgstr "Hacen falta la hora de entrada y la de salida"
+
+msgid "Entry and exit times must both be present"
+msgstr "Tienen que estar la hora de entrada y la de salida"
+
+msgid "Entry time"
+msgstr "Hora de entrada"
+
+msgid "Error importing data."
+msgstr "Error al importar los datos."
+
+msgid "Error parsing file. Check that it has the expected format."
+msgstr "No se pudo leer el archivo. Revisá que tenga el formato esperado."
+
+msgid "Exit"
+msgstr "Salida"
+
+msgid "Exit time"
+msgstr "Hora de salida"
+
+msgid "Exit time must be after entry time"
+msgstr "La salida tiene que ser posterior a la entrada"
+
+msgid "File"
+msgstr "Archivo"
+
+msgid "File is too large"
+msgstr "El archivo es demasiado grande"
+
+msgid "File not found or expired"
+msgstr "El archivo no existe o venció"
+
+msgid "Has observation"
+msgstr "Tiene observación"
+
+msgid "Holiday"
+msgstr "Feriado"
+
+#, python-format
+msgid "Hours per day, %(month)s"
+msgstr "Horas por día, %(month)s"
+
+#, python-format
+msgid "Import %(count)s records"
+msgstr "Importar %(count)s registros"
+
+msgid "Import hours"
+msgstr "Importar horas"
+
+msgid "Import preview"
+msgstr "Vista previa de la importación"
+
+#, python-format
+msgid "Imported %(count)s records."
+msgstr "Se importaron %(count)s registros."
+
+msgid "Internal server error"
+msgstr "Error interno del servidor"
+
+msgid "Invalid date format"
+msgstr "Formato de fecha inválido"
+
+msgid "Invalid month"
+msgstr "Mes inválido"
+
+msgid "Invalid request body"
+msgstr "Pedido inválido"
+
+msgid "Invalid time format (use HH:MM)"
+msgstr "Formato de hora inválido (usá HH:MM)"
+
+msgid "Invalid time values"
+msgstr "Horarios inválidos"
+
+msgid "Invalid username or password."
+msgstr "Usuario o contraseña incorrectos."
+
+msgid "Language"
+msgstr "Idioma"
+
+msgid "Loading..."
+msgstr "Cargando..."
+
+msgid "Log in"
+msgstr "Ingresar"
+
+msgid "Log in to TimeTrack"
+msgstr "Ingresar a TimeTrack"
+
+msgid "Log out"
+msgstr "Salir"
+
+msgid "Log today"
+msgstr "Cargar hoy"
+
+msgid "Month"
+msgstr "Mes"
+
+msgid "New code"
+msgstr "Código nuevo"
+
+msgid "New code, e.g. Vacation"
+msgstr "Código nuevo, por ej. Vacaciones"
+
+msgid "Next month"
+msgstr "Mes siguiente"
+
+msgid "No JSON data provided"
+msgstr "No se enviaron datos JSON"
+
+msgid "No absence codes yet."
+msgstr "Todavía no hay códigos de ausencia."
+
+#, python-format
+msgid "No absence codes yet. Create them in %(link)s."
+msgstr "Todavía no hay códigos de ausencia. Crealos en %(link)s."
+
+msgid "No entries provided"
+msgstr "No se enviaron horarios"
+
+msgid "No file part"
+msgstr "No se envió ningún archivo"
+
+msgid "No hours logged yet."
+msgstr "Todavía no hay horas cargadas."
+
+msgid "No selected file"
+msgstr "No se eligió ningún archivo"
+
+msgid "No time entries provided for work day"
+msgstr "No hay horarios para el día laboral"
+
+msgid "Observation"
+msgstr "Observación"
+
+msgid "Password"
+msgstr "Contraseña"
+
+msgid "Previous month"
+msgstr "Mes anterior"
+
+msgid "Problems reading the file:"
+msgstr "Problemas al leer el archivo:"
+
+msgid "Remember me"
+msgstr "Recordarme"
+
+msgid "Remove time range"
+msgstr "Quitar rango horario"
+
+msgid "Rename"
+msgstr "Renombrar"
+
+msgid "Rename absence code"
+msgstr "Renombrar código de ausencia"
+
+msgid "Replace times of existing days"
+msgstr "Reemplazar los horarios de los días que ya tienen datos"
+
+msgid "Reports"
+msgstr "Reportes"
+
+msgid "Required"
+msgstr "Requeridas"
+
+msgid "Save"
+msgstr "Guardar"
+
+msgid "Set all selected days to"
+msgstr "Marcar los días seleccionados como"
+
+msgid "Settings"
+msgstr "Ajustes"
+
+#, python-format
+msgid "Signed in as %(name)s"
+msgstr "Sesión iniciada como %(name)s"
+
+msgid "Skip days that already have data"
+msgstr "Saltear los días que ya tienen datos"
+
+#, python-format
+msgid "Skipped %(count)s (existing days or nothing to import)."
+msgstr "Se saltearon %(count)s (días con datos o sin nada para importar)."
+
+msgid "Status"
+msgstr "Estado"
+
+msgid "Switch to dark theme"
+msgstr "Cambiar a tema oscuro"
+
+msgid "Switch to light theme"
+msgstr "Cambiar a tema claro"
+
+#, python-format
+msgid "This is a demo. Log in with user %(user)s and password %(password)s."
+msgstr "Esto es una demo. Ingresá con el usuario %(user)s y la contraseña %(password)s."
+
+msgid "This month, to date"
+msgstr "Este mes, a la fecha"
+
+msgid "This week, to date"
+msgstr "Esta semana, a la fecha"
+
+msgid "Times"
+msgstr "Horarios"
+
+msgid "Today"
+msgstr "Hoy"
+
+msgid "Toggle navigation"
+msgstr "Mostrar u ocultar la navegación"
+
+msgid "Too many failed attempts. Try again in a few minutes."
+msgstr "Demasiados intentos fallidos. Probá de nuevo en unos minutos."
+
+msgid "Total"
+msgstr "Total"
+
+msgid "Type"
+msgstr "Tipo"
+
+msgid ""
+"Types of absence you can assign to a day (vacation, sick leave...). Renaming a code also renames "
+"it on the days that use it."
+msgstr ""
+"Tipos de ausencia que podés asignar a un día (vacaciones, enfermedad...). Renombrar un código "
+"también lo renombra en los días que lo usan."
+
+msgid "Unknown absence code"
+msgstr "Código de ausencia desconocido"
+
+msgid "Unknown day type"
+msgstr "Tipo de día desconocido"
+
+msgid "Unsupported file type"
+msgstr "Tipo de archivo no soportado"
+
+msgid ""
+"Upload a PDF or Excel report (xlsx, xls) with date, entry, exit and observation columns. You will"
+" see a preview before anything is saved."
+msgstr ""
+"Subí un reporte en PDF o Excel (xlsx, xls) con columnas de fecha, entrada, salida y observación. "
+"Vas a ver una vista previa antes de que se guarde nada."
+
+msgid "Upload and preview"
+msgstr "Subir y previsualizar"
+
+msgid "Username"
+msgstr "Usuario"
+
+msgid "Weekend"
+msgstr "Fin de semana"
+
+msgid "Work"
+msgstr "Trabajo"
+
+msgid "Work Day"
+msgstr "Día laboral"
+
+msgid "Worked"
+msgstr "Trabajadas"
+
+msgid "You have been logged out."
+msgstr "Cerraste la sesión."
+
+msgid "kind must be one of: work, absence, default"
+msgstr "kind tiene que ser work, absence o default"
+

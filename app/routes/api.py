@@ -4,6 +4,7 @@ from calendar import monthrange
 from datetime import date, datetime
 
 from flask import Blueprint, current_app, jsonify, request
+from flask_babel import gettext as _
 
 from app.auth import current_employee_id
 from app.db.database import db
@@ -36,7 +37,7 @@ def month_days(year, month):
     try:
         start = date(year, month, 1)
     except ValueError:
-        return jsonify({"error": "Invalid month"}), 400
+        return jsonify({"error": _("Invalid month")}), 400
     end = date(year, month, monthrange(year, month)[1])
     days = resolve_days(current_employee_id(), start, end)
     return jsonify(
@@ -55,12 +56,12 @@ def save_day(day_str):
     try:
         day = datetime.strptime(day_str, "%Y-%m-%d").date()
     except ValueError:
-        return jsonify({"error": "Invalid date format"}), 400
+        return jsonify({"error": _("Invalid date format")}), 400
 
     data = request.get_json(silent=True) or {}
     kind = data.get("kind")
     if kind not in KINDS:
-        return jsonify({"error": "kind must be one of: work, absence, default"}), 400
+        return jsonify({"error": _("kind must be one of: work, absence, default")}), 400
 
     observation = (data.get("observation") or "").strip() or None
     entries = data.get("entries") or []
@@ -73,7 +74,7 @@ def save_day(day_str):
     if kind == "absence" and not (
         absence_code and AbsenceCode.query.filter_by(code=absence_code).first()
     ):
-        return jsonify({"error": "Unknown absence code"}), 400
+        return jsonify({"error": _("Unknown absence code")}), 400
 
     employee_id = current_employee_id()
     entry = ScheduleEntry.query.filter_by(employee_id=employee_id, date=day).first()
@@ -102,6 +103,6 @@ def save_day(day_str):
     except Exception:
         db.session.rollback()
         current_app.logger.exception("Unhandled error")
-        return jsonify({"error": "Internal server error"}), 500
+        return jsonify({"error": _("Internal server error")}), 500
 
     return jsonify(serialize_day(resolve_day(employee_id, day)))

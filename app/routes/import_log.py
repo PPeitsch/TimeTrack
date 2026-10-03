@@ -19,6 +19,7 @@ from flask import (
     request,
     url_for,
 )
+from flask_babel import gettext as _
 from werkzeug.utils import secure_filename
 
 from app.auth import current_employee_id
@@ -46,12 +47,12 @@ IMPORT_MODES = ("overwrite", "skip")
 def upload_file():
     if request.method == "POST":
         if "file" not in request.files:
-            flash("No file part", "error")
+            flash(_("No file part"), "error")
             return redirect(url_for("main.settings", _anchor="import"))
 
         file = request.files["file"]
         if file.filename == "":
-            flash("No selected file", "error")
+            flash(_("No selected file"), "error")
             return redirect(url_for("main.settings", _anchor="import"))
 
         if file:
@@ -59,7 +60,7 @@ def upload_file():
             file_ext = filename.split(".")[-1].lower()
 
             if file_ext not in ALLOWED_EXTENSIONS:
-                flash("Unsupported file type", "error")
+                flash(_("Unsupported file type"), "error")
                 return redirect(url_for("main.settings", _anchor="import"))
 
             _cleanup_stale_uploads()
@@ -80,7 +81,7 @@ def preview(upload_id):
     # Find file
     filepath = _get_filepath(upload_id)
     if not filepath:
-        flash("File not found or expired", "error")
+        flash(_("File not found or expired"), "error")
         return redirect(url_for("main.settings", _anchor="import"))
 
     try:
@@ -91,7 +92,7 @@ def preview(upload_id):
         )
     except Exception:
         logger.exception("Error parsing upload %s", upload_id)
-        flash("Error parsing file. Check that it has the expected format.", "error")
+        flash(_("Error parsing file. Check that it has the expected format."), "error")
         return redirect(url_for("main.settings", _anchor="import"))
 
 
@@ -99,7 +100,7 @@ def preview(upload_id):
 def confirm(upload_id):
     filepath = _get_filepath(upload_id)
     if not filepath:
-        flash("File not found or expired", "error")
+        flash(_("File not found or expired"), "error")
         return redirect(url_for("main.settings", _anchor="import"))
 
     try:
@@ -114,16 +115,19 @@ def confirm(upload_id):
         # Cleanup
         os.remove(filepath)
 
-        message = f"Imported {imported} records"
+        message = _("Imported %(count)s records.", count=imported)
         if skipped:
-            message += f", skipped {skipped} (existing days or nothing to import)"
+            message += " " + _(
+                "Skipped %(count)s (existing days or nothing to import).",
+                count=skipped,
+            )
         flash(message, "success")
         return redirect(url_for("main.calendar"))
 
     except Exception:
         db.session.rollback()
         logger.exception("Error importing upload %s", upload_id)
-        flash("Error importing data.", "error")
+        flash(_("Error importing data."), "error")
         return redirect(url_for("import_log.preview", upload_id=upload_id))
 
 
@@ -181,7 +185,7 @@ def _parse(filepath: str) -> ImportResult:
             continue
         if bool(record.entry_time) != bool(record.exit_time):
             record.is_valid = False
-            record.error_message = "Entry and exit times must both be present"
+            record.error_message = _("Entry and exit times must both be present")
         elif record.entry_time and record.exit_time:
             is_valid, error = validate_entries(
                 [{"entry": record.entry_time, "exit": record.exit_time}]
