@@ -27,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Holidays load automatically the first time a year is viewed (`HOLIDAY_AUTO_FETCH`, tracked in the new `holiday_years` table, migration `b7e3d1a2c4f6`) and can be reloaded with `flask holidays refresh [YEAR ...]`.
 - Import preview lets you choose between replacing the times of existing days or skipping them.
 - `WORKING_HOURS_PER_DAY` can be set from the environment.
+- **Holidays for any country:** new `NAGER_DATE` provider ([Nager.Date](https://date.nager.at), 100+ countries, nationwide holidays only) selected with `HOLIDAY_COUNTRY` (ISO code). If `HOLIDAY_PROVIDER` is not set, Argentina keeps using ArgentinaDatos and every other country uses Nager.Date.
 
 ### Changed
 - Old URLs (`/monthly-log/`, `/entry`, `/summary/`, `/logs/`, `/settings/absences`, `/import/`) redirect to the new screens.
