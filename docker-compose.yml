@@ -1,0 +1,53 @@
+# Quick start: `docker compose up --build`, then open http://localhost:8000.
+# Defaults run the demo (sample data, credentials shown on the login page).
+# Settings can be overridden in a .env file next to this one; see README.md.
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: timetrack
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-timetrack}
+      POSTGRES_DB: timetrack
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U timetrack -d timetrack"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  web:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "${TIMETRACK_PORT:-8000}:8000"
+    environment:
+      DATABASE_URL: postgresql://timetrack:${POSTGRES_PASSWORD:-timetrack}@db:5432/timetrack
+      # Empty: generated on first start and kept in the app-data volume.
+      SECRET_KEY: ${SECRET_KEY:-}
+      SECRET_KEY_FILE: /data/secret_key
+      SESSION_COOKIE_SECURE: ${SESSION_COOKIE_SECURE:-false}
+      DEMO_MODE: ${DEMO_MODE:-true}
+      DEMO_USERNAME: ${DEMO_USERNAME:-demo}
+      DEMO_PASSWORD: ${DEMO_PASSWORD:-demo}
+      SEED_DEMO: ${SEED_DEMO:-true}
+      HOLIDAY_COUNTRY: ${HOLIDAY_COUNTRY:-AR}
+      HOLIDAY_PROVIDER: ${HOLIDAY_PROVIDER:-}
+      WORKING_HOURS_PER_DAY: ${WORKING_HOURS_PER_DAY:-8}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+    volumes:
+      - app-data:/data
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/login')"]
+      interval: 10s
+      timeout: 5s
+      start_period: 30s
+      retries: 5
+
+volumes:
+  db-data:
+  app-data:

@@ -1,9 +1,17 @@
 import os
+from typing import Optional
 
 from dotenv import load_dotenv
 
 # Load .env so `python run.py` and `init_db.py` see the same settings as `flask run`.
 load_dotenv()
+
+
+def _read_secret(path: Optional[str]) -> Optional[str]:
+    if not path or not os.path.isfile(path):
+        return None
+    with open(path) as handle:
+        return handle.read().strip() or None
 
 
 class Config:
@@ -12,7 +20,8 @@ class Config:
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     # Required outside debug/testing; create_app refuses to start without it.
-    SECRET_KEY = os.getenv("SECRET_KEY")
+    # SECRET_KEY_FILE (used by the Docker image) points to a file holding it.
+    SECRET_KEY = os.getenv("SECRET_KEY") or _read_secret(os.getenv("SECRET_KEY_FILE"))
 
     # Session cookies (set SESSION_COOKIE_SECURE=true behind HTTPS)
     SESSION_COOKIE_HTTPONLY = True
