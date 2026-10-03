@@ -13,6 +13,8 @@ This document describes the standard development workflow for contributing to Ti
 | Type check | `mypy app` |
 | Run tests | `pytest tests/ -v` |
 | Run app | `flask run` or `python run.py` |
+| Run with Docker | `docker compose up --build` |
+| New migration | `flask db migrate -m "..."` |
 
 ---
 
@@ -20,22 +22,25 @@ This document describes the standard development workflow for contributing to Ti
 
 ### First Time Setup
 
-```powershell
+```bash
 # Clone the repository
-git clone <repo-url>
+git clone https://github.com/PPeitsch/TimeTrack.git
 cd TimeTrack
 
-# Create virtual environment
+# Create and activate a virtual environment
 python -m venv .venv
-
-# Activate virtual environment
-# Windows PowerShell:
-.venv\Scripts\Activate.ps1
+source .venv/bin/activate          # Windows PowerShell: .venv\Scripts\Activate.ps1
 
 # Install dependencies
-pip install -r requirements.txt
-pip install -r requirements-dev.txt
+pip install -r requirements.txt -r requirements-dev.txt
+
+# Configure and create the database
+cp .env.example .env               # e.g. DATABASE_URL=sqlite:///timetrack.db
+flask db upgrade
+flask seed demo                    # sample data and the demo login
 ```
+
+To run the full stack with PostgreSQL instead: `docker compose up --build`.
 
 ---
 
@@ -51,7 +56,7 @@ pip install -r requirements-dev.txt
 
 Run these before every commit:
 
-```powershell
+```bash
 # Format code
 black app tests
 isort app tests

@@ -71,10 +71,12 @@ def seed_demo_entries(
         )
     }
 
-    # One vacation week in the first month and a sick day in the second.
-    vacation_start = first + timedelta(days=14 - first.weekday())
+    # A vacation week in the second week of the last full month (the one a
+    # visitor is most likely to look at) and a sick day three weeks earlier.
+    last_month = (today.replace(day=1) - timedelta(days=1)).replace(day=1)
+    vacation_start = last_month + timedelta(days=(7 - last_month.weekday()) % 7 + 7)
     vacation = {vacation_start + timedelta(days=i) for i in range(5)}
-    sick_day = vacation_start + timedelta(days=30)
+    sick_day = vacation_start - timedelta(days=19)
 
     created = 0
     day = first

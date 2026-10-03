@@ -28,10 +28,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Import preview lets you choose between replacing the times of existing days or skipping them.
 - `WORKING_HOURS_PER_DAY` can be set from the environment.
 - **Docker:** `Dockerfile` (gunicorn, non-root user) and `docker-compose.yml` with PostgreSQL. `docker compose up --build` applies the migrations, loads the defaults and, with `SEED_DEMO=true` (the compose default), the demo data. Without `SECRET_KEY`, one is generated on first start and kept in a volume (`SECRET_KEY_FILE`). CI builds the image and smoke-tests the stack.
-- `flask seed defaults` (default user and absence codes) and `flask seed demo [--months N]` (sample days for the last months and, if the user has no password yet, the `DEMO_USERNAME` / `DEMO_PASSWORD` login). Both are safe to run again.
+- `flask seed defaults` (default user and absence codes) and `flask seed demo [--months N]` (sample days for the last months, with a vacation week in the last full month, and, if the user has no password yet, the `DEMO_USERNAME` / `DEMO_PASSWORD` login). Both are safe to run again.
 - **Holidays for any country:** new `NAGER_DATE` provider ([Nager.Date](https://date.nager.at), 100+ countries, nationwide holidays only) selected with `HOLIDAY_COUNTRY` (ISO code). If `HOLIDAY_PROVIDER` is not set, Argentina keeps using ArgentinaDatos and every other country uses Nager.Date.
 
 ### Changed
+- README rewritten for self-hosting: Docker quick start, manual installation, configuration and command reference, and screenshots (`docs/screenshots/`).
+- Contributing guide, pull request and issue templates ask for a checkbox instead of an emoji in the title; commit guidelines follow Conventional Commits. `SECURITY.md` points to GitHub private vulnerability reporting and lists the app's actual protections. `AGENTS.md` and `WORKFLOW.md` are OS-neutral.
+- Helper scripts no longer print emojis.
 - `init_db.py` builds the schema with the migrations (`flask db upgrade`) instead of `db.create_all()`, so there is a single path for the schema; it can also load demo data and no longer prints emojis.
 - Old URLs (`/monthly-log/`, `/entry`, `/summary/`, `/logs/`, `/settings/absences`, `/import/`) redirect to the new screens.
 - The calendar starts weeks on Monday and no longer shifts days in UTC+ timezones.

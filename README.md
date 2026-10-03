@@ -1,103 +1,159 @@
 # TimeTrack
 
-[![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://www.python.org/downloads/)
-[![Flask](https://img.shields.io/badge/Flask-3.1.0-green.svg)](https://flask.palletsprojects.com/)
-[![Pytest](https://img.shields.io/badge/Pytest-7.4.0-orange.svg)](https://pytest.org/)
-[![Black](https://img.shields.io/badge/Code%20Style-Black-black.svg)](https://github.com/psf/black)
-[![GitHub license](https://img.shields.io/github/license/PPeitsch/TimeTrack.svg)](LICENSE)
-[![Contributions welcome](https://img.shields.io/badge/Contributions-welcome-brightgreen.svg)](CONTRIBUTING.md)
+[![Tests](https://github.com/PPeitsch/TimeTrack/actions/workflows/test.yaml/badge.svg)](https://github.com/PPeitsch/TimeTrack/actions/workflows/test.yaml)
 [![codecov](https://codecov.io/gh/PPeitsch/TimeTrack/graph/badge.svg)](https://codecov.io/gh/PPeitsch/TimeTrack)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
+[![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![Flask](https://img.shields.io/badge/Flask-3.1-green.svg)](https://flask.palletsprojects.com/)
+[![Code style: black](https://img.shields.io/badge/Code%20Style-Black-black.svg)](https://github.com/psf/black)
+[![License: MIT](https://img.shields.io/github/license/PPeitsch/TimeTrack.svg)](LICENSE)
 
-TimeTrack is a simple yet powerful time tracking application designed for managing work hours, leaves, and holidays. Built with Flask and compatible with PostgreSQL or SQLite, it provides a user-friendly interface for tracking your time and analyzing your work patterns.
+TimeTrack is a self-hosted, single-user web app to log your working hours and keep track of
+your balance: how much you worked against what you were supposed to, day by day, week by week
+and month by month. Weekends and public holidays are taken into account automatically, and
+absences (vacation, sick leave, your own codes) are one click away.
 
+![Calendar](docs/screenshots/calendar.png)
 
 ## Features
 
-- 🗓️ **Interactive Calendar Log** - Manage your schedule with a drag-and-drop monthly calendar view
-- 📅 **Flexible Time Entry** - Record multiple clock in/out entries per day
-- ⚙️ **Customizable Absence Codes** - Create, edit, and delete your own absence types
-- 🏖️ **Absence Management** - Track leaves, holidays and other time off
-- 📊 **Time Analytics** - View daily, weekly and monthly work summaries
-- 📈 **Automatic Calculations** - Track work hour balances and overtime
-- 🇦🇷 **Argentina Holidays Integration** - Automatic holiday tracking for Argentina
-- 📱 **Responsive Design** - Works on desktop and mobile devices
-- 🔌 **Flexible Database Support** - Works with SQLite or PostgreSQL
-- 🧪 **Well-tested Code** - Comprehensive test suite ensures reliability
+- **Today, Calendar, Reports and Settings**: four screens, nothing else to learn.
+- **Calendar editing**: click a day to log one or more time ranges, an absence or an
+  observation; drag across days (or Shift+click) to change several at once.
+- **Balances**: worked, required and balance for the day, the week and the month. Hours on
+  weekends and holidays count as overtime.
+- **Public holidays for 100+ countries**, loaded automatically the first time a year is viewed
+  ([Nager.Date](https://date.nager.at); for Argentina, [ArgentinaDatos](https://argentinadatos.com)).
+- **Reports** per month with CSV export.
+- **Import** hours from PDF or Excel reports, with a preview before saving.
+- **English and Spanish** interface, **light and dark** themes.
+- **Login** with CSRF protection and rate limiting; optional demo mode.
+- PostgreSQL or SQLite. No external requests from the browser (assets are served locally).
 
-## Quick Start
+| Today | Day editor | Reports |
+|---|---|---|
+| ![Today](docs/screenshots/today.png) | ![Day editor](docs/screenshots/day-panel.png) | ![Reports](docs/screenshots/reports.png) |
 
-### Prerequisites
+<details>
+<summary>Dark theme</summary>
 
-- Python 3.9+
-- pip (Python package installer)
-- PostgreSQL (optional, SQLite works out of the box)
+![Calendar, dark theme](docs/screenshots/calendar-dark.png)
 
-### Installation
+</details>
 
-1. Clone the repository:
+## Quick start (Docker)
+
 ```bash
 git clone https://github.com/PPeitsch/TimeTrack.git
 cd TimeTrack
+docker compose up --build
 ```
 
-2. Create and activate a virtual environment:
+Open <http://localhost:8000> and log in with `demo` / `demo`. This starts the app with
+PostgreSQL and three months of sample data; the database lives in a Docker volume.
+
+### Using it for real
+
+Create a `.env` file next to `docker-compose.yml`:
+
 ```bash
-python -m venv venv
-source venv/bin/activate  # Linux/Mac
-venv\Scripts\activate  # Windows
+DEMO_MODE=false
+SEED_DEMO=false
+HOLIDAY_COUNTRY=ES          # your country, ISO 3166-1 alpha-2
+POSTGRES_PASSWORD=change-me
 ```
 
-3. Install dependencies:
+Then start it and set your login:
+
 ```bash
+docker compose up --build -d
+docker compose exec web flask user set-password <username>
+```
+
+If you already started the demo, run `docker compose down --volumes` first to start from an
+empty database. Behind HTTPS, also set `SESSION_COOKIE_SECURE=true`.
+
+## Manual installation
+
+Requires Python 3.10 or newer. PostgreSQL is optional: SQLite works out of the box.
+
+```bash
+git clone https://github.com/PPeitsch/TimeTrack.git
+cd TimeTrack
+python -m venv .venv
+source .venv/bin/activate        # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
+cp .env.example .env             # Windows: copy .env.example .env
 ```
 
-4. Set up environment variables:
-```bash
-cp .env.example .env
-# Edit .env with your preferred settings
-# Note: Ensure HOLIDAY_PROVIDER is set to ARGENTINA_API for reliable holiday data
-```
+Edit `.env` (at least `DATABASE_URL`, `SECRET_KEY` and `HOLIDAY_COUNTRY`), then:
 
-5. Initialize the database:
 ```bash
-python init_db.py
-```
-> **Note:** This script is interactive: it asks for the login user and password, and may prompt you to import data such as public holidays.
-
-   On an existing database, apply migrations and set the login with:
-```bash
-flask db upgrade
+flask db upgrade                 # create or update the database schema
+flask seed defaults              # default user and absence codes
 flask user set-password <username>
-```
-
-6. Run the application:
-```bash
 flask run
 ```
 
-7. Access the application at `http://localhost:5000`
+The app is at <http://localhost:5000>. `python init_db.py` does the same setup interactively
+(database, secret key, login and optional sample data).
 
-### Login and demo mode
-
-TimeTrack is single-user: there is one account, protected by username and password.
-Change it at any time with `flask user set-password <username>`.
-
-To publish a demo that anyone can try, create the demo account and enable `DEMO_MODE`;
-the login page then shows the credentials:
+For production, run it with gunicorn (included in `requirements.txt`):
 
 ```bash
-flask user set-password demo        # use the same password as DEMO_PASSWORD
-export DEMO_MODE=true DEMO_USERNAME=demo DEMO_PASSWORD=demo
+gunicorn --bind 0.0.0.0:8000 --workers 2 run:app
 ```
 
-In production set a strong `SECRET_KEY` (the app refuses to start without one) and,
-behind HTTPS, `SESSION_COOKIE_SECURE=true`.
+## Configuration
+
+Settings are read from the environment or from `.env`. The most relevant ones:
+
+| Variable | Default | Description |
+|---|---|---|
+| `DATABASE_URL` | `postgresql://user:pass@localhost:5432/timetrack` | Any SQLAlchemy URL, e.g. `sqlite:///timetrack.db`. |
+| `SECRET_KEY` | (none) | Required outside debug mode. Generate one with `python -c 'import secrets; print(secrets.token_hex(32))'`. |
+| `SECRET_KEY_FILE` | (none) | File that holds the secret key, as an alternative to `SECRET_KEY`. |
+| `HOLIDAY_COUNTRY` | `AR` | Country whose public holidays are loaded (ISO 3166-1 alpha-2). |
+| `HOLIDAY_PROVIDER` | automatic | `NAGER_DATE`, `ARGENTINA_API` or `ARGENTINA_WEBSITE`. When empty: `ARGENTINA_API` for `AR`, `NAGER_DATE` otherwise. |
+| `HOLIDAY_AUTO_FETCH` | `true` | Load a year's holidays the first time it is viewed. |
+| `WORKING_HOURS_PER_DAY` | `8` | Required hours on a regular working day. |
+| `SESSION_COOKIE_SECURE` | `false` | Send session cookies only over HTTPS. |
+| `DEMO_MODE` | `false` | Show the demo credentials on the login page. |
+| `DEMO_USERNAME` / `DEMO_PASSWORD` | `demo` / `demo` | Demo credentials (also used by `flask seed demo`). |
+| `MAX_UPLOAD_MB` | `10` | Maximum size of imported files. |
+
+The Docker image also reads `SEED_DEMO` (load sample data on start) and `GUNICORN_WORKERS`.
+See [`.env.example`](.env.example) for the full list.
+
+## Commands
+
+| Command | What it does |
+|---|---|
+| `flask db upgrade` | Create or update the database schema. |
+| `flask seed defaults` | Create the default user and absence codes (safe to run again). |
+| `flask seed demo [--months N]` | Load sample days for the last N months and, if there is no password yet, the demo login. |
+| `flask user set-password <username>` | Set the username and password of the single user. |
+| `flask holidays refresh [YEAR ...]` | Reload the public holidays of the given years (default: this year and the next). |
+
+## Usage
+
+- **Today**: hours logged today and your balance for the week and the month so far.
+- **Calendar**: the month at a glance, Monday first, with holidays, weekends, absences and hours
+  per day. Click a day to mark it as work (one or more time ranges), as an absence, or back to
+  the default of the base calendar, and to add an observation. Drag across days, or Shift+click,
+  to change several days at once.
+- **Reports**: a month table with times, worked, required and balance per day, with totals and
+  CSV export.
+- **Settings**: absence codes (renaming a code also renames it on the days that use it) and
+  import from PDF or Excel, with a preview where you choose whether to replace or skip days that
+  already have data.
+
+TimeTrack is single-user: there is one account. To publish a demo anyone can try, set
+`DEMO_MODE=true` and run `flask seed demo`; the login page then shows the credentials.
 
 ## Languages
 
-The interface is available in English and Spanish. The EN / ES switch in the navbar (also on the login page) changes the language; without a choice, the browser's language is used.
+The interface is available in English and Spanish. The EN / ES switch in the navbar (also on the
+login page) changes the language; without a choice, the browser's language is used.
 
 To change or add texts:
 
@@ -108,102 +164,61 @@ pybabel update -i app/translations/messages.pot -d app/translations
 pybabel compile -d app/translations
 ```
 
-Texts used by the JavaScript are listed in `js_messages()` in `app/i18n.py`. To add a language, run `pybabel init -i app/translations/messages.pot -d app/translations -l <code>` and add it to `LANGUAGES`.
+Texts used by the JavaScript are listed in `js_messages()` in `app/i18n.py`. To add a language,
+run `pybabel init -i app/translations/messages.pot -d app/translations -l <code>` and add it to
+`LANGUAGES`.
 
-## Usage
-
-The app has four screens:
-
-### Today
-
-Your hours for today and your balance for the week and the month so far. "Log today" opens today's editor in the calendar.
-
-### Calendar
-
-The month at a glance, Monday first, with holidays, weekends, absences and hours worked per day.
-- Click a day to open its editor: mark it as work (one or more time ranges), as an absence, or back to the default of the base calendar, and add an observation.
-- Drag across days, or Shift+click, to change several days at once (for example, a week of vacation).
-- Hours logged on weekends and holidays count as extra hours.
-
-### Reports
-
-A month table with times, worked, required and balance per day, with totals. Export it as CSV.
-
-### Settings
-
-- Manage absence codes (renaming a code also renames it on the days that use it).
-- Import hours from PDF or Excel reports, with a preview where you choose whether to replace or skip days that already have data.
-
-## Project Structure
+## Project structure
 
 ```
 TimeTrack/
 ├── app/
-│   ├── config/        # Configuration settings
-│   ├── db/            # Database management
+│   ├── config/        # Settings read from the environment
+│   ├── db/            # SQLAlchemy setup
 │   ├── models/        # Data models
-│   ├── routes/        # Route handlers (Blueprints)
-│   ├── services/      # Business logic (e.g., holiday providers)
-│   ├── static/        # Static assets (JS, CSS)
-│   ├── templates/     # HTML templates
-│   └── utils/         # Utility functions
-├── scripts/           # Helper scripts
-├── tests/             # Test suite
-├── .env               # Environment configuration
-├── .env.example       # Example environment configuration
-├── run.py             # Application entry point
-├── init_db.py         # Database initialization script
-└── requirements.txt   # Python dependencies
+│   ├── routes/        # Blueprints (screens and JSON API)
+│   ├── services/      # Day logic, holidays, importers, demo data
+│   ├── static/        # CSS, JavaScript, icons, vendored Bootstrap
+│   ├── templates/     # Jinja templates
+│   ├── translations/  # Spanish catalog
+│   └── utils/
+├── docker/            # Container entrypoint
+├── docs/screenshots/
+├── migrations/        # Alembic migrations (the only source of the schema)
+├── tests/
+├── docker-compose.yml
+├── Dockerfile
+├── init_db.py         # Interactive first-time setup
+└── run.py             # Application entry point
 ```
 
 ## Development
 
-### Setting Up Development Environment
-
-1. Install development dependencies:
 ```bash
 pip install -r requirements-dev.txt
-```
-
-2. Set up pre-commit hooks:
-```bash
 pre-commit install
+
+black app tests && isort app tests   # format
+mypy app                             # type check
+pytest tests/                        # tests
 ```
 
-### Running Tests
-
-```bash
-pytest tests/
-```
-
-### Code Formatting
-
-We use Black and isort for code formatting:
-
-```bash
-# Format code with Black
-python -m black .
-
-# Sort imports with isort
-python -m isort --profile black .
-
-# Run both with our helper script
-python scripts/run-formatters.ps1  # Windows
-./scripts/run-formatters.sh  # Linux/Mac
-```
+See [WORKFLOW.md](WORKFLOW.md) for the full development cycle and
+[CONTRIBUTING.md](.github/CONTRIBUTING.md) before opening an issue or a pull request.
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request or open an Issue.
-
-Please read our [Contributing Guidelines](CONTRIBUTING.md) and follow our [Code of Conduct](CODE_OF_CONDUCT.md).
+Contributions are welcome. Please read the [contributing guidelines](.github/CONTRIBUTING.md)
+and the [code of conduct](.github/CODE_OF_CONDUCT.md). To report a security issue, see
+[SECURITY.md](.github/SECURITY.md).
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+MIT. See [LICENSE](LICENSE).
 
 ## Acknowledgements
 
-- [Flask](https://flask.palletsprojects.com/) - The web framework used
-- [SQLAlchemy](https://www.sqlalchemy.org/) - ORM for database operations
-- [Bootstrap](https://getbootstrap.com/) - Frontend framework
+- [Flask](https://flask.palletsprojects.com/), [SQLAlchemy](https://www.sqlalchemy.org/) and
+  [Bootstrap](https://getbootstrap.com/).
+- [Nager.Date](https://date.nager.at) and [ArgentinaDatos](https://argentinadatos.com) for
+  public holiday data.

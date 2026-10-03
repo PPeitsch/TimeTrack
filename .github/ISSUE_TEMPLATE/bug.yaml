@@ -7,7 +7,6 @@ body:
     attributes:
       value: |
         Thanks for taking the time to fill out this bug report!
-        Please include the ⚡ emoji at the start of your title if you've read our contributing guidelines.
 
   - type: checkboxes
     id: terms
@@ -15,6 +14,8 @@ body:
       label: Guidelines
       options:
         - label: I have searched for similar issues before creating this one
+          required: true
+        - label: I have read the [contributing guidelines](https://github.com/PPeitsch/TimeTrack/blob/main/.github/CONTRIBUTING.md)
           required: true
 
   - type: input

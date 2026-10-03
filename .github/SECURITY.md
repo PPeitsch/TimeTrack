@@ -2,18 +2,22 @@
 
 ## Supported Versions
 
-| Version | Supported          |
-| ------- | ------------------ |
-| 1.0.x   | :white_check_mark: |
-| < 1.0   | :x:                |
+Only the latest release receives security fixes.
+
+| Version        | Supported |
+| -------------- | --------- |
+| Latest release | Yes       |
+| Older          | No        |
 
 ## Reporting a Vulnerability
 
 **Please do not report security vulnerabilities through public GitHub issues.**
 
-Instead, please report them via email to [pablo.peitsch@gmail.com].
+Instead, report them privately through
+[GitHub's private vulnerability reporting](https://github.com/PPeitsch/TimeTrack/security/advisories/new)
+or by email to pablo.peitsch@gmail.com.
 
-You should receive a response within 48 hours. Please include:
+You should receive a response within a few days. Please include:
 
 * Type of issue
 * Location of affected code
@@ -23,13 +27,17 @@ You should receive a response within 48 hours. Please include:
 
 ## Security Practices
 
-TimeTrack follows these security practices:
+- Every page and API requires a login; forms and state-changing requests are protected
+  against CSRF, and failed logins are rate limited.
+- The app refuses to start without a `SECRET_KEY` outside debug mode, and never runs the
+  Werkzeug debugger unless `FLASK_DEBUG=1`.
+- Session cookies are `HttpOnly` and `SameSite=Lax`; set `SESSION_COOKIE_SECURE=true` behind
+  HTTPS.
+- Uploaded files are size-limited and deleted after import.
+- Dependencies are pinned in `requirements.txt`.
 
-1. Regular dependency updates
-2. Input validation and sanitization
-3. Proper authentication and authorization
-4. Secure handling of sensitive data
-5. Regular code reviews with security focus
+When self-hosting, put TimeTrack behind HTTPS and keep `DEMO_MODE` off unless the instance
+is meant to be public.
 
 ## Acknowledgments
 
