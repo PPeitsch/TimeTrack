@@ -21,6 +21,7 @@ from flask import (
 )
 from werkzeug.utils import secure_filename
 
+from app.auth import current_employee_id
 from app.db.database import db
 from app.models.models import Employee, ScheduleEntry
 from app.services.importer.factory import ImporterFactory
@@ -109,10 +110,7 @@ def confirm(upload_id):
 
         # Import valid records
         count = 0
-        # Assume for now we are importing for Employee ID 1 or passed in form
-        # Ideally user selects employee in Upload or Preview
-        # For now, let's hardcode 1 or get from request if we added it
-        employee_id = 1
+        employee_id = current_employee_id()
 
         for record in result.records:
             if not record.is_valid:

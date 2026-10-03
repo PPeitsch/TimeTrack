@@ -14,6 +14,8 @@ class TestModels(unittest.TestCase):
         class TestConfig(Config):
             TESTING = True
             SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
+            LOGIN_DISABLED = True
+            WTF_CSRF_ENABLED = False
 
         self.app = create_app(TestConfig)
         with self.app.app_context():

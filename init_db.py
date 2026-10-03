@@ -68,6 +68,8 @@ def initialize_database_manually():
             init_data()
             print("✓ Datos iniciales (códigos de ausencia) poblados.")
 
+            ensure_login()
+
             populate = (
                 input(
                     "\n¿Deseas poblar la base de datos con los feriados? (s/n) [s]: "
@@ -112,6 +114,28 @@ def initialize_database_manually():
                     db.session.rollback()
                     print("✓ Rollback de la sesión de base de datos realizado.")
         return False, str(e)
+
+
+def ensure_login():
+    """Ask for the TimeTrack login if the default user has no password yet."""
+    from app.auth import DEFAULT_EMPLOYEE_ID, set_credentials
+    from app.db.database import db
+    from app.models.models import Employee
+
+    employee = db.session.get(Employee, DEFAULT_EMPLOYEE_ID)
+    if employee is not None and employee.password_hash:
+        print(f"Usuario de login existente: {employee.username}")
+        return
+
+    print("\nConfiguración del usuario para iniciar sesión en TimeTrack")
+    username = input("Usuario [admin]: ").strip() or "admin"
+    while True:
+        password = getpass.getpass("Contraseña: ")
+        if password and password == getpass.getpass("Repetir contraseña: "):
+            break
+        print("Las contraseñas no coinciden o están vacías. Probá de nuevo.")
+    set_credentials(username, password)
+    print(f"Usuario '{username}' configurado.")
 
 
 def check_dependencies():

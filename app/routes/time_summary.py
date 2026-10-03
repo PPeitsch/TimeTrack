@@ -3,6 +3,7 @@ from datetime import date, datetime, timedelta
 
 from flask import Blueprint, current_app, jsonify, render_template, request
 
+from app.auth import current_employee_id
 from app.models.models import Holiday, ScheduleEntry
 from app.utils.time_calculator import calculate_daily_hours
 
@@ -21,7 +22,9 @@ def get_daily_summary(date):
         date_obj = datetime.strptime(date, "%Y-%m-%d").date()
 
         # Fetch relevant records for the day
-        entry = ScheduleEntry.query.filter_by(date=date_obj, employee_id=1).first()
+        entry = ScheduleEntry.query.filter_by(
+            date=date_obj, employee_id=current_employee_id()
+        ).first()
         holiday = Holiday.query.filter_by(date=date_obj).first()
 
         # Determine the type of the day with clear precedence
@@ -68,7 +71,7 @@ def get_monthly_summary(year, month):
         # Fetch all relevant data for the month in optimized queries
         entries_query = ScheduleEntry.query.filter(
             ScheduleEntry.date.between(start_date, end_date),
-            ScheduleEntry.employee_id == 1,
+            ScheduleEntry.employee_id == current_employee_id(),
         ).all()
         entries_map = {entry.date: entry for entry in entries_query}
 

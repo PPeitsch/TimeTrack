@@ -12,7 +12,7 @@
 TimeTrack is a simple yet powerful time tracking application designed for managing work hours, leaves, and holidays. Built with Flask and compatible with PostgreSQL or SQLite, it provides a user-friendly interface for tracking your time and analyzing your work patterns.
 
 
-## 🌟 Features
+## Features
 
 - 🗓️ **Interactive Calendar Log** - Manage your schedule with a drag-and-drop monthly calendar view
 - 📅 **Flexible Time Entry** - Record multiple clock in/out entries per day
@@ -25,7 +25,7 @@ TimeTrack is a simple yet powerful time tracking application designed for managi
 - 🔌 **Flexible Database Support** - Works with SQLite or PostgreSQL
 - 🧪 **Well-tested Code** - Comprehensive test suite ensures reliability
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 
@@ -64,7 +64,13 @@ cp .env.example .env
 ```bash
 python init_db.py
 ```
-> **Note:** This script is interactive and may prompt you to import data, such as public holidays.
+> **Note:** This script is interactive: it asks for the login user and password, and may prompt you to import data such as public holidays.
+
+   On an existing database, apply migrations and set the login with:
+```bash
+flask db upgrade
+flask user set-password <username>
+```
 
 6. Run the application:
 ```bash
@@ -73,7 +79,23 @@ flask run
 
 7. Access the application at `http://localhost:5000`
 
-## 📖 Usage
+### Login and demo mode
+
+TimeTrack is single-user: there is one account, protected by username and password.
+Change it at any time with `flask user set-password <username>`.
+
+To publish a demo that anyone can try, create the demo account and enable `DEMO_MODE`;
+the login page then shows the credentials:
+
+```bash
+flask user set-password demo        # use the same password as DEMO_PASSWORD
+export DEMO_MODE=true DEMO_USERNAME=demo DEMO_PASSWORD=demo
+```
+
+In production set a strong `SECRET_KEY` (the app refuses to start without one) and,
+behind HTTPS, `SESSION_COOKIE_SECURE=true`.
+
+## Usage
 
 The application is organized into several key sections accessible from the main navigation bar.
 
@@ -101,7 +123,7 @@ Get a detailed overview of your logged time for any given month:
 Customize the application to fit your needs:
 - Manage absence codes by adding, editing, or deleting types (e.g., "Vacation", "Sick Leave").
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 TimeTrack/
@@ -123,7 +145,7 @@ TimeTrack/
 └── requirements.txt   # Python dependencies
 ```
 
-## 🧪 Development
+## Development
 
 ### Setting Up Development Environment
 
@@ -159,17 +181,17 @@ python scripts/run-formatters.ps1  # Windows
 ./scripts/run-formatters.sh  # Linux/Mac
 ```
 
-## 🤝 Contributing
+## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request or open an Issue.
 
 Please read our [Contributing Guidelines](CONTRIBUTING.md) and follow our [Code of Conduct](CODE_OF_CONDUCT.md).
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## ✨ Acknowledgements
+## Acknowledgements
 
 - [Flask](https://flask.palletsprojects.com/) - The web framework used
 - [SQLAlchemy](https://www.sqlalchemy.org/) - ORM for database operations

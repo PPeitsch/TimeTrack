@@ -3,6 +3,7 @@ from typing import Any, Dict, Optional, cast
 
 from flask import Blueprint, jsonify, render_template, request
 
+from app.auth import current_employee_id
 from app.db.database import db
 from app.models.models import AbsenceCode, Employee, ScheduleEntry
 from app.utils.time_calculator import calculate_daily_hours
@@ -47,9 +48,8 @@ def save_entry():
             return jsonify({"error": error}), 400
 
     entry_date = datetime.strptime(date_str, "%Y-%m-%d").date()
-    employee_id = data.get("employee_id")
-    if employee_id is None:
-        return jsonify({"error": "Employee ID is required"}), 400
+    # The employee is the logged-in user; never trust an id sent by the client.
+    employee_id = current_employee_id()
 
     existing_entry = ScheduleEntry.query.filter_by(
         employee_id=employee_id, date=entry_date
@@ -85,7 +85,7 @@ def get_entry(date):
 
     entry = ScheduleEntry.query.filter_by(
         date=datetime.strptime(date, "%Y-%m-%d").date(),
-        employee_id=1,
+        employee_id=current_employee_id(),
     ).first()
 
     if entry:
