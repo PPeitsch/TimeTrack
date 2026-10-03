@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // --- Core Functions ---
 
     async function fetchCodes() {
-        loadingIndicator.style.display = 'block';
+        loadingIndicator.hidden = false;
         codesTableBody.innerHTML = '';
         try {
             const response = await fetch(API_URL);
@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', function () {
             console.error(error);
             codesTableBody.innerHTML = `<tr><td colspan="2" class="text-center text-danger">Error loading codes.</td></tr>`;
         } finally {
-            loadingIndicator.style.display = 'none';
+            loadingIndicator.hidden = true;
         }
     }
 
@@ -44,10 +44,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 <td>${escapeHTML(code.code)}</td>
                 <td class="text-end">
                     <button class="btn btn-sm btn-outline-primary edit-btn" data-id="${code.id}" data-code="${escapeHTML(code.code)}">
-                        <i class="bi bi-pencil"></i> Edit
+                        ${icon('pencil')} Edit
                     </button>
                     <button class="btn btn-sm btn-outline-danger delete-btn" data-id="${code.id}">
-                        <i class="bi bi-trash"></i> Delete
+                        ${icon('trash')} Delete
                     </button>
                 </td>
             `;

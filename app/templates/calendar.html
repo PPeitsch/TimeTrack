@@ -1,13 +1,14 @@
 {% extends "base.html" %}
+{% from "_icons.html" import icon %}
 
 {% block title %}Calendar{% endblock %}
 
 {% block content %}
 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
     <div class="d-flex align-items-center gap-2">
-        <button id="prevMonth" class="btn btn-outline-secondary btn-sm" aria-label="Previous month"><i class="bi bi-chevron-left"></i></button>
+        <button id="prevMonth" class="btn btn-outline-secondary btn-sm" aria-label="Previous month">{{ icon('chevron-left') }}</button>
         <h1 class="h4 mb-0 month-title" id="monthTitle" aria-live="polite"></h1>
-        <button id="nextMonth" class="btn btn-outline-secondary btn-sm" aria-label="Next month"><i class="bi bi-chevron-right"></i></button>
+        <button id="nextMonth" class="btn btn-outline-secondary btn-sm" aria-label="Next month">{{ icon('chevron-right') }}</button>
         <button id="todayBtn" class="btn btn-outline-secondary btn-sm">Today</button>
     </div>
     <dl class="month-summary mb-0" id="monthSummary">
@@ -58,7 +59,7 @@
                 <span class="form-label d-block">Times</span>
                 <div id="timeRows"></div>
                 <button type="button" class="btn btn-link btn-sm px-0" id="addTimeRow">
-                    <i class="bi bi-plus-lg me-1"></i> Add time range
+                    {{ icon('plus', 'me-1') }} Add time range
                 </button>
                 <div class="form-text" id="workedPreview"></div>
             </div>
@@ -108,7 +109,7 @@
         <input type="time" class="form-control form-control-sm time-entry-input" aria-label="Entry time" required>
         <span aria-hidden="true">-</span>
         <input type="time" class="form-control form-control-sm time-exit-input" aria-label="Exit time" required>
-        <button type="button" class="btn btn-outline-danger btn-sm remove-row" aria-label="Remove time range"><i class="bi bi-x-lg"></i></button>
+        <button type="button" class="btn btn-outline-danger btn-sm remove-row" aria-label="Remove time range">{{ icon('x') }}</button>
     </div>
 </template>
 {% endblock %}

@@ -111,7 +111,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 `<span class="day-number">${n}</span>` +
                 (badge ? `<span class="day-type">${escapeHTML(badge)}</span>` : '') +
                 (day.worked ? `<span class="day-hours">${formatHours(day.worked)}</span>` : '') +
-                (day.observation ? '<span class="day-note" title="Has observation"><i class="bi bi-chat-left-text"></i></span>' : '');
+                (day.observation ? `<span class="day-note" title="Has observation">${icon('note')}</span>` : '');
             grid.appendChild(cell);
         }
     }

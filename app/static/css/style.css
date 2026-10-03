@@ -1,20 +1,215 @@
-/* Layout */
+/*
+ * TimeTrack styles.
+ * Every color comes from the tokens below; the dark theme only redefines tokens.
+ * Tokens hang from :root (the <html> theme), not from any [data-bs-theme]: the navbar
+ * is always dark and must not switch the page tokens.
+ * Bootstrap variables are mapped onto the tokens so its components follow along.
+ */
+
+:root {
+    --tt-brand: #0f766e;
+    --tt-brand-rgb: 15, 118, 110;
+    --tt-brand-hover: #115e59;
+    --tt-brand-soft: #ccfbf1;
+    --tt-on-brand: #ffffff;
+
+    --tt-nav-bg: #1e293b;
+    --tt-page-bg: #f4f6f8;
+    --tt-surface: #ffffff;
+    --tt-surface-muted: #f1f4f7;
+    --tt-border: #dde3ea;
+    --tt-border-strong: #b8c2cc;
+    --tt-text: #1f2937;
+    --tt-text-muted: #5b6673;
+
+    --tt-positive: #15803d;
+    --tt-negative: #b91c1c;
+
+    --tt-weekend-bg: #f1f4f7;
+    --tt-weekend-badge-bg: #e2e8f0;
+    --tt-weekend-badge-fg: #475569;
+    --tt-holiday-bg: #fdf2f2;
+    --tt-holiday-badge-bg: #fbd5d5;
+    --tt-holiday-badge-fg: #9b1c1c;
+    --tt-absence-bg: #fffaeb;
+    --tt-absence-badge-bg: #fdecc8;
+    --tt-absence-badge-fg: #7a4d05;
+    --tt-overtime-badge-bg: #d1fae5;
+    --tt-overtime-badge-fg: #065f46;
+    --tt-work-badge-bg: #ccfbf1;
+    --tt-work-badge-fg: #115e59;
+
+    --tt-radius: 0.5rem;
+    --tt-shadow: 0 1px 2px rgba(15, 23, 42, 0.06), 0 1px 3px rgba(15, 23, 42, 0.04);
+}
+
+:root[data-bs-theme="dark"] {
+    --tt-brand: #2dd4bf;
+    --tt-brand-rgb: 45, 212, 191;
+    --tt-brand-hover: #5eead4;
+    --tt-brand-soft: #134e4a;
+    --tt-on-brand: #042f2e;
+
+    --tt-nav-bg: #0b1220;
+    --tt-page-bg: #0f172a;
+    --tt-surface: #172033;
+    --tt-surface-muted: #1c2638;
+    --tt-border: #2b3850;
+    --tt-border-strong: #44546f;
+    --tt-text: #e5e9f0;
+    --tt-text-muted: #9aa6b8;
+
+    --tt-positive: #4ade80;
+    --tt-negative: #f87171;
+
+    --tt-weekend-bg: #141c2c;
+    --tt-weekend-badge-bg: #273349;
+    --tt-weekend-badge-fg: #c3cddc;
+    --tt-holiday-bg: #2a1a22;
+    --tt-holiday-badge-bg: #5b2130;
+    --tt-holiday-badge-fg: #fecdd3;
+    --tt-absence-bg: #2a2416;
+    --tt-absence-badge-bg: #5c4813;
+    --tt-absence-badge-fg: #fde68a;
+    --tt-overtime-badge-bg: #14532d;
+    --tt-overtime-badge-fg: #bbf7d0;
+    --tt-work-badge-bg: #134e4a;
+    --tt-work-badge-fg: #99f6e4;
+
+    --tt-shadow: none;
+}
+
+/* ---------- Bootstrap mapped onto the tokens ---------- */
+
+:root {
+    --bs-body-bg: var(--tt-page-bg);
+    --bs-body-color: var(--tt-text);
+    --bs-secondary-color: var(--tt-text-muted);
+    --bs-border-color: var(--tt-border);
+    --bs-primary: var(--tt-brand);
+    --bs-primary-rgb: var(--tt-brand-rgb);
+    --bs-link-color: var(--tt-brand);
+    --bs-link-color-rgb: var(--tt-brand-rgb);
+    --bs-link-hover-color: var(--tt-brand-hover);
+    --bs-focus-ring-color: rgba(var(--tt-brand-rgb), 0.35);
+}
+
+.card,
+.offcanvas,
+.modal-content,
+.toast {
+    --bs-card-bg: var(--tt-surface);
+    --bs-offcanvas-bg: var(--tt-surface);
+    --bs-modal-bg: var(--tt-surface);
+    --bs-card-border-color: var(--tt-border);
+    --bs-card-border-radius: var(--tt-radius);
+}
+
+.card {
+    box-shadow: var(--tt-shadow);
+}
+
+.table {
+    --bs-table-bg: transparent;
+    --bs-table-color: var(--tt-text);
+    --bs-table-border-color: var(--tt-border);
+    --bs-table-hover-bg: var(--tt-surface-muted);
+}
+
+.form-control,
+.form-select {
+    background-color: var(--tt-surface);
+    border-color: var(--tt-border-strong);
+    color: var(--tt-text);
+}
+
+.form-control:focus,
+.form-select:focus,
+.btn:focus-visible {
+    border-color: var(--tt-brand);
+    box-shadow: 0 0 0 0.2rem rgba(var(--tt-brand-rgb), 0.3);
+}
+
+.form-check-input:checked {
+    background-color: var(--tt-brand);
+    border-color: var(--tt-brand);
+}
+
+.btn-primary {
+    --bs-btn-bg: var(--tt-brand);
+    --bs-btn-border-color: var(--tt-brand);
+    --bs-btn-color: var(--tt-on-brand);
+    --bs-btn-hover-bg: var(--tt-brand-hover);
+    --bs-btn-hover-border-color: var(--tt-brand-hover);
+    --bs-btn-hover-color: var(--tt-on-brand);
+    --bs-btn-active-bg: var(--tt-brand-hover);
+    --bs-btn-active-border-color: var(--tt-brand-hover);
+    --bs-btn-active-color: var(--tt-on-brand);
+    --bs-btn-disabled-bg: var(--tt-brand);
+    --bs-btn-disabled-border-color: var(--tt-brand);
+}
+
+.btn-outline-primary {
+    --bs-btn-color: var(--tt-brand);
+    --bs-btn-border-color: var(--tt-brand);
+    --bs-btn-hover-bg: var(--tt-brand);
+    --bs-btn-hover-border-color: var(--tt-brand);
+    --bs-btn-hover-color: var(--tt-on-brand);
+    --bs-btn-active-bg: var(--tt-brand);
+    --bs-btn-active-border-color: var(--tt-brand);
+    --bs-btn-active-color: var(--tt-on-brand);
+}
+
+.btn-outline-secondary {
+    --bs-btn-color: var(--tt-text);
+    --bs-btn-border-color: var(--tt-border-strong);
+    --bs-btn-hover-bg: var(--tt-surface-muted);
+    --bs-btn-hover-border-color: var(--tt-border-strong);
+    --bs-btn-hover-color: var(--tt-text);
+    --bs-btn-active-bg: var(--tt-surface-muted);
+    --bs-btn-active-color: var(--tt-text);
+}
+
+/* ---------- Icons ---------- */
+
+.icon {
+    width: 1.1em;
+    height: 1.1em;
+    vertical-align: -0.18em;
+    flex-shrink: 0;
+}
+
+/* ---------- Layout ---------- */
+
 .app-navbar {
-    background-color: #2c3e50;
+    background-color: var(--tt-nav-bg);
+}
+
+.app-navbar .nav-link {
+    border-radius: 0.375rem;
 }
 
 .app-navbar .btn-link.nav-link {
-    color: rgba(255, 255, 255, 0.55);
+    color: var(--bs-navbar-color);
     text-decoration: none;
 }
 
-.app-navbar .btn-link.nav-link:hover {
-    color: rgba(255, 255, 255, 0.85);
+.app-navbar .btn-link.nav-link:hover,
+.app-navbar .btn-link.nav-link:focus-visible {
+    color: var(--bs-navbar-hover-color);
 }
 
 .app-navbar .nav-link.active {
-    background-color: rgba(255, 255, 255, 0.12);
-    border-radius: 0.375rem;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.theme-toggle .theme-icon-light,
+:root[data-bs-theme="dark"] .theme-toggle .theme-icon-dark {
+    display: none;
+}
+
+:root[data-bs-theme="dark"] .theme-toggle .theme-icon-light {
+    display: inline-block;
 }
 
 .stat-value {
@@ -24,18 +219,23 @@
 }
 
 .balance-positive {
-    color: #198754;
+    color: var(--tt-positive);
 }
 
 .balance-negative {
-    color: #dc3545;
+    color: var(--tt-negative);
 }
 
 .row-muted td {
-    color: #6c757d;
+    color: var(--tt-text-muted);
 }
 
-/* Calendar */
+.row-invalid td {
+    color: var(--tt-negative);
+}
+
+/* ---------- Calendar ---------- */
+
 .month-title {
     min-width: 11rem;
     text-align: center;
@@ -49,7 +249,7 @@
 .month-summary dt {
     font-size: 0.75rem;
     font-weight: 400;
-    color: #6c757d;
+    color: var(--tt-text-muted);
 }
 
 .month-summary dd {
@@ -69,7 +269,7 @@
     text-align: center;
     font-size: 0.8rem;
     font-weight: 600;
-    color: #6c757d;
+    color: var(--tt-text-muted);
     padding-bottom: 0.25rem;
 }
 
@@ -81,20 +281,21 @@
     gap: 2px;
     min-height: 88px;
     padding: 6px;
-    border: 1px solid #e9ecef;
+    border: 1px solid var(--tt-border);
     border-radius: 6px;
-    background-color: #fff;
+    background-color: var(--tt-surface);
+    color: var(--tt-text);
     text-align: left;
     user-select: none;
     cursor: pointer;
 }
 
 .day-cell:hover {
-    border-color: #adb5bd;
+    border-color: var(--tt-border-strong);
 }
 
 .day-cell:focus-visible {
-    outline: 2px solid #0d6efd;
+    outline: 2px solid var(--tt-brand);
     outline-offset: 1px;
 }
 
@@ -130,57 +331,57 @@
     position: absolute;
     top: 6px;
     right: 6px;
-    font-size: 0.7rem;
-    color: #6c757d;
+    font-size: 0.75rem;
+    color: var(--tt-text-muted);
 }
 
 .day-weekend {
-    background-color: #f8f9fa;
+    background-color: var(--tt-weekend-bg);
 }
 
 .day-weekend .day-type {
-    background-color: #e9ecef;
-    color: #495057;
+    background-color: var(--tt-weekend-badge-bg);
+    color: var(--tt-weekend-badge-fg);
 }
 
 .day-holiday {
-    background-color: #fff5f5;
+    background-color: var(--tt-holiday-bg);
 }
 
 .day-holiday .day-type {
-    background-color: #f8d7da;
-    color: #842029;
+    background-color: var(--tt-holiday-badge-bg);
+    color: var(--tt-holiday-badge-fg);
 }
 
 .day-absence {
-    background-color: #fffbeb;
+    background-color: var(--tt-absence-bg);
 }
 
 .day-absence .day-type {
-    background-color: #fff3cd;
-    color: #664d03;
-}
-
-.day-cell.day-overtime .day-type {
-    background-color: #d1e7dd;
-    color: #0f5132;
+    background-color: var(--tt-absence-badge-bg);
+    color: var(--tt-absence-badge-fg);
 }
 
 .day-work .day-type {
-    background-color: #cfe2ff;
-    color: #084298;
+    background-color: var(--tt-work-badge-bg);
+    color: var(--tt-work-badge-fg);
+}
+
+.day-cell.day-overtime .day-type {
+    background-color: var(--tt-overtime-badge-bg);
+    color: var(--tt-overtime-badge-fg);
 }
 
 .day-today .day-number {
-    color: #fff;
-    background-color: #0d6efd;
+    color: var(--tt-on-brand);
+    background-color: var(--tt-brand);
     border-radius: 999px;
     padding: 0 6px;
 }
 
 .day-selected {
-    border-color: #0d6efd;
-    box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.35);
+    border-color: var(--tt-brand);
+    box-shadow: 0 0 0 2px rgba(var(--tt-brand-rgb), 0.4);
 }
 
 @media (max-width: 575.98px) {
@@ -196,5 +397,13 @@
 
     .day-hours {
         font-size: 0.7rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .offcanvas,
+    .toast,
+    .fade {
+        transition: none;
     }
 }
