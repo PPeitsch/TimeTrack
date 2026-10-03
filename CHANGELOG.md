@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.1] - 2026-10-03
+
 ### Changed
 - Excel import reads `.xlsx` files with `openpyxl` directly; `pandas` is no longer a dependency (smaller install and Docker image).
 
@@ -282,7 +284,8 @@ First release prepared for self-hosting by others: login, a simpler interface, E
 
 
 
-[Unreleased]: https://github.com/PPeitsch/TimeTrack/compare/v2.0.0...HEAD
+[Unreleased]: https://github.com/PPeitsch/TimeTrack/compare/v2.0.1...HEAD
+[2.0.1]: https://github.com/PPeitsch/TimeTrack/compare/v2.0.0...v2.0.1
 [2.0.0]: https://github.com/PPeitsch/TimeTrack/compare/v1.5.2...v2.0.0
 [1.5.2]: https://github.com/PPeitsch/TimeTrack/compare/v1.5.1...v1.5.2
 [1.5.1]: https://github.com/PPeitsch/TimeTrack/compare/v1.5.0...v1.5.1
