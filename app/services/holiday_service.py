@@ -5,12 +5,14 @@ from app.services.holiday_providers.argentina_website_provider import (
     ArgentinaWebsiteProvider,
 )
 from app.services.holiday_providers.base import HolidayProvider
+from app.services.holiday_providers.nager_date_provider import NagerDateProvider
 
 # A mapping of provider names to their corresponding classes.
 # This makes it easy to add new providers in the future.
 PROVIDER_MAP = {
     "ARGENTINA_WEBSITE": ArgentinaWebsiteProvider,
     "ARGENTINA_API": ArgentinaApiProvider,
+    "NAGER_DATE": NagerDateProvider,
 }
 
 
@@ -38,6 +40,15 @@ def get_holiday_provider(config: Config) -> HolidayProvider:
         if not api_url:
             raise ValueError("HOLIDAY_API_URL is not configured.")
         return ArgentinaApiProvider(api_url=api_url)
+
+    if provider_name.upper() == "NAGER_DATE":
+        api_url = getattr(config, "NAGER_DATE_API_URL", None)
+        country = getattr(config, "HOLIDAY_COUNTRY", None)
+        if not api_url:
+            raise ValueError("NAGER_DATE_API_URL is not configured.")
+        if not country:
+            raise ValueError("HOLIDAY_COUNTRY is not configured.")
+        return NagerDateProvider(api_url=api_url, country=country)
 
     # This part would be extended for other providers
     # For now, we raise an error if the provider is in the map but has no

@@ -36,7 +36,13 @@ class Config:
     UPLOAD_MAX_AGE_HOURS = 24
 
     # Holiday provider configuration
-    HOLIDAY_PROVIDER = os.getenv("HOLIDAY_PROVIDER", "ARGENTINA_API")
+    # ISO 3166-1 alpha-2 code of the country whose public holidays are loaded.
+    HOLIDAY_COUNTRY = os.getenv("HOLIDAY_COUNTRY", "AR").strip().upper()
+    # Without an explicit provider, Argentina uses ArgentinaDatos (it also lists
+    # the bridge days that Nager.Date omits) and every other country Nager.Date.
+    HOLIDAY_PROVIDER = os.getenv("HOLIDAY_PROVIDER") or (
+        "ARGENTINA_API" if HOLIDAY_COUNTRY == "AR" else "NAGER_DATE"
+    )
     HOLIDAYS_BASE_URL = os.getenv(
         "HOLIDAYS_BASE_URL",
         "https://www.argentina.gob.ar/jefatura/feriados-nacionales-{year}",
@@ -44,6 +50,10 @@ class Config:
     HOLIDAY_API_URL = os.getenv(
         "HOLIDAY_API_URL",
         "https://api.argentinadatos.com/v1/feriados/{year}",
+    )
+    NAGER_DATE_API_URL = os.getenv(
+        "NAGER_DATE_API_URL",
+        "https://date.nager.at/api/v3/PublicHolidays/{year}/{country}",
     )
 
     # Load a year's holidays from the provider the first time it is viewed.
