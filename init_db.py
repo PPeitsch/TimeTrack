@@ -53,20 +53,33 @@ def initialize_database_manually():
         from app.db.database import db
         from app.utils.init_data import init_data  # Import the data seeder
 
-        print("✓ Módulos importados correctamente")
+        print("Módulos importados correctamente")
 
         app = create_app(Config)
-        print("✓ Aplicación creada correctamente")
+        print("Aplicación creada correctamente")
 
         with app.app_context():
-            db.create_all()
-            print("✓ Tablas creadas correctamente")
+            # Same path as production: the schema comes only from the migrations.
+            if not create_schema(db):
+                return False, "base existente sin historial de migraciones"
+            print("Esquema al día (flask db upgrade)")
 
             # Populate initial data (absence codes, default employee)
             init_data()
-            print("✓ Datos iniciales (códigos de ausencia) poblados.")
+            print("Datos iniciales (códigos de ausencia) poblados.")
 
             ensure_login()
+
+            demo = (
+                input("\n¿Cargar datos de ejemplo de los últimos meses? (s/n) [n]: ")
+                .strip()
+                .lower()
+                == "s"
+            )
+            if demo:
+                from app.services.demo_data import seed_demo_entries
+
+                print(f"{seed_demo_entries()} días de ejemplo creados.")
 
             populate = (
                 input(
@@ -95,13 +108,30 @@ def initialize_database_manually():
 
     except Exception as e:
         error_message = f"Error durante la inicialización manual: {e}"
-        print(f"❌ {error_message}")
+        print(f"ERROR: {error_message}")
         if app:
             with app.app_context():
                 if db.session.is_active:
                     db.session.rollback()
-                    print("✓ Rollback de la sesión de base de datos realizado.")
+                    print("Rollback de la sesión de base de datos realizado.")
         return False, str(e)
+
+
+def create_schema(db):
+    """Apply the migrations; refuse a database created by db.create_all()."""
+    from flask_migrate import upgrade  # type: ignore
+    from sqlalchemy import inspect
+
+    tables = set(inspect(db.engine).get_table_names())
+    if tables and "alembic_version" not in tables:
+        print(
+            "\nLa base ya tiene tablas pero no historial de migraciones (la creó una "
+            "versión vieja de init_db.py).\nSi el esquema coincide con la última "
+            "versión, marcala con 'flask db stamp head' y volvé a correr este script."
+        )
+        return False
+    upgrade(directory=str(Path(__file__).resolve().parent / "migrations"))
+    return True
 
 
 def ensure_login():
@@ -157,15 +187,15 @@ def main():
     missing_packages = check_dependencies()
     if missing_packages:
         print(
-            f"\n⚠️ Se encontraron dependencias faltantes: {', '.join(missing_packages)}"
+            f"\nAVISO: Se encontraron dependencias faltantes: {', '.join(missing_packages)}"
         )
         install = input("¿Instalar dependencias faltantes? (s/n) [s]: ").lower() != "n"
         if install:
             print("Instalando dependencias...")
             if not install_missing_packages(missing_packages):
-                print("❌ Error al instalar dependencias.")
+                print("ERROR: Error al instalar dependencias.")
                 return
-            print("✓ Dependencias instaladas correctamente")
+            print("Dependencias instaladas correctamente")
 
     env_path = ".env"
     env_example_path = ".env.example"
@@ -185,7 +215,6 @@ def main():
             "FLASK_APP": "run.py",
             "FLASK_ENV": "development",
             "FLASK_DEBUG": "1",
-            "FLASK_DEBUG": "1",
             "HOLIDAY_PROVIDER": "ARGENTINA_API",
             "HOLIDAYS_BASE_URL": "https://www.argentina.gob.ar/jefatura/feriados-nacionales-{year}",
             "HOLIDAY_API_URL": "https://api.argentinadatos.com/v1/feriados/{year}",
@@ -193,7 +222,7 @@ def main():
 
     if "FLASK_APP" not in env_vars or "run.py" not in env_vars.get("FLASK_APP", ""):
         env_vars["FLASK_APP"] = "run.py"
-        print("\n✓ Se ha actualizado la configuración de FLASK_APP para usar run.py")
+        print("\nSe ha actualizado la configuración de FLASK_APP para usar run.py")
 
     db_url = env_vars.get("DATABASE_URL", "")
     db_info = extract_db_info(db_url)
@@ -257,14 +286,14 @@ def main():
     success, message = initialize_database_manually()
 
     if success:
-        print("\n✅ Configuración completada exitosamente.")
+        print("\nConfiguración completada exitosamente.")
         print("Ahora puedes ejecutar 'flask run' para iniciar la aplicación.")
     else:
-        print(f"\n❌ Error al inicializar la base de datos: {message}")
+        print(f"\nERROR: Error al inicializar la base de datos: {message}")
         print("\nPuedes intentar ejecutar estos comandos manualmente para depurar:")
-        print("1. flask db init")
-        print("2. flask db migrate -m 'Initial migration'")
-        print("3. flask db upgrade")
+        print("  flask db upgrade")
+        print("  flask seed defaults")
+        print("  flask user set-password <usuario>")
 
 
 if __name__ == "__main__":

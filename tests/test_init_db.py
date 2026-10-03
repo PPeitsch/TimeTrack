@@ -183,3 +183,38 @@ class TestInstallMissingPackages:
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
+
+
+class TestCreateSchema:
+    """create_schema builds the database from the migrations, like production."""
+
+    @pytest.fixture
+    def file_app(self, tmp_path):
+        from app import create_app
+        from tests.conftest import TestConfig
+
+        class FileConfig(TestConfig):
+            SQLALCHEMY_DATABASE_URI = f"sqlite:///{tmp_path / 'tt.db'}"
+
+        return create_app(FileConfig)
+
+    def test_applies_migrations_on_empty_database(self, file_app):
+        from sqlalchemy import inspect
+
+        from app.db.database import db
+        from init_db import create_schema
+
+        with file_app.app_context():
+            assert create_schema(db) is True
+            tables = set(inspect(db.engine).get_table_names())
+            assert {"alembic_version", "employees", "holiday_years"} <= tables
+            # Running it again is a no-op.
+            assert create_schema(db) is True
+
+    def test_refuses_database_without_migration_history(self, file_app):
+        from app.db.database import db
+        from init_db import create_schema
+
+        with file_app.app_context():
+            db.create_all()
+            assert create_schema(db) is False

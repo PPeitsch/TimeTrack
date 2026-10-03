@@ -15,7 +15,7 @@ DEFAULT_ABSENCE_CODES = [
 def init_data():
     try:
         # Default employee
-        if not Employee.query.get(1):
+        if db.session.get(Employee, 1) is None:
             default_user = Employee(id=1, name="Default User")
             db.session.add(default_user)
 

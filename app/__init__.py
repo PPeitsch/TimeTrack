@@ -43,6 +43,10 @@ def create_app(config_object):
 
     app.cli.add_command(holidays_cli)
 
+    from app.cli import seed_cli
+
+    app.cli.add_command(seed_cli)
+
     app.add_template_filter(format_hours, "hours")
 
     @app.errorhandler(413)
