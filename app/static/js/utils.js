@@ -62,3 +62,27 @@ function formatHours(hours) {
     const minutes = Math.round(Math.abs(hours) * 60);
     return `${sign}${Math.floor(minutes / 60)}:${String(minutes % 60).padStart(2, '0')}`;
 }
+
+// Inline SVG icon from the sprite (same as the icon() Jinja macro).
+function icon(name, cls = '') {
+    return `<svg class="icon ${cls}" aria-hidden="true" focusable="false"><use href="/static/img/icons.svg#${name}"></use></svg>`;
+}
+
+// Light/dark toggle; the initial theme is applied inline in base.html.
+document.addEventListener('DOMContentLoaded', function () {
+    const toggle = document.getElementById('themeToggle');
+    if (!toggle) return;
+    const root = document.documentElement;
+    const sync = () => {
+        const dark = root.getAttribute('data-bs-theme') === 'dark';
+        toggle.setAttribute('aria-label', dark ? toggle.dataset.labelLight : toggle.dataset.labelDark);
+        toggle.title = toggle.getAttribute('aria-label');
+    };
+    toggle.addEventListener('click', () => {
+        const next = root.getAttribute('data-bs-theme') === 'dark' ? 'light' : 'dark';
+        root.setAttribute('data-bs-theme', next);
+        try { localStorage.setItem('theme', next); } catch (e) { /* storage unavailable */ }
+        sync();
+    });
+    sync();
+});

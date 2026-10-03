@@ -1,0 +1,4 @@
+{# Inline SVG icon from static/img/icons.svg; takes the current text color. #}
+{% macro icon(name, cls='') -%}
+<svg class="icon {{ cls }}" aria-hidden="true" focusable="false"><use href="{{ url_for('static', filename='img/icons.svg') }}#{{ name }}"></use></svg>
+{%- endmacro %}

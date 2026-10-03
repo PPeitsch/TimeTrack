@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "_icons.html" import icon %}
 
 {% block title %}Today{% endblock %}
 
@@ -13,7 +14,7 @@
         <p class="text-body-secondary mb-0">{{ today.date.strftime('%A, %d %B %Y') }}</p>
     </div>
     <a class="btn btn-primary" href="{{ url_for('main.calendar', day=today.date.isoformat()) }}">
-        <i class="bi bi-pencil-square me-1"></i> Log today
+        {{ icon('pencil', 'me-1') }} Log today
     </a>
 </div>
 

@@ -1,18 +1,19 @@
 {% extends "base.html" %}
+{% from "_icons.html" import icon %}
 
 {% block title %}Import Preview{% endblock %}
 
 {% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <h1 class="h3 mb-0">Import preview</h1>
+    <div>
+        <span class="badge text-bg-success me-2">{{ result.valid_records }} valid</span>
+        <span class="badge text-bg-danger">{{ result.total_records - result.valid_records }} invalid</span>
+    </div>
+</div>
 <div class="row">
     <div class="col-12">
-        <div class="card shadow">
-            <div class="card-header bg-info text-dark d-flex justify-content-between align-items-center">
-                <h4 class="mb-0"><i class="bi bi-eye me-2"></i>Import Preview</h4>
-                <div>
-                    <span class="badge bg-success me-2">{{ result.valid_records }} Valid</span>
-                    <span class="badge bg-danger">{{ result.total_records - result.valid_records }} Invalid</span>
-                </div>
-            </div>
+        <div class="card">
             <div class="card-body">
                 {% if result.errors %}
                 <div class="alert alert-warning">
@@ -26,8 +27,8 @@
                 {% endif %}
 
                 <div class="table-responsive mb-4">
-                    <table class="table table-hover table-bordered">
-                        <thead class="table-light">
+                    <table class="table table-hover align-middle">
+                        <thead>
                             <tr>
                                 <th>Date</th>
                                 <th>Entry</th>
@@ -38,16 +39,16 @@
                         </thead>
                         <tbody>
                             {% for record in result.records %}
-                            <tr class="{{ 'table-success' if record.is_valid else 'table-danger' }}">
+                            <tr class="{{ '' if record.is_valid else 'row-invalid' }}">
                                 <td>{{ record.date }}</td>
                                 <td>{{ record.entry_time or '-' }}</td>
                                 <td>{{ record.exit_time or '-' }}</td>
                                 <td>{{ record.observation or '-' }}</td>
                                 <td>
                                     {% if record.is_valid %}
-                                    <i class="bi bi-check-circle-fill text-success"></i> OK
+                                    {{ icon('check', 'text-success') }} OK
                                     {% else %}
-                                    <i class="bi bi-exclamation-triangle-fill text-danger"></i> {{ record.error_message
+                                    {{ icon('alert', 'text-danger') }} {{ record.error_message
                                     }}
                                     {% endif %}
                                 </td>
@@ -61,7 +62,7 @@
                     <form action="{{ url_for('import_log.cancel', upload_id=upload_id) }}" method="POST">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <button type="submit" class="btn btn-secondary">
-                            <i class="bi bi-x-circle me-1"></i> Cancel
+                            {{ icon('x', 'me-1') }} Cancel
                         </button>
                     </form>
 
@@ -79,7 +80,7 @@
                             </div>
                         </div>
                         <button type="submit" class="btn btn-success btn-lg">
-                            <i class="bi bi-save me-1"></i> Import {{ result.valid_records }} Records
+                            {{ icon('save', 'me-1') }} Import {{ result.valid_records }} Records
                         </button>
                     </form>
                     {% endif %}

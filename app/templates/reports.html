@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "_icons.html" import icon %}
 
 {% block title %}Reports{% endblock %}
 
@@ -11,16 +12,16 @@
     <h1 class="h3 mb-0">Reports</h1>
     <div class="d-flex align-items-center gap-2">
         <a class="btn btn-outline-secondary btn-sm" aria-label="Previous month"
-            href="{{ url_for('main.reports', year=prev_month.year, month=prev_month.month) }}"><i class="bi bi-chevron-left"></i></a>
+            href="{{ url_for('main.reports', year=prev_month.year, month=prev_month.month) }}">{{ icon('chevron-left') }}</a>
         <form method="GET" class="d-flex gap-2">
             <label class="visually-hidden" for="reportMonth">Month</label>
             <input type="month" class="form-control form-control-sm" id="reportMonth" name="ym"
                 value="{{ '%04d-%02d' % (year, month) }}">
         </form>
         <a class="btn btn-outline-secondary btn-sm" aria-label="Next month"
-            href="{{ url_for('main.reports', year=next_month.year, month=next_month.month) }}"><i class="bi bi-chevron-right"></i></a>
+            href="{{ url_for('main.reports', year=next_month.year, month=next_month.month) }}">{{ icon('chevron-right') }}</a>
         <a class="btn btn-primary btn-sm" href="{{ url_for('main.export_csv', year=year, month=month) }}">
-            <i class="bi bi-download me-1"></i> CSV
+            {{ icon('download', 'me-1') }} CSV
         </a>
     </div>
 </div>
