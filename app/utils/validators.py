@@ -1,6 +1,8 @@
 import re
 from datetime import date, datetime
 
+from flask_babel import gettext as _
+
 
 def validate_time_format(time_str: str) -> bool:
     """Validate if a string is in HH:MM format with leading zeros."""
@@ -22,27 +24,27 @@ def validate_time_format(time_str: str) -> bool:
 def validate_entries(entries: list) -> tuple[bool, str]:
     """Validate a list of time entries."""
     if not entries:
-        return False, "No entries provided"
+        return False, _("No entries provided")
 
     for entry in entries:
         # Check if both entry and exit times are provided
         if not entry.get("entry") or not entry.get("exit"):
-            return False, "Entry and exit times are required"
+            return False, _("Entry and exit times are required")
 
         # Validate time format
         if not validate_time_format(entry["entry"]) or not validate_time_format(
             entry["exit"]
         ):
-            return False, "Invalid time format (use HH:MM)"
+            return False, _("Invalid time format (use HH:MM)")
 
         try:
             entry_time = datetime.strptime(entry["entry"], "%H:%M")
             exit_time = datetime.strptime(entry["exit"], "%H:%M")
 
             if exit_time <= entry_time:
-                return False, "Exit time must be after entry time"
+                return False, _("Exit time must be after entry time")
         except ValueError:
-            return False, "Invalid time values"
+            return False, _("Invalid time values")
 
     return True, ""
 

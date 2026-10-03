@@ -1,10 +1,12 @@
 import secrets
 
 from flask import Flask, flash, redirect, request, url_for
+from flask_babel import gettext as _
 from flask_migrate import Migrate  # type: ignore
 
 from app.auth import init_auth
 from app.db.database import db, init_db
+from app.i18n import init_i18n
 from app.routes.api import api_bp
 from app.routes.main import main
 from app.routes.manual_entry import manual_entry
@@ -23,6 +25,7 @@ def create_app(config_object):
     init_db(app)
     migrate = Migrate(app, db)
     init_auth(app)
+    init_i18n(app)
 
     app.register_blueprint(main)
     app.register_blueprint(manual_entry)
@@ -44,7 +47,7 @@ def create_app(config_object):
 
     @app.errorhandler(413)
     def file_too_large(_error):
-        flash("File is too large", "error")
+        flash(_("File is too large"), "error")
         return redirect(url_for("main.settings", _anchor="import"))
 
     return app

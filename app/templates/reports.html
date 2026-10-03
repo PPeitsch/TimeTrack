@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% from "_icons.html" import icon %}
 
-{% block title %}Reports{% endblock %}
+{% block title %}{{ _('Reports') }}{% endblock %}
 
 {% macro balance(value) -%}
 <span class="{{ 'balance-positive' if value >= 0 else 'balance-negative' }}">{{ value | hours(signed=True) }}</span>
@@ -9,16 +9,16 @@
 
 {% block content %}
 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-    <h1 class="h3 mb-0">Reports</h1>
+    <h1 class="h3 mb-0">{{ _('Reports') }}</h1>
     <div class="d-flex align-items-center gap-2">
-        <a class="btn btn-outline-secondary btn-sm" aria-label="Previous month"
+        <a class="btn btn-outline-secondary btn-sm" aria-label="{{ _('Previous month') }}"
             href="{{ url_for('main.reports', year=prev_month.year, month=prev_month.month) }}">{{ icon('chevron-left') }}</a>
         <form method="GET" class="d-flex gap-2">
-            <label class="visually-hidden" for="reportMonth">Month</label>
+            <label class="visually-hidden" for="reportMonth">{{ _('Month') }}</label>
             <input type="month" class="form-control form-control-sm" id="reportMonth" name="ym"
                 value="{{ '%04d-%02d' % (year, month) }}">
         </form>
-        <a class="btn btn-outline-secondary btn-sm" aria-label="Next month"
+        <a class="btn btn-outline-secondary btn-sm" aria-label="{{ _('Next month') }}"
             href="{{ url_for('main.reports', year=next_month.year, month=next_month.month) }}">{{ icon('chevron-right') }}</a>
         <a class="btn btn-primary btn-sm" href="{{ url_for('main.export_csv', year=year, month=month) }}">
             {{ icon('download', 'me-1') }} CSV
@@ -28,29 +28,29 @@
 
 <div class="row g-3 mb-3">
     <div class="col-sm-4"><div class="card"><div class="card-body">
-        <h2 class="h6 text-body-secondary">Worked</h2><p class="stat-value mb-0">{{ totals.total | hours }}</p>
+        <h2 class="h6 text-body-secondary">{{ _('Worked') }}</h2><p class="stat-value mb-0">{{ totals.total | hours }}</p>
     </div></div></div>
     <div class="col-sm-4"><div class="card"><div class="card-body">
-        <h2 class="h6 text-body-secondary">Required</h2><p class="stat-value mb-0">{{ totals.required | hours }}</p>
+        <h2 class="h6 text-body-secondary">{{ _('Required') }}</h2><p class="stat-value mb-0">{{ totals.required | hours }}</p>
     </div></div></div>
     <div class="col-sm-4"><div class="card"><div class="card-body">
-        <h2 class="h6 text-body-secondary">Balance</h2><p class="stat-value mb-0">{{ balance(totals.difference) }}</p>
+        <h2 class="h6 text-body-secondary">{{ _('Balance') }}</h2><p class="stat-value mb-0">{{ balance(totals.difference) }}</p>
     </div></div></div>
 </div>
 
 <div class="card">
     <div class="table-responsive">
         <table class="table table-hover align-middle mb-0">
-            <caption class="visually-hidden">Hours per day, {{ first.strftime('%B %Y') }}</caption>
+            <caption class="visually-hidden">{{ _('Hours per day, %(month)s', month=first | dateformat('MMMM y')) }}</caption>
             <thead>
                 <tr>
-                    <th scope="col">Date</th>
-                    <th scope="col">Type</th>
-                    <th scope="col">Times</th>
-                    <th scope="col" class="text-end">Worked</th>
-                    <th scope="col" class="text-end">Required</th>
-                    <th scope="col" class="text-end">Balance</th>
-                    <th scope="col">Observation</th>
+                    <th scope="col">{{ _('Date') }}</th>
+                    <th scope="col">{{ _('Type') }}</th>
+                    <th scope="col">{{ _('Times') }}</th>
+                    <th scope="col" class="text-end">{{ _('Worked') }}</th>
+                    <th scope="col" class="text-end">{{ _('Required') }}</th>
+                    <th scope="col" class="text-end">{{ _('Balance') }}</th>
+                    <th scope="col">{{ _('Observation') }}</th>
                 </tr>
             </thead>
             <tbody>
@@ -58,9 +58,9 @@
                 {% set future = d.date > today and not d.has_entry %}
                 <tr class="{{ 'row-muted' if future or (d.type in ('Weekend', 'Holiday') and not d.worked) }}">
                     <td class="text-nowrap">
-                        <a href="{{ url_for('main.calendar', day=d.date.isoformat()) }}">{{ d.date.strftime('%a %d') }}</a>
+                        <a href="{{ url_for('main.calendar', day=d.date.isoformat()) }}">{{ d.date | dateformat('EEE dd') }}</a>
                     </td>
-                    <td>{{ d.type }}</td>
+                    <td>{{ day_label(d.type) }}</td>
                     <td class="small">{% for e in d.entries %}{{ e.entry }}-{{ e.exit }}{% if not loop.last %}, {% endif %}{% endfor %}</td>
                     <td class="text-end">{{ d.worked | hours if d.worked else '' }}</td>
                     <td class="text-end">{{ d.required | hours if d.required else '' }}</td>
@@ -71,7 +71,7 @@
             </tbody>
             <tfoot>
                 <tr class="fw-semibold">
-                    <td colspan="3">Total</td>
+                    <td colspan="3">{{ _('Total') }}</td>
                     <td class="text-end">{{ totals.total | hours }}</td>
                     <td class="text-end">{{ totals.required | hours }}</td>
                     <td class="text-end">{{ balance(totals.difference) }}</td>

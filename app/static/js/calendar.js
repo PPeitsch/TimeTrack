@@ -39,8 +39,8 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('noCodesHint').hidden = absenceCodes.length > 0;
 
         bulkType.innerHTML = '';
-        bulkType.add(new Option('Default (base calendar)', 'DEFAULT'));
-        bulkType.add(new Option('Work Day', 'Work Day'));
+        bulkType.add(new Option(t('default_option'), 'DEFAULT'));
+        bulkType.add(new Option(t('Work Day'), 'Work Day'));
         absenceCodes.forEach(c => bulkType.add(new Option(c.code, c.code)));
     }
 
@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', function () {
         monthTitle.textContent = title.charAt(0).toUpperCase() + title.slice(1);
         try {
             const response = await fetch(`/api/days/${year}/${month + 1}`);
-            if (!response.ok) throw new Error('Could not load the calendar.');
+            if (!response.ok) throw new Error(t('load_calendar_error'));
             const data = await response.json();
             daysByDate = new Map(data.days.map(d => [d.date, d]));
             renderGrid(year, month);
@@ -97,8 +97,8 @@ document.addEventListener('DOMContentLoaded', function () {
             if (selection.has(dateStr)) cell.classList.add('day-selected');
             cell.dataset.date = dateStr;
 
-            const label = [day.type];
-            if (day.worked) label.push(`${formatHours(day.worked)} worked`);
+            const label = [t(day.type)];
+            if (day.worked) label.push(t('worked', { hours: formatHours(day.worked) }));
             if (day.observation) label.push(day.observation);
             cell.setAttribute('aria-label', `${n}: ${label.join(', ')}`);
 
@@ -109,9 +109,9 @@ document.addEventListener('DOMContentLoaded', function () {
             if (day.type === 'Work Day' && day.base_type !== 'Work Day') cell.classList.add('day-overtime');
             cell.innerHTML =
                 `<span class="day-number">${n}</span>` +
-                (badge ? `<span class="day-type">${escapeHTML(badge)}</span>` : '') +
+                (badge ? `<span class="day-type">${escapeHTML(t(badge))}</span>` : '') +
                 (day.worked ? `<span class="day-hours">${formatHours(day.worked)}</span>` : '') +
-                (day.observation ? `<span class="day-note" title="Has observation">${icon('note')}</span>` : '');
+                (day.observation ? `<span class="day-note" title="${escapeHTML(t('has_observation'))}">${icon('note')}</span>` : '');
             grid.appendChild(cell);
         }
     }
@@ -150,7 +150,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 total += (h2 * 60 + m2 - h1 * 60 - m1) / 60;
             }
         });
-        document.getElementById('workedPreview').textContent = total ? `${formatHours(total)} worked` : '';
+        document.getElementById('workedPreview').textContent = total ? t('worked', { hours: formatHours(total) }) : '';
     }
 
     function selectedKind() {
@@ -181,7 +181,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (day.absence_code) absenceSelect.value = day.absence_code;
         observation.value = day.observation || '';
         document.getElementById('baseTypeHint').textContent =
-            `"Default" follows the base calendar: ${day.base_type}.`;
+            t('default_hint', { type: t(day.base_type) });
         updateKindFields();
         updateWorkedPreview();
         dayPanel.show();
@@ -201,9 +201,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 body: JSON.stringify(payload),
             });
             const data = await response.json();
-            if (!response.ok) throw new Error(data.error || 'Could not save the day.');
+            if (!response.ok) throw new Error(data.error || t('save_day_error'));
             dayPanel.hide();
-            showToast('Day saved.');
+            showToast(t('day_saved'));
             await loadMonth();
         } catch (error) {
             dayError.textContent = error.message;
@@ -225,7 +225,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function openBulk() {
-        document.getElementById('bulkPanelTitle').textContent = `${selection.size} days selected`;
+        document.getElementById('bulkPanelTitle').textContent = t('days_selected', { count: selection.size });
         bulkPanel.show();
     }
 
@@ -237,9 +237,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 body: JSON.stringify({ dates: [...selection], day_type: bulkType.value }),
             });
             const data = await response.json();
-            if (!response.ok) throw new Error(data.error || 'Could not save the changes.');
+            if (!response.ok) throw new Error(data.error || t('save_changes_error'));
             bulkPanel.hide();
-            showToast(`${selection.size} days updated.`);
+            showToast(t('days_updated', { count: selection.size }));
             await loadMonth();
         } catch (error) {
             showToast(error.message, 'error');

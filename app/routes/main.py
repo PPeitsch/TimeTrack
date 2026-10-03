@@ -5,7 +5,9 @@ import io
 from calendar import monthrange
 from datetime import date, timedelta
 
+from babel.dates import get_day_names
 from flask import Blueprint, Response, render_template, request
+from flask_babel import get_locale
 
 from app.auth import current_employee_id
 from app.services.calendar_service import resolve_days, summarize
@@ -50,7 +52,8 @@ def index():
 
 @main.route("/calendar")
 def calendar():
-    return render_template("calendar.html")
+    names = get_day_names("abbreviated", locale=get_locale())
+    return render_template("calendar.html", weekday_names=[names[i] for i in range(7)])
 
 
 @main.route("/reports")

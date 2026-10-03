@@ -1,5 +1,12 @@
 // Shared helpers loaded on every page (see base.html).
 
+// Translated UI string. window.I18N is rendered by base.html for the current
+// language; {name} placeholders are filled from `params`.
+function t(key, params = {}) {
+    const text = (window.I18N && window.I18N[key]) || key;
+    return text.replace(/\{(\w+)\}/g, (match, name) => (name in params ? params[name] : match));
+}
+
 function escapeHTML(value) {
     return String(value ?? '').replace(/[&<>"']/g, function(match) {
         return {
@@ -44,7 +51,7 @@ function showToast(message, type = 'success') {
     toast.className = `toast align-items-center border-0 text-bg-${type === 'error' ? 'danger' : type}`;
     toast.setAttribute('role', type === 'error' ? 'alert' : 'status');
     toast.innerHTML = `<div class="d-flex"><div class="toast-body">${escapeHTML(message)}</div>` +
-        '<button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button></div>';
+        `<button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="${escapeHTML(t('close'))}"></button></div>`;
     container.appendChild(toast);
     const instance = new bootstrap.Toast(toast, { delay: 3500 });
     toast.addEventListener('hidden.bs.toast', () => toast.remove());

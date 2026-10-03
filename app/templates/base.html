@@ -1,6 +1,6 @@
 {% from "_icons.html" import icon %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ current_language }}">
 
 <head>
     <meta charset="UTF-8">
@@ -18,15 +18,16 @@
     </script>
     <link href="{{ url_for('static', filename='vendor/bootstrap/bootstrap.min.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    <script>window.I18N = {{ js_messages() | tojson }};</script>
     <script src="{{ url_for('static', filename='js/utils.js') }}"></script>
 </head>
 
 <body>
     {% set nav_items = [
-        ('main.index', 'Today', 'home', ['main.index']),
-        ('main.calendar', 'Calendar', 'calendar', ['main.calendar']),
-        ('main.reports', 'Reports', 'chart', ['main.reports']),
-        ('main.settings', 'Settings', 'settings', ['main.settings', 'import_log.upload_file', 'import_log.preview']),
+        ('main.index', _('Today'), 'home', ['main.index']),
+        ('main.calendar', _('Calendar'), 'calendar', ['main.calendar']),
+        ('main.reports', _('Reports'), 'chart', ['main.reports']),
+        ('main.settings', _('Settings'), 'settings', ['main.settings', 'import_log.upload_file', 'import_log.preview']),
     ] %}
     <nav class="navbar navbar-expand-md app-navbar" data-bs-theme="dark">
         <div class="container">
@@ -36,7 +37,7 @@
             </a>
             {% block nav %}
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                aria-controls="navbarNav" aria-expanded="false" aria-label="{{ _('Toggle navigation') }}">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
@@ -51,15 +52,16 @@
                     </li>
                     {% endfor %}
                 </ul>
+                {% include "_language_switch.html" %}
                 <button type="button" class="nav-link btn btn-link px-3 theme-toggle" id="themeToggle"
-                    aria-label="Switch to dark theme" data-label-dark="Switch to dark theme" data-label-light="Switch to light theme">
+                    aria-label="{{ _('Switch to dark theme') }}" data-label-dark="{{ _('Switch to dark theme') }}" data-label-light="{{ _('Switch to light theme') }}">
                     {{ icon('moon', 'theme-icon-dark') }}{{ icon('sun', 'theme-icon-light') }}
                 </button>
                 {% if current_user.is_authenticated %}
                 <form action="{{ url_for('auth.logout') }}" method="POST" class="d-flex">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                    <button type="submit" class="nav-link btn btn-link px-3" title="Signed in as {{ current_user.username }}">
-                        {{ icon('logout', 'me-1') }} Log out
+                    <button type="submit" class="nav-link btn btn-link px-3" title="{{ _('Signed in as %(name)s', name=current_user.username) }}">
+                        {{ icon('logout', 'me-1') }} {{ _('Log out') }}
                     </button>
                 </form>
                 {% endif %}
@@ -73,7 +75,7 @@
         {% for category, message in messages %}
         <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
             {{ message }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{{ _('Close') }}"></button>
         </div>
         {% endfor %}
         {% endwith %}

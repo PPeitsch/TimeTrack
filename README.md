@@ -95,6 +95,21 @@ export DEMO_MODE=true DEMO_USERNAME=demo DEMO_PASSWORD=demo
 In production set a strong `SECRET_KEY` (the app refuses to start without one) and,
 behind HTTPS, `SESSION_COOKIE_SECURE=true`.
 
+## Languages
+
+The interface is available in English and Spanish. The EN / ES switch in the navbar (also on the login page) changes the language; without a choice, the browser's language is used.
+
+To change or add texts:
+
+```bash
+pybabel extract -F babel.cfg -k _l --no-location --sort-output -o app/translations/messages.pot .
+pybabel update -i app/translations/messages.pot -d app/translations
+# edit app/translations/es/LC_MESSAGES/messages.po
+pybabel compile -d app/translations
+```
+
+Texts used by the JavaScript are listed in `js_messages()` in `app/i18n.py`. To add a language, run `pybabel init -i app/translations/messages.pot -d app/translations -l <code>` and add it to `LANGUAGES`.
+
 ## Usage
 
 The app has four screens:
