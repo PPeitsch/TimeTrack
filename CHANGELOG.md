@@ -27,9 +27,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Holidays load automatically the first time a year is viewed (`HOLIDAY_AUTO_FETCH`, tracked in the new `holiday_years` table, migration `b7e3d1a2c4f6`) and can be reloaded with `flask holidays refresh [YEAR ...]`.
 - Import preview lets you choose between replacing the times of existing days or skipping them.
 - `WORKING_HOURS_PER_DAY` can be set from the environment.
+- `flask seed defaults` (default user and absence codes) and `flask seed demo [--months N]` (sample days for the last months and, if the user has no password yet, the `DEMO_USERNAME` / `DEMO_PASSWORD` login). Both are safe to run again.
 - **Holidays for any country:** new `NAGER_DATE` provider ([Nager.Date](https://date.nager.at), 100+ countries, nationwide holidays only) selected with `HOLIDAY_COUNTRY` (ISO code). If `HOLIDAY_PROVIDER` is not set, Argentina keeps using ArgentinaDatos and every other country uses Nager.Date.
 
 ### Changed
+- `init_db.py` builds the schema with the migrations (`flask db upgrade`) instead of `db.create_all()`, so there is a single path for the schema; it can also load demo data and no longer prints emojis.
 - Old URLs (`/monthly-log/`, `/entry`, `/summary/`, `/logs/`, `/settings/absences`, `/import/`) redirect to the new screens.
 - The calendar starts weeks on Monday and no longer shifts days in UTC+ timezones.
 - Bootstrap 5.3, served from `static/vendor/` instead of a CDN (no external requests; works offline and self-hosted).
