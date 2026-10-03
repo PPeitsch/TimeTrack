@@ -74,7 +74,7 @@ document.addEventListener('DOMContentLoaded', function () {
             newCodeInput.value = '';
             await fetchCodes(); // Refresh the list
         } catch (error) {
-            alert(`Error: ${error.message}`);
+            showToast(error.message, 'error');
         }
     });
 
@@ -112,7 +112,7 @@ document.addEventListener('DOMContentLoaded', function () {
             editCodeModal.hide();
             await fetchCodes(); // Refresh the list
         } catch (error) {
-            alert(`Error: ${error.message}`);
+            showToast(error.message, 'error');
         }
     });
 
@@ -126,7 +126,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             await fetchCodes(); // Refresh the list
         } catch (error) {
-            alert(`Error: ${error.message}`);
+            showToast(error.message, 'error');
         }
     }
 

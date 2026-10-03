@@ -49,9 +49,9 @@ class TestRoutes(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_manual_entry_route_get(self):
-        # Test the manual entry form route
+        # Days are edited from the calendar now
         response = self.client.get("/entry")
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 301)
 
     def test_manual_entry_route_post(self):
         # Test posting a new time entry
@@ -243,12 +243,12 @@ class TestRoutes(unittest.TestCase):
     def test_time_summary_route(self):
         # Test the time summary route
         response = self.client.get("/summary/")
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 301)
 
     def test_time_logs_route(self):
         # Test the time logs route
         response = self.client.get("/logs/")
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 301)
 
     def test_daily_summary_route(self):
         # Create a test entry first on a weekday

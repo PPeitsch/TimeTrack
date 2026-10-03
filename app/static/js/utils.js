@@ -35,3 +35,30 @@ function escapeHTML(value) {
         });
     };
 })();
+
+// Small non-blocking notification (replaces alert()).
+function showToast(message, type = 'success') {
+    const container = document.getElementById('toastContainer');
+    if (!container) return;
+    const toast = document.createElement('div');
+    toast.className = `toast align-items-center border-0 text-bg-${type === 'error' ? 'danger' : type}`;
+    toast.setAttribute('role', type === 'error' ? 'alert' : 'status');
+    toast.innerHTML = `<div class="d-flex"><div class="toast-body">${escapeHTML(message)}</div>` +
+        '<button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button></div>';
+    container.appendChild(toast);
+    const instance = new bootstrap.Toast(toast, { delay: 3500 });
+    toast.addEventListener('hidden.bs.toast', () => toast.remove());
+    instance.show();
+}
+
+// Local YYYY-MM-DD (toISOString() would shift the day in UTC+ timezones).
+function isoDate(d) {
+    const pad = n => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+
+function formatHours(hours) {
+    const sign = hours < 0 ? '-' : '';
+    const minutes = Math.round(Math.abs(hours) * 60);
+    return `${sign}${Math.floor(minutes / 60)}:${String(minutes % 60).padStart(2, '0')}`;
+}

@@ -1,38 +1,58 @@
 {% extends "base.html" %}
 
-{% block title %}Home{% endblock %}
+{% block title %}Today{% endblock %}
+
+{% macro balance(value) -%}
+<span class="{{ 'balance-positive' if value >= 0 else 'balance-negative' }}">{{ value | hours(signed=True) }}</span>
+{%- endmacro %}
 
 {% block content %}
-<div class="container mt-4">
-    <h1>TimeTrack</h1>
-    <div class="row mt-4">
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Manual Entry</h5>
-                    <p class="card-text">Register your work hours manually.</p>
-                    <a href="{{ url_for('manual_entry.show_entry_form') }}" class="btn btn-primary">Data Entry</a>
-                </div>
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+    <div>
+        <h1 class="h3 mb-0">Today</h1>
+        <p class="text-body-secondary mb-0">{{ today.date.strftime('%A, %d %B %Y') }}</p>
+    </div>
+    <a class="btn btn-primary" href="{{ url_for('main.calendar', day=today.date.isoformat()) }}">
+        <i class="bi bi-pencil-square me-1"></i> Log today
+    </a>
+</div>
+
+<div class="row g-3">
+    <div class="col-md-4">
+        <section class="card h-100" aria-labelledby="todayTitle">
+            <div class="card-body">
+                <h2 class="h6 text-body-secondary" id="todayTitle">Today</h2>
+                <p class="stat-value mb-1">{{ today.worked | hours }}</p>
+                <p class="mb-2 small text-body-secondary">
+                    {{ today.type }}{% if today.type == 'Work Day' and today.base_type != 'Work Day' %} ({{ today.base_type }}, extra hours){% endif %}{% if today.required %} &middot; {{ today.required | hours }} required{% endif %}
+                </p>
+                {% if today.entries %}
+                <ul class="list-unstyled small mb-0">
+                    {% for e in today.entries %}<li>{{ e.entry }} - {{ e.exit }}</li>{% endfor %}
+                </ul>
+                {% elif not today.absence_code %}
+                <p class="small mb-0 text-body-secondary">No hours logged yet.</p>
+                {% endif %}
             </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Monthly Summary</h5>
-                    <p class="card-text">View summary of your time records.</p>
-                    <a href="{{ url_for('time_summary.show_summary') }}" class="btn btn-primary">View Summary</a>
-                </div>
+        </section>
+    </div>
+    <div class="col-md-4">
+        <section class="card h-100" aria-labelledby="weekTitle">
+            <div class="card-body">
+                <h2 class="h6 text-body-secondary" id="weekTitle">This week, to date</h2>
+                <p class="stat-value mb-1">{{ balance(week.difference) }}</p>
+                <p class="small text-body-secondary mb-0">{{ week.total | hours }} worked of {{ week.required | hours }} required</p>
             </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Time Logs</h5>
-                    <p class="card-text">View detailed time entry logs.</p>
-                    <a href="{{ url_for('time_log.show_logs') }}" class="btn btn-primary">View Logs</a>
-                </div>
+        </section>
+    </div>
+    <div class="col-md-4">
+        <section class="card h-100" aria-labelledby="monthTitle">
+            <div class="card-body">
+                <h2 class="h6 text-body-secondary" id="monthTitle">This month, to date</h2>
+                <p class="stat-value mb-1">{{ balance(month.difference) }}</p>
+                <p class="small text-body-secondary mb-0">{{ month.total | hours }} worked of {{ month.required | hours }} required</p>
             </div>
-        </div>
+        </section>
     </div>
 </div>
 {% endblock %}

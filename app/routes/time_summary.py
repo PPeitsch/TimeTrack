@@ -1,7 +1,7 @@
 from calendar import monthrange
 from datetime import date, datetime
 
-from flask import Blueprint, current_app, jsonify, render_template
+from flask import Blueprint, current_app, jsonify, redirect, url_for
 
 from app.auth import current_employee_id
 from app.services.calendar_service import resolve_day, resolve_days, summarize
@@ -11,7 +11,8 @@ time_summary = Blueprint("time_summary", __name__, url_prefix="/summary")
 
 @time_summary.route("/", methods=["GET"])
 def show_summary():
-    return render_template("time_summary.html")
+    """Old summary URL; merged into /reports."""
+    return redirect(url_for("main.reports"), code=301)
 
 
 @time_summary.route("/daily/<date>", methods=["GET"])

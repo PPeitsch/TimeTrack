@@ -50,9 +50,10 @@ class TestImportLogRoutes:
         return app.test_client()
 
     def test_upload_page_get(self, client):
-        """Test that the upload page loads correctly."""
+        """The upload form lives in Settings; /import/ redirects there."""
         response = client.get("/import/")
-        assert response.status_code == 200
+        assert response.status_code == 302
+        assert response.headers["Location"].endswith("/settings#import")
 
     def test_upload_no_file_part(self, client):
         """Test upload with no file part in request."""

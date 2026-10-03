@@ -1,7 +1,7 @@
 from calendar import monthrange
 from datetime import date, datetime
 
-from flask import Blueprint, current_app, jsonify, render_template, request
+from flask import Blueprint, current_app, jsonify, redirect, request, url_for
 
 from app.auth import current_employee_id
 from app.db.database import db
@@ -13,8 +13,8 @@ monthly_log_bp = Blueprint("monthly_log", __name__, url_prefix="/monthly-log")
 
 @monthly_log_bp.route("/", methods=["GET"])
 def view_monthly_log():
-    """Renders the main calendar view page."""
-    return render_template("monthly_log.html")
+    """Old calendar URL; the screen now lives at /calendar."""
+    return redirect(url_for("main.calendar"), code=301)
 
 
 @monthly_log_bp.route("/api/<int:year>/<int:month>", methods=["GET"])

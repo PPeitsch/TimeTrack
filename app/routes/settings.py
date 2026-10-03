@@ -1,4 +1,4 @@
-from flask import Blueprint, current_app, jsonify, render_template, request
+from flask import Blueprint, current_app, jsonify, redirect, request, url_for
 
 from app.db.database import db
 from app.models.models import AbsenceCode, ScheduleEntry
@@ -8,8 +8,8 @@ settings_bp = Blueprint("settings", __name__, url_prefix="/settings")
 
 @settings_bp.route("/absences", methods=["GET"])
 def manage_absences_page():
-    """Renders the absence code management page."""
-    return render_template("settings_absences.html")
+    """Old settings URL; the screen now lives at /settings."""
+    return redirect(url_for("main.settings"), code=301)
 
 
 # --- API Endpoints ---

@@ -47,12 +47,12 @@ def upload_file():
     if request.method == "POST":
         if "file" not in request.files:
             flash("No file part", "error")
-            return redirect(request.url)
+            return redirect(url_for("main.settings", _anchor="import"))
 
         file = request.files["file"]
         if file.filename == "":
             flash("No selected file", "error")
-            return redirect(request.url)
+            return redirect(url_for("main.settings", _anchor="import"))
 
         if file:
             filename = secure_filename(file.filename or "")
@@ -60,7 +60,7 @@ def upload_file():
 
             if file_ext not in ALLOWED_EXTENSIONS:
                 flash("Unsupported file type", "error")
-                return redirect(request.url)
+                return redirect(url_for("main.settings", _anchor="import"))
 
             _cleanup_stale_uploads()
 
@@ -72,7 +72,7 @@ def upload_file():
 
             return redirect(url_for("import_log.preview", upload_id=upload_id))
 
-    return render_template("import_upload.html")
+    return redirect(url_for("main.settings", _anchor="import"))
 
 
 @import_log_bp.route("/preview/<upload_id>", methods=["GET"])
@@ -81,7 +81,7 @@ def preview(upload_id):
     filepath = _get_filepath(upload_id)
     if not filepath:
         flash("File not found or expired", "error")
-        return redirect(url_for("import_log.upload_file"))
+        return redirect(url_for("main.settings", _anchor="import"))
 
     try:
         result = _parse(filepath)
@@ -92,7 +92,7 @@ def preview(upload_id):
     except Exception:
         logger.exception("Error parsing upload %s", upload_id)
         flash("Error parsing file. Check that it has the expected format.", "error")
-        return redirect(url_for("import_log.upload_file"))
+        return redirect(url_for("main.settings", _anchor="import"))
 
 
 @import_log_bp.route("/confirm/<upload_id>", methods=["POST"])
@@ -100,7 +100,7 @@ def confirm(upload_id):
     filepath = _get_filepath(upload_id)
     if not filepath:
         flash("File not found or expired", "error")
-        return redirect(url_for("import_log.upload_file"))
+        return redirect(url_for("main.settings", _anchor="import"))
 
     try:
         result = _parse(filepath)
@@ -118,7 +118,7 @@ def confirm(upload_id):
         if skipped:
             message += f", skipped {skipped} (existing days or nothing to import)"
         flash(message, "success")
-        return redirect(url_for("monthly_log.view_monthly_log"))
+        return redirect(url_for("main.calendar"))
 
     except Exception:
         db.session.rollback()
@@ -135,7 +135,7 @@ def cancel(upload_id):
             os.remove(filepath)
         except OSError:
             logger.warning("Could not remove upload %s", filepath)
-    return redirect(url_for("import_log.upload_file"))
+    return redirect(url_for("main.settings", _anchor="import"))
 
 
 def _get_filepath(upload_id):

@@ -97,31 +97,27 @@ behind HTTPS, `SESSION_COOKIE_SECURE=true`.
 
 ## Usage
 
-The application is organized into several key sections accessible from the main navigation bar.
+The app has four screens:
 
-### Calendar Log
+### Today
 
-This is the main interface for managing your schedule.
-- View an entire month at a glance with color-coded day types.
-- Click and drag to select one or more days to change their type (e.g., assign a week of vacation).
-- Quickly override weekends or holidays to log work on non-standard days.
+Your hours for today and your balance for the week and the month so far. "Log today" opens today's editor in the calendar.
 
-### Manual Entry
+### Calendar
 
-For detailed time logging on a specific day:
-- Select a date and specify whether it's a workday or an absence.
-- For workdays, enter multiple clock-in and clock-out times to account for breaks.
+The month at a glance, Monday first, with holidays, weekends, absences and hours worked per day.
+- Click a day to open its editor: mark it as work (one or more time ranges), as an absence, or back to the default of the base calendar, and add an observation.
+- Drag across days, or Shift+click, to change several days at once (for example, a week of vacation).
+- Hours logged on weekends and holidays count as extra hours.
 
-### Summary
+### Reports
 
-Get a detailed overview of your logged time for any given month:
-- See a summary of required hours, completed hours, and the resulting balance.
-- View a day-by-day breakdown of hours worked versus required hours.
+A month table with times, worked, required and balance per day, with totals. Export it as CSV.
 
 ### Settings
 
-Customize the application to fit your needs:
-- Manage absence codes by adding, editing, or deleting types (e.g., "Vacation", "Sick Leave").
+- Manage absence codes (renaming a code also renames it on the days that use it).
+- Import hours from PDF or Excel reports, with a preview where you choose whether to replace or skip days that already have data.
 
 ## Project Structure
 

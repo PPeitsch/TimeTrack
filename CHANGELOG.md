@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Simpler navigation:** four screens instead of seven. *Today* (day, week and month balance), *Calendar* (month grid with a side panel to edit a day's type, times and observation, and multi-day editing by dragging or Shift+click), *Reports* (month table with totals and CSV export) and *Settings* (absence codes and file import).
+- `GET /api/days/<year>/<month>` and `PUT /api/days/<date>` for the calendar.
+- Toast notifications instead of browser `alert()` dialogs.
 - **Login:** single-user authentication with Flask-Login (`/login`, `/logout`); every page and API requires a session (APIs answer `401` JSON).
 - CSRF protection with Flask-WTF on forms and on every state-changing `fetch` (token sent as `X-CSRFToken`).
 - `flask user set-password <username>` command; `init_db.py` asks for the login on first setup.
@@ -22,6 +25,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `WORKING_HOURS_PER_DAY` can be set from the environment.
 
 ### Changed
+- Old URLs (`/monthly-log/`, `/entry`, `/summary/`, `/logs/`, `/settings/absences`, `/import/`) redirect to the new screens.
+- The calendar starts weeks on Monday and no longer shifts days in UTC+ timezones.
+- Bootstrap 5.3.
 - Hours logged on weekends and holidays now count in the summary as overtime (previously the calendar showed them but the summary ignored them).
 - Removed the unused `calculate_weekly_hours` and `calculate_monthly_hours`.
 - Routes use the logged-in employee instead of a hardcoded id; `/entry` ignores any `employee_id` sent by the client.
