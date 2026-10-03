@@ -30,6 +30,7 @@ WEEKEND = "Weekend"
 class DayInfo:
     date: date
     type: str
+    base_type: str = WORK_DAY  # type from the base calendar, ignoring overrides
     worked: float = 0.0
     required: float = 0.0
     entries: List[Dict[str, str]] = field(default_factory=list)
@@ -82,12 +83,13 @@ def _resolve(day: date, entry: Optional[ScheduleEntry], holidays: Set[date]) -> 
 
     if entry is None:
         required = hours_per_day() if base_type == WORK_DAY else 0.0
-        return DayInfo(date=day, type=base_type, required=required)
+        return DayInfo(date=day, type=base_type, base_type=base_type, required=required)
 
     absence_code = cast(Optional[str], entry.absence_code)
     info = DayInfo(
         date=day,
         type=base_type,
+        base_type=base_type,
         absence_code=absence_code,
         observation=cast(Optional[str], entry.observation),
         has_entry=True,

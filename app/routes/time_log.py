@@ -1,7 +1,7 @@
 from calendar import monthrange
 from datetime import date
 
-from flask import Blueprint, current_app, jsonify, render_template
+from flask import Blueprint, current_app, jsonify, redirect, url_for
 
 from app.auth import current_employee_id
 from app.services.calendar_service import resolve_days
@@ -11,7 +11,8 @@ time_log = Blueprint("time_log", __name__, url_prefix="/logs")
 
 @time_log.route("/", methods=["GET"])
 def show_logs():
-    return render_template("time_log.html")
+    """Old time log URL; merged into /reports."""
+    return redirect(url_for("main.reports"), code=301)
 
 
 @time_log.route("/monthly/<int:year>/<int:month>", methods=["GET"])

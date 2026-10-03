@@ -11,10 +11,10 @@ class TestMonthlyLogRoutes:
     """Tests for the monthly log calendar feature."""
 
     def test_view_monthly_log_page(self, client):
-        """Test that the main calendar page loads correctly."""
+        """The old calendar URL redirects to /calendar."""
         response = client.get("/monthly-log/")
-        assert response.status_code == 200
-        assert b"Monthly Log Management" in response.data
+        assert response.status_code == 301
+        assert response.headers["Location"].endswith("/calendar")
 
     def test_get_absence_codes_api_is_moved(self, app):
         """Test that the old absence codes API URL is no longer available."""

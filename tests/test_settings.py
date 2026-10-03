@@ -11,10 +11,10 @@ class TestSettingsRoutes:
     """Tests for the settings and absence code management feature."""
 
     def test_manage_absences_page(self, client):
-        """Test that the settings page for absences loads correctly."""
+        """The old settings URL redirects to /settings."""
         response = client.get("/settings/absences")
-        assert response.status_code == 200
-        assert b"Add New Absence Code" in response.data
+        assert response.status_code == 301
+        assert response.headers["Location"].endswith("/settings")
 
     def test_get_absence_codes_api(self, app):
         """Test GET all absence codes are returned and ordered correctly."""

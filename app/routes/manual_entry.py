@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Any, Dict, Optional, cast
 
-from flask import Blueprint, jsonify, render_template, request
+from flask import Blueprint, jsonify, redirect, request, url_for
 
 from app.auth import current_employee_id
 from app.db.database import db
@@ -14,12 +14,8 @@ manual_entry = Blueprint("manual_entry", __name__)
 
 @manual_entry.route("/entry", methods=["GET"])
 def show_entry_form():
-    employees = Employee.query.all()
-    # Fetch codes dynamically from the database
-    absence_codes = AbsenceCode.query.order_by(AbsenceCode.code).all()
-    return render_template(
-        "manual_entry.html", employees=employees, absence_codes=absence_codes
-    )
+    """Old manual entry URL; days are edited from the calendar."""
+    return redirect(url_for("main.calendar"), code=301)
 
 
 @manual_entry.route("/entry", methods=["POST"])

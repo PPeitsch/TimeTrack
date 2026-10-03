@@ -5,12 +5,14 @@ from flask_migrate import Migrate  # type: ignore
 
 from app.auth import init_auth
 from app.db.database import db, init_db
+from app.routes.api import api_bp
 from app.routes.main import main
 from app.routes.manual_entry import manual_entry
 from app.routes.monthly_log import monthly_log_bp
 from app.routes.settings import settings_bp
 from app.routes.time_log import time_log
 from app.routes.time_summary import time_summary
+from app.utils.time_calculator import format_hours
 
 
 def create_app(config_object):
@@ -28,6 +30,7 @@ def create_app(config_object):
     app.register_blueprint(time_log)
     app.register_blueprint(monthly_log_bp)
     app.register_blueprint(settings_bp)
+    app.register_blueprint(api_bp)
 
     from app.routes.import_log import import_log_bp
 
@@ -37,10 +40,12 @@ def create_app(config_object):
 
     app.cli.add_command(holidays_cli)
 
+    app.add_template_filter(format_hours, "hours")
+
     @app.errorhandler(413)
     def file_too_large(_error):
         flash("File is too large", "error")
-        return redirect(request.referrer or url_for("import_log.upload_file"))
+        return redirect(url_for("main.settings", _anchor="import"))
 
     return app
 

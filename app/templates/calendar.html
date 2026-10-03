@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block title %}Calendar{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <div class="d-flex align-items-center gap-2">
+        <button id="prevMonth" class="btn btn-outline-secondary btn-sm" aria-label="Previous month"><i class="bi bi-chevron-left"></i></button>
+        <h1 class="h4 mb-0 month-title" id="monthTitle" aria-live="polite"></h1>
+        <button id="nextMonth" class="btn btn-outline-secondary btn-sm" aria-label="Next month"><i class="bi bi-chevron-right"></i></button>
+        <button id="todayBtn" class="btn btn-outline-secondary btn-sm">Today</button>
+    </div>
+    <dl class="month-summary mb-0" id="monthSummary">
+        <div><dt>Worked</dt><dd id="sumWorked">-</dd></div>
+        <div><dt>Required</dt><dd id="sumRequired">-</dd></div>
+        <div><dt>Balance</dt><dd id="sumBalance">-</dd></div>
+    </dl>
+</div>
+
+<p class="small text-body-secondary mb-2">
+    Click a day to edit it. Drag across days, or Shift+click, to change several at once.
+</p>
+
+<div class="card">
+    <div class="card-body p-2 p-sm-3">
+        <div class="calendar-header" aria-hidden="true">
+            <div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div><div>Sun</div>
+        </div>
+        <div id="calendarGrid" class="calendar-grid" role="grid" aria-labelledby="monthTitle"></div>
+        <div id="loadingIndicator" class="text-center mt-3" hidden>
+            <div class="spinner-border spinner-border-sm" role="status"><span class="visually-hidden">Loading...</span></div>
+        </div>
+    </div>
+</div>
+
+<!-- Single day editor -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="dayPanel" aria-labelledby="dayPanelTitle">
+    <div class="offcanvas-header">
+        <h2 class="offcanvas-title h5" id="dayPanelTitle"></h2>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+        <form id="dayForm" novalidate>
+            <fieldset class="mb-3">
+                <legend class="form-label fs-6">Day type</legend>
+                <div class="btn-group w-100" role="group">
+                    <input type="radio" class="btn-check" name="kind" id="kindWork" value="work" checked>
+                    <label class="btn btn-outline-primary" for="kindWork">Work</label>
+                    <input type="radio" class="btn-check" name="kind" id="kindAbsence" value="absence">
+                    <label class="btn btn-outline-primary" for="kindAbsence">Absence</label>
+                    <input type="radio" class="btn-check" name="kind" id="kindDefault" value="default">
+                    <label class="btn btn-outline-primary" for="kindDefault">Default</label>
+                </div>
+                <div class="form-text" id="baseTypeHint"></div>
+            </fieldset>
+
+            <div id="workFields" class="mb-3">
+                <span class="form-label d-block">Times</span>
+                <div id="timeRows"></div>
+                <button type="button" class="btn btn-link btn-sm px-0" id="addTimeRow">
+                    <i class="bi bi-plus-lg me-1"></i> Add time range
+                </button>
+                <div class="form-text" id="workedPreview"></div>
+            </div>
+
+            <div id="absenceFields" class="mb-3" hidden>
+                <label for="absenceSelect" class="form-label">Absence</label>
+                <select class="form-select" id="absenceSelect"></select>
+                <div class="form-text" id="noCodesHint" hidden>
+                    No absence codes yet. Create them in <a href="{{ url_for('main.settings') }}">Settings</a>.
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="observation" class="form-label">Observation</label>
+                <textarea class="form-control" id="observation" rows="2" maxlength="500"></textarea>
+            </div>
+
+            <div class="alert alert-danger py-2 small" id="dayError" role="alert" hidden></div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary" id="saveDay">Save</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="offcanvas">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Bulk editor -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="bulkPanel" aria-labelledby="bulkPanelTitle">
+    <div class="offcanvas-header">
+        <h2 class="offcanvas-title h5" id="bulkPanelTitle"></h2>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+        <label for="bulkType" class="form-label">Set all selected days to</label>
+        <select class="form-select mb-2" id="bulkType"></select>
+        <p class="form-text mb-3">"Default" removes the override; days with logged hours keep them.</p>
+        <div class="d-flex gap-2">
+            <button type="button" class="btn btn-primary" id="saveBulk">Apply</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="offcanvas">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<template id="timeRowTemplate">
+    <div class="time-row d-flex align-items-center gap-2 mb-2">
+        <input type="time" class="form-control form-control-sm time-entry-input" aria-label="Entry time" required>
+        <span aria-hidden="true">-</span>
+        <input type="time" class="form-control form-control-sm time-exit-input" aria-label="Exit time" required>
+        <button type="button" class="btn btn-outline-danger btn-sm remove-row" aria-label="Remove time range"><i class="bi bi-x-lg"></i></button>
+    </div>
+</template>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/calendar.js') }}"></script>
+{% endblock %}

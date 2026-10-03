@@ -43,7 +43,7 @@ def login(client, username="admin", password="s3cret", **kwargs):
 
 class TestLoginGuard:
     def test_pages_redirect_to_login(self, auth_client):
-        response = auth_client.get("/summary/")
+        response = auth_client.get("/reports")
         assert response.status_code == 302
         assert "/login" in response.headers["Location"]
 
@@ -61,16 +61,16 @@ class TestLogin:
     def test_valid_credentials_log_in(self, auth_client):
         response = login(auth_client)
         assert response.status_code == 302
-        assert auth_client.get("/summary/").status_code == 200
+        assert auth_client.get("/reports").status_code == 200
 
     def test_invalid_password_is_rejected(self, auth_client):
         response = login(auth_client, password="wrong")
         assert response.status_code == 401
-        assert auth_client.get("/summary/").status_code == 302
+        assert auth_client.get("/reports").status_code == 302
 
     def test_next_redirects_only_inside_the_app(self, auth_client):
-        response = login(auth_client, query_string={"next": "/summary/"})
-        assert response.headers["Location"].endswith("/summary/")
+        response = login(auth_client, query_string={"next": "/reports"})
+        assert response.headers["Location"].endswith("/reports")
 
         auth_client.post("/logout")
         response = login(auth_client, query_string={"next": "https://evil.example"})
@@ -85,7 +85,7 @@ class TestLogin:
     def test_logout_ends_session(self, auth_client):
         login(auth_client)
         auth_client.post("/logout")
-        assert auth_client.get("/summary/").status_code == 302
+        assert auth_client.get("/reports").status_code == 302
 
     def test_demo_mode_shows_credentials(self, auth_app):
         auth_app.config.update(DEMO_MODE=True, DEMO_USERNAME="demo")
