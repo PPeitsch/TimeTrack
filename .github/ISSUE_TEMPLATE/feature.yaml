@@ -7,7 +7,16 @@ body:
     attributes:
       value: |
         Thanks for suggesting a new feature!
-        Please include the ⚡ emoji at the start of your title if you've read our contributing guidelines.
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Guidelines
+      options:
+        - label: I have searched for similar proposals before creating this one
+          required: true
+        - label: I have read the [contributing guidelines](https://github.com/PPeitsch/TimeTrack/blob/main/.github/CONTRIBUTING.md)
+          required: true
 
   - type: textarea
     id: problem

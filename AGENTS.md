@@ -1,54 +1,59 @@
 # TimeTrack Development Protocol for AI Agents
 
-## OS Context
+## Environment
 
-This project is developed primarily on **Windows**. Detect the host OS and adapt commands accordingly:
+Contributors use Linux, macOS and Windows. Detect the host OS and shell before running
+commands, and adapt them:
 
-- **Windows**: Use `.venv\Scripts\Activate.ps1`, paths with `\`
-- **Linux**: Use `source .venv/bin/activate`, paths with `/`
+- **Linux / macOS**: `source .venv/bin/activate`, paths with `/`
+- **Windows (PowerShell)**: `.venv\Scripts\Activate.ps1`, paths with `\`
 
-When in doubt, ask the user which environment they are working on.
+The examples below use POSIX shell syntax.
 
 ---
 
 ## Project Overview
 
-**TimeTrack** is a Flask-based web application for tracking time entry and observations.
-- Data persistence with SQLAlchemy and PostgreSQL/SQLite.
-- MVC architecture with Flask Blueprints.
+**TimeTrack** is a self-hosted, single-user Flask app to log working hours and track the
+balance against the required hours, with public holidays and absences.
+- Data persistence with SQLAlchemy on PostgreSQL or SQLite; the schema comes only from the
+  Alembic migrations in `migrations/`.
+- Flask Blueprints, server-rendered Jinja templates plus a small JSON API for the calendar.
+- English / Spanish interface with Flask-Babel.
 
 ## Build System & Tooling
 
 | Tool | Purpose | Configuration |
 |------|---------|---------------|
 | **pip** | Dependency Manager | `requirements.txt`, `requirements-dev.txt` |
-| **black** | Code formatting | `pyproject.toml` (or default), 88 chars |
+| **black** | Code formatting | default, 88 chars |
 | **isort** | Import sorting | `profile = "black"` |
 | **mypy** | Type checking | `mypy.ini` |
-| **pytest** | Testing | `pytest.ini` or default |
+| **pytest** | Testing | default |
+| **Docker** | Container image and local stack | `Dockerfile`, `docker-compose.yml` |
 
 ## Python Version Support
 
-- Python 3.10, 3.11+
+- Python 3.10, 3.11+ (CI and the Docker image use 3.11)
 
 ## Development Setup
 
-```powershell
-# Create virtual environment
+```bash
 python -m venv .venv
-
-# Activate (Windows PowerShell)
-.venv\Scripts\Activate.ps1
-
-# Install dependencies
-pip install -r requirements.txt
-pip install -r requirements-dev.txt
+source .venv/bin/activate
+pip install -r requirements.txt -r requirements-dev.txt
+cp .env.example .env            # e.g. DATABASE_URL=sqlite:///timetrack.db
+flask db upgrade
+flask seed demo                 # sample data and the demo login
+flask run
 ```
+
+Or the full stack with PostgreSQL: `docker compose up --build`.
 
 ## Code Quality Commands
 
 ### Formatting
-```powershell
+```bash
 # Check formatting
 black --check app tests
 isort --check-only app tests
@@ -59,12 +64,12 @@ isort app tests
 ```
 
 ### Type Checking
-```powershell
-mypy app tests
+```bash
+mypy app
 ```
 
 ### Testing
-```powershell
+```bash
 # Run all tests with coverage
 pytest tests/ -v --cov=app --cov-report=term-missing
 ```
@@ -75,11 +80,14 @@ pytest tests/ -v --cov=app --cov-report=term-missing
 TimeTrack/
 ├── app/                     # Main application package
 │   ├── __init__.py          # App factory
+│   ├── cli.py               # flask seed commands
 │   ├── models/              # SQLAlchemy models
 │   ├── routes/              # Flask routes/blueprints
-│   ├── services/            # Business logic
+│   ├── services/            # Day logic, holidays, importers, demo data
 │   ├── templates/           # HTML templates
-│   └── static/              # CSS, JS, Images
+│   ├── translations/        # Flask-Babel catalogs
+│   └── static/              # CSS, JS, icons, vendored Bootstrap
+├── docker/                  # Container entrypoint
 ├── tests/                   # Test suite
 ├── migrations/              # Database migrations
 ├── requirements.txt         # Production dependencies
@@ -94,3 +102,7 @@ TimeTrack/
 2. **Use type hints** for all new functions and methods
 3. **Write tests** for new functionality
 4. **Follow Flask Best Practices**: application factories, blueprints.
+5. **Schema changes go through a migration** (`flask db migrate`), never `db.create_all()`.
+6. **User-visible texts are translatable** (`_()` / `_l()`), and the Spanish catalog is updated.
+7. **No emojis** in code, UI, CLI output, commits or docs; use the SVG icon set for icons.
+8. **Record user-visible changes** in the `[Unreleased]` section of `CHANGELOG.md`.

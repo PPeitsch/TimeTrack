@@ -1,6 +1,6 @@
 # Contributing to TimeTrack
 
-*Pull requests, bug reports, and all other forms of contribution are welcomed and highly encouraged!* :octocat:
+*Pull requests, bug reports, and all other forms of contribution are welcome.*
 
 ## Our Standards
 
@@ -24,7 +24,7 @@ Feature proposals are welcome! We'll consider all requests but may not accept al
 - **Search first** for similar proposals
 - **Describe the use case** clearly
 - **Keep it simple** and focused
-- **Consider the project's scope** - time tracking for employees
+- **Consider the project's scope**: personal time tracking, one user per installation
 
 ## Pull Requests
 
@@ -41,36 +41,35 @@ Before submitting a pull request:
 
 ## Commit Guidelines
 
+Commits follow [Conventional Commits](https://www.conventionalcommits.org/):
+
 ```
-[type] Short description under 50 chars
+<type>: short description in the imperative, under 72 characters
 
-More detailed explanation if needed. Wrap at 72 characters.
-Explain the motivation for the change.
+Optional body explaining what changed and why. Wrap at 72 characters.
 
-Resolves: #123
+Resolves #123
 ```
 
-Types:
-- **feature**: New feature or enhancement
-- **fix**: Bug fix
-- **refactor**: Code refactoring
-- **style**: Code style update
-- **docs**: Documentation
-- **test**: Testing
-- **config**: Configuration changes
-- **ui**: User interface improvements
+Types: `feat`, `fix`, `refactor`, `style`, `docs`, `test`, `chore`, `ci`.
+
+User-visible changes also get a line in the `[Unreleased]` section of `CHANGELOG.md`.
 
 ## Development Environment
 
+The quickest way to run the app is Docker (`docker compose up --build`, see the README). For
+development:
+
 1. Clone the repository
-2. Set up a virtual environment: `python -m venv venv`
-3. Activate the virtual environment:
-   - Windows: `venv\Scripts\activate`
-   - Unix/MacOS: `source venv/bin/activate`
-4. Install dependencies: `pip install -r requirements.txt`
-5. Install development dependencies: `pip install -r requirements-dev.txt`
-6. Set up pre-commit hooks: `pre-commit install`
+2. Create a virtual environment: `python -m venv .venv`
+3. Activate it:
+   - Linux / macOS: `source .venv/bin/activate`
+   - Windows: `.venv\Scripts\activate`
+4. Install dependencies: `pip install -r requirements.txt -r requirements-dev.txt`
+5. Copy `.env.example` to `.env` and adjust it (SQLite is fine: `DATABASE_URL=sqlite:///timetrack.db`)
+6. Create the schema and some data: `flask db upgrade && flask seed demo`
+7. Set up pre-commit hooks: `pre-commit install`
 
-## The Contributor's Token :key:
-
-Include the ⚡ lightning emoji at the start of your pull requests and issues to show you've read these guidelines.
+Before opening a pull request, run `black app tests`, `isort app tests`, `mypy app` and
+`pytest tests/`. CI runs the same checks and also builds the Docker image. See
+[WORKFLOW.md](../WORKFLOW.md) for details.

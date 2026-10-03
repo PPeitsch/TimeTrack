@@ -1,5 +1,3 @@
-⚡ *Have you read the [Contributing Guidelines](CONTRIBUTING.md)?*
-
 Fixes #
 
 ## Description
@@ -27,9 +25,10 @@ Fixes #
 
 ## Checklist
 
+- [ ] I have read the [contributing guidelines](https://github.com/PPeitsch/TimeTrack/blob/main/.github/CONTRIBUTING.md)
 - [ ] I have followed the project's code style (Black, isort, PEP 8)
 - [ ] My code generates no new warnings
 - [ ] I have added tests for new functionality
 - [ ] All tests pass locally
-- [ ] I have updated the documentation where necessary
+- [ ] I have updated the documentation and `CHANGELOG.md` where necessary
 - [ ] I have run pre-commit hooks before submitting
