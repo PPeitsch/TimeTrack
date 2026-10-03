@@ -8,6 +8,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Login:** single-user authentication with Flask-Login (`/login`, `/logout`); every page and API requires a session (APIs answer `401` JSON).
+- CSRF protection with Flask-WTF on forms and on every state-changing `fetch` (token sent as `X-CSRFToken`).
+- `flask user set-password <username>` command; `init_db.py` asks for the login on first setup.
+- Demo mode (`DEMO_MODE`, `DEMO_USERNAME`, `DEMO_PASSWORD`) that shows the demo credentials on the login page.
+- Basic login rate limiting (10 failed attempts per IP every 15 minutes) and hardened session cookies (`SESSION_COOKIE_SECURE`).
+- Migration `a1c4e2f9b7d3` adding `username` and `password_hash` to `employees`.
+
+### Changed
+- Routes use the logged-in employee instead of a hardcoded id; `/entry` ignores any `employee_id` sent by the client.
+- Flash messages are shown on every page (e.g. the import result after redirecting to the calendar).
+
 ### Security
 - Fixed stored XSS: absence codes and error messages are now escaped in the calendar, summary and time log views (shared `escapeHTML` in `static/js/utils.js`).
 - `run.py` no longer hardcodes `debug=True`; debug follows `FLASK_DEBUG`.

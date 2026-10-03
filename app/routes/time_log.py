@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 
 from flask import Blueprint, current_app, jsonify, render_template, request
 
+from app.auth import current_employee_id
 from app.models.models import ScheduleEntry
 from app.utils.time_calculator import calculate_daily_hours
 
@@ -26,7 +27,7 @@ def get_monthly_logs(year, month):
         entries = (
             ScheduleEntry.query.filter(
                 ScheduleEntry.date.between(start_date, end_date),
-                ScheduleEntry.employee_id == 1,  # Default employee ID
+                ScheduleEntry.employee_id == current_employee_id(),
             )
             .order_by(ScheduleEntry.date)
             .all()

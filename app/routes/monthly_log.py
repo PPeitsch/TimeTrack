@@ -3,6 +3,7 @@ from datetime import date, datetime, timedelta
 
 from flask import Blueprint, current_app, jsonify, render_template, request
 
+from app.auth import current_employee_id
 from app.db.database import db
 from app.models.models import AbsenceCode, Holiday, ScheduleEntry
 
@@ -27,7 +28,7 @@ def get_monthly_log_data(year, month):
 
         entries_query = ScheduleEntry.query.filter(
             ScheduleEntry.date.between(start_date, end_date),
-            ScheduleEntry.employee_id == 1,
+            ScheduleEntry.employee_id == current_employee_id(),
         ).all()
         entries_map = {entry.date: entry for entry in entries_query}
 
@@ -93,14 +94,15 @@ def update_day_types():
         if new_day_type == "DEFAULT":
             # Revert to default by deleting the override entry.
             ScheduleEntry.query.filter(
-                ScheduleEntry.employee_id == 1, ScheduleEntry.date.in_(dates_to_update)
+                ScheduleEntry.employee_id == current_employee_id(),
+                ScheduleEntry.date.in_(dates_to_update),
             ).delete(synchronize_session=False)
         else:
             # For any other type, create or update entries.
             new_absence_code = None if new_day_type == "Work Day" else new_day_type
             for entry_date in dates_to_update:
                 existing_entry = ScheduleEntry.query.filter_by(
-                    employee_id=1, date=entry_date
+                    employee_id=current_employee_id(), date=entry_date
                 ).first()
 
                 if existing_entry:
@@ -109,7 +111,7 @@ def update_day_types():
                         existing_entry.entries = []
                 else:
                     new_entry = ScheduleEntry(
-                        employee_id=1,
+                        employee_id=current_employee_id(),
                         date=entry_date,
                         entries=[],
                         absence_code=new_absence_code,

@@ -22,6 +22,8 @@ class TestConfig(Config):
 
     TESTING = True
     SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
+    LOGIN_DISABLED = True
+    WTF_CSRF_ENABLED = False
 
 
 class TestImportLogRoutes:

@@ -97,7 +97,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const formData = {
                 date: document.getElementById('date').value,
-                employee_id: 1, // Default employee
                 entries: entries,
                 absence_code: entryType === 'WORK' ? null : entryType
             };

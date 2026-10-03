@@ -10,17 +10,6 @@
                 <h4 class="mb-0"><i class="bi bi-cloud-upload me-2"></i>Import Time Data</h4>
             </div>
             <div class="card-body">
-                {% with messages = get_flashed_messages(with_categories=true) %}
-                    {% if messages %}
-                        {% for category, message in messages %}
-                            <div class="alert alert-{{ category if category != 'error' else 'danger' }} alert-dismissible fade show" role="alert">
-                                {{ message }}
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
-                        {% endfor %}
-                    {% endif %}
-                {% endwith %}
-
                 <p class="card-text text-muted mb-4">
                     Upload your time report file here. Supported formats: <strong>PDF, Excel (xlsx, xls)</strong>.
                     <br>
@@ -28,6 +17,7 @@
                 </p>
 
                 <form method="POST" enctype="multipart/form-data">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                     <div class="mb-4">
                         <label for="file" class="form-label">Select File</label>
                         <input class="form-control form-control-lg" type="file" id="file" name="file" accept=".pdf,.xlsx,.xls">

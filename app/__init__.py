@@ -3,6 +3,7 @@ import secrets
 from flask import Flask, flash, redirect, request, url_for
 from flask_migrate import Migrate  # type: ignore
 
+from app.auth import init_auth
 from app.db.database import db, init_db
 from app.routes.main import main
 from app.routes.manual_entry import manual_entry
@@ -19,6 +20,7 @@ def create_app(config_object):
 
     init_db(app)
     migrate = Migrate(app, db)
+    init_auth(app)
 
     app.register_blueprint(main)
     app.register_blueprint(manual_entry)

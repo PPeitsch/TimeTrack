@@ -59,6 +59,7 @@
 
                 <div class="d-flex justify-content-between">
                     <form action="{{ url_for('import_log.cancel', upload_id=upload_id) }}" method="POST">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <button type="submit" class="btn btn-secondary">
                             <i class="bi bi-x-circle me-1"></i> Cancel
                         </button>
@@ -66,6 +67,7 @@
 
                     {% if result.valid_records > 0 %}
                     <form action="{{ url_for('import_log.confirm', upload_id=upload_id) }}" method="POST">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <button type="submit" class="btn btn-success btn-lg">
                             <i class="bi bi-save me-1"></i> Import {{ result.valid_records }} Records
                         </button>

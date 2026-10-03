@@ -18,6 +18,8 @@ class TestRoutes(unittest.TestCase):
         class TestConfig(Config):
             TESTING = True
             SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
+            LOGIN_DISABLED = True
+            WTF_CSRF_ENABLED = False
 
         self.app = create_app(TestConfig)
         self.client = self.app.test_client()
@@ -112,17 +114,6 @@ class TestRoutes(unittest.TestCase):
         )
         self.assertEqual(response.status_code, 400)
         self.assertEqual(json.loads(response.data)["error"], "Date is required")
-
-        # Test missing employee_id
-        response = self.client.post(
-            "/entry",
-            data=json.dumps(
-                {"date": "2025-03-16", "entries": [{"entry": "09:00", "exit": "17:00"}]}
-            ),
-            content_type="application/json",
-        )
-        self.assertEqual(response.status_code, 400)
-        self.assertEqual(json.loads(response.data)["error"], "Employee ID is required")
 
         # Test missing entries for work day
         response = self.client.post(
