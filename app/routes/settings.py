@@ -74,6 +74,12 @@ def update_absence_code(code_id):
         return jsonify({"error": "Another code with this name already exists"}), 409
 
     try:
+        # Days store the code as text: rename them in the same transaction so
+        # they keep pointing at this code.
+        old_code = code_to_update.code
+        ScheduleEntry.query.filter_by(absence_code=old_code).update(
+            {ScheduleEntry.absence_code: new_code_str}, synchronize_session=False
+        )
         code_to_update.code = new_code_str
         db.session.commit()
         return jsonify({"id": code_to_update.id, "code": code_to_update.code})

@@ -15,6 +15,7 @@ from app.models.models import AbsenceCode, Employee, ScheduleEntry
 class TestConfig(Config):
     TESTING = True
     SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
+    HOLIDAY_AUTO_FETCH = False
     # Route tests exercise the app as the default employee without a session;
     # tests/test_auth.py turns both protections back on.
     LOGIN_DISABLED = True

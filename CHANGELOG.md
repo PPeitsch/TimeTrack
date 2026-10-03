@@ -16,7 +16,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Basic login rate limiting (10 failed attempts per IP every 15 minutes) and hardened session cookies (`SESSION_COOKIE_SECURE`).
 - Migration `a1c4e2f9b7d3` adding `username` and `password_hash` to `employees`.
 
+- `app/services/calendar_service.py`: one place that decides each day's type, worked and required hours; used by the calendar, the summary and the time log.
+- Holidays load automatically the first time a year is viewed (`HOLIDAY_AUTO_FETCH`, tracked in the new `holiday_years` table, migration `b7e3d1a2c4f6`) and can be reloaded with `flask holidays refresh [YEAR ...]`.
+- Import preview lets you choose between replacing the times of existing days or skipping them.
+- `WORKING_HOURS_PER_DAY` can be set from the environment.
+
 ### Changed
+- Hours logged on weekends and holidays now count in the summary as overtime (previously the calendar showed them but the summary ignored them).
+- Removed the unused `calculate_weekly_hours` and `calculate_monthly_hours`.
 - Routes use the logged-in employee instead of a hardcoded id; `/entry` ignores any `employee_id` sent by the client.
 - Flash messages are shown on every page (e.g. the import result after redirecting to the calendar).
 
@@ -28,6 +35,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - API errors no longer leak exception details to the client; they are logged instead.
 
 ### Fixed
+- Renaming an absence code also renames it on the days that use it (they used to keep the old, orphaned code).
+- Importing a record without times no longer wipes the hours already logged for that day; records with a single time or with exit before entry are flagged as invalid in the preview.
+- Reverting days to default in the calendar keeps logged hours and observations; only the override is removed.
+- `/entry` rejects unknown absence codes.
 - `/monthly-log/api/update-days` returns 400 on malformed dates or unknown day types instead of a 500 or storing arbitrary strings.
 - `.env` is loaded by `python run.py` and `init_db.py`, not only by `flask run`.
 - Default `HOLIDAY_PROVIDER` in `Config` is now `ARGENTINA_API`, matching `.env.example`.

@@ -51,8 +51,6 @@ def initialize_database_manually():
         from app import create_app
         from app.config.config import Config
         from app.db.database import db
-        from app.models.models import Holiday
-        from app.services.holiday_service import get_holiday_provider
         from app.utils.init_data import init_data  # Import the data seeder
 
         print("✓ Módulos importados correctamente")
@@ -77,30 +75,20 @@ def initialize_database_manually():
                 != "n"
             )
             if populate:
-                print("Obteniendo proveedor de feriados...")
-                provider = get_holiday_provider(Config)
+                from app.services.holiday_sync import refresh_holidays
+
                 current_year = time.localtime().tm_year
-                years_to_fetch = [current_year, current_year + 1]
-
-                print(f"Obteniendo feriados para los años {years_to_fetch}...")
-                all_holidays = []
-                for year in years_to_fetch:
-                    holidays = provider.get_holidays(year)
-                    if holidays:
-                        print(f"✓ Se encontraron {len(holidays)} feriados para {year}")
-                        all_holidays.extend(holidays)
-                    else:
-                        print(f"⚠️ No se encontraron feriados para {year}.")
-
-                if all_holidays:
-                    unique_holidays = {h.date: h for h in all_holidays}.values()
-
-                    db.session.query(Holiday).delete()
-                    db.session.commit()
-
-                    db.session.bulk_save_objects(list(unique_holidays))
-                    db.session.commit()
-                    print(f"✓ {len(unique_holidays)} feriados únicos guardados.")
+                for year in (current_year, current_year + 1):
+                    try:
+                        count = refresh_holidays(year)
+                        print(f"{year}: {count} feriados guardados.")
+                    except Exception as error:
+                        db.session.rollback()
+                        print(f"{year}: no se pudieron obtener feriados ({error}).")
+                print(
+                    "Los años siguientes se cargan solos al consultarlos, o con "
+                    "'flask holidays refresh <año>'."
+                )
 
         print("\nLa base de datos ha sido inicializada exitosamente.")
         return True, "Base de datos inicializada correctamente"

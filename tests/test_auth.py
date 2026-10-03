@@ -12,6 +12,7 @@ from app.models.models import Employee
 class AuthConfig(Config):
     TESTING = True
     SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
+    HOLIDAY_AUTO_FETCH = False
     SECRET_KEY = "test-secret"
     WTF_CSRF_ENABLED = False
     LOGIN_MAX_ATTEMPTS = 3

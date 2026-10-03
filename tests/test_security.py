@@ -13,6 +13,7 @@ from app.routes.import_log import UPLOAD_FOLDER, _get_filepath
 class ProductionConfig(Config):
     SECRET_KEY = None
     SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
+    HOLIDAY_AUTO_FETCH = False
 
 
 def test_create_app_requires_secret_key_outside_debug(monkeypatch):

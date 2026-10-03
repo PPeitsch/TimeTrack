@@ -46,6 +46,9 @@ class Config:
         "https://api.argentinadatos.com/v1/feriados/{year}",
     )
 
+    # Load a year's holidays from the provider the first time it is viewed.
+    HOLIDAY_AUTO_FETCH = os.getenv("HOLIDAY_AUTO_FETCH", "true").lower() == "true"
+
     # Configuración horaria
-    WORKING_HOURS_PER_DAY = 8
+    WORKING_HOURS_PER_DAY = float(os.getenv("WORKING_HOURS_PER_DAY", "8"))
     WORKING_DAYS_PER_WEEK = 5

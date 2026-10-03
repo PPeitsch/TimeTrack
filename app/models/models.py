@@ -3,7 +3,7 @@ from typing import List
 from flask_login import UserMixin  # type: ignore
 from sqlalchemy import JSON, Column
 from sqlalchemy import Date as SQLADate
-from sqlalchemy import ForeignKey, Integer, String
+from sqlalchemy import DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, relationship
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -63,3 +63,12 @@ class AbsenceCode(db.Model):  # type: ignore
     id = Column(Integer, primary_key=True)
     code = Column(String, unique=True, nullable=False)
     description = Column(String)
+
+
+class HolidayYear(db.Model):  # type: ignore
+    """Marks a year whose holidays were already loaded from the provider."""
+
+    __tablename__ = "holiday_years"
+
+    year = Column(Integer, primary_key=True, autoincrement=False)
+    fetched_at = Column(DateTime, nullable=False)

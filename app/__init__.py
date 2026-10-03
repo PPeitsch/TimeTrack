@@ -33,6 +33,10 @@ def create_app(config_object):
 
     app.register_blueprint(import_log_bp)
 
+    from app.services.holiday_sync import holidays_cli
+
+    app.cli.add_command(holidays_cli)
+
     @app.errorhandler(413)
     def file_too_large(_error):
         flash("File is too large", "error")

@@ -6,7 +6,7 @@ from unittest.mock import patch
 from flask import jsonify
 
 from app.db.database import db
-from app.models.models import Employee, ScheduleEntry
+from app.models.models import AbsenceCode, Employee, ScheduleEntry
 
 
 class TestRoutes(unittest.TestCase):
@@ -18,6 +18,7 @@ class TestRoutes(unittest.TestCase):
         class TestConfig(Config):
             TESTING = True
             SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
+            HOLIDAY_AUTO_FETCH = False
             LOGIN_DISABLED = True
             WTF_CSRF_ENABLED = False
 
@@ -213,6 +214,10 @@ class TestRoutes(unittest.TestCase):
         self.assertEqual(json.loads(response.data)["error"], "Invalid date format")
 
     def test_manual_entry_post_absence(self):
+        with self.app.app_context():
+            db.session.add(AbsenceCode(code="VAC"))
+            db.session.commit()
+
         entry_data = {
             "date": "2025-03-20",
             "employee_id": 1,
@@ -357,7 +362,9 @@ class TestRoutes(unittest.TestCase):
 
     def test_monthly_logs_exception(self):
         with self.app.app_context():
-            with patch("app.routes.time_log.ScheduleEntry.query") as mock_query:
+            with patch(
+                "app.services.calendar_service.ScheduleEntry.query"
+            ) as mock_query:
                 # Configure the mock to raise an exception when used
                 mock_query.filter.side_effect = Exception("Database connection failed")
 
@@ -423,6 +430,13 @@ class TestRoutes(unittest.TestCase):
         self.assertEqual(data["hours"], 0.0)
         self.assertEqual(data["required"], 8.0)
         self.assertEqual(data["difference"], -8.0)
+
+    def test_manual_entry_post_unknown_absence_code(self):
+        entry_data = {"date": "2025-03-20", "entries": [], "absence_code": "NOPE"}
+        response = self.client.post(
+            "/entry", data=json.dumps(entry_data), content_type="application/json"
+        )
+        self.assertEqual(response.status_code, 400)
 
 
 if __name__ == "__main__":
