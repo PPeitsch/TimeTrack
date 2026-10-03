@@ -1,7 +1,7 @@
 from calendar import monthrange
 from datetime import datetime, timedelta
 
-from flask import Blueprint, jsonify, render_template, request
+from flask import Blueprint, current_app, jsonify, render_template, request
 
 from app.models.models import ScheduleEntry
 from app.utils.time_calculator import calculate_daily_hours
@@ -58,5 +58,6 @@ def get_monthly_logs(year, month):
                 )
 
         return jsonify(formatted_entries)
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    except Exception:
+        current_app.logger.exception("Unhandled error")
+        return jsonify({"error": "Internal server error"}), 500

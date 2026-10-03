@@ -141,7 +141,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.log('Fetch aborted');
             } else {
                 console.error('Error loading monthly data:', error);
-                timeTable.innerHTML = `<tr><td colspan="5" class="text-center text-danger">Error loading data: ${error.message}</td></tr>`;
+                timeTable.innerHTML = `<tr><td colspan="5" class="text-center text-danger">Error loading data: ${escapeHTML(error.message)}</td></tr>`;
             }
         } finally {
             hideLoading();
@@ -230,7 +230,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             row.innerHTML = `
                 <td>${formattedDate}</td>
-                <td>${result.type}</td>
+                <td>${escapeHTML(result.type)}</td>
                 <td>${hours.toFixed(1)}</td>
                 <td>${required.toFixed(1)}</td>
                 <td class="${balanceClass}">${balance.toFixed(1)}</td>

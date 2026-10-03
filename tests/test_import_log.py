@@ -4,6 +4,7 @@ import io
 import json
 import os
 import tempfile
+import uuid
 from datetime import date
 from unittest.mock import MagicMock, patch
 
@@ -99,7 +100,7 @@ class TestImportLogRoutes:
         with app.app_context():
             from app.routes.import_log import UPLOAD_FOLDER
 
-            upload_id = "test-error-id"
+            upload_id = str(uuid.uuid4())
             filepath = os.path.join(UPLOAD_FOLDER, f"{upload_id}.xlsx")
             with open(filepath, "wb") as f:
                 f.write(b"fake content")
@@ -123,7 +124,7 @@ class TestImportLogRoutes:
         with app.app_context():
             from app.routes.import_log import UPLOAD_FOLDER
 
-            upload_id = "test-preview-id"
+            upload_id = str(uuid.uuid4())
             filepath = os.path.join(UPLOAD_FOLDER, f"{upload_id}.xlsx")
             with open(filepath, "wb") as f:
                 f.write(b"fake content")
@@ -162,7 +163,7 @@ class TestImportLogRoutes:
         with app.app_context():
             from app.routes.import_log import UPLOAD_FOLDER
 
-            upload_id = "test-confirm-id"
+            upload_id = str(uuid.uuid4())
             filepath = os.path.join(UPLOAD_FOLDER, f"{upload_id}.xlsx")
             with open(filepath, "wb") as f:
                 f.write(b"fake content")
@@ -215,7 +216,7 @@ class TestImportLogRoutes:
             db.session.add(existing)
             db.session.commit()
 
-            upload_id = "test-overwrite-id"
+            upload_id = str(uuid.uuid4())
             filepath = os.path.join(UPLOAD_FOLDER, f"{upload_id}.xlsx")
             with open(filepath, "wb") as f:
                 f.write(b"fake content")
@@ -258,7 +259,7 @@ class TestImportLogRoutes:
         with app.app_context():
             from app.routes.import_log import UPLOAD_FOLDER
 
-            upload_id = "test-invalid-id"
+            upload_id = str(uuid.uuid4())
             filepath = os.path.join(UPLOAD_FOLDER, f"{upload_id}.xlsx")
             with open(filepath, "wb") as f:
                 f.write(b"fake content")
@@ -294,7 +295,7 @@ class TestImportLogRoutes:
         with app.app_context():
             from app.routes.import_log import UPLOAD_FOLDER
 
-            upload_id = "test-db-error-id"
+            upload_id = str(uuid.uuid4())
             filepath = os.path.join(UPLOAD_FOLDER, f"{upload_id}.xlsx")
             with open(filepath, "wb") as f:
                 f.write(b"fake content")
@@ -336,7 +337,7 @@ class TestImportLogRoutes:
         with app.app_context():
             from app.routes.import_log import UPLOAD_FOLDER
 
-            upload_id = "test-cancel-id"
+            upload_id = str(uuid.uuid4())
             filepath = os.path.join(UPLOAD_FOLDER, f"{upload_id}.xlsx")
             with open(filepath, "wb") as f:
                 f.write(b"fake content")

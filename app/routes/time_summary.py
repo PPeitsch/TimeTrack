@@ -1,7 +1,7 @@
 from calendar import monthrange
 from datetime import date, datetime, timedelta
 
-from flask import Blueprint, jsonify, render_template, request
+from flask import Blueprint, current_app, jsonify, render_template, request
 
 from app.models.models import Holiday, ScheduleEntry
 from app.utils.time_calculator import calculate_daily_hours
@@ -53,8 +53,9 @@ def get_daily_summary(date):
 
         return jsonify(response_data)
 
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    except Exception:
+        current_app.logger.exception("Unhandled error")
+        return jsonify({"error": "Internal server error"}), 500
 
 
 @time_summary.route("/monthly/<int:year>/<int:month>", methods=["GET"])
@@ -105,5 +106,6 @@ def get_monthly_summary(year, month):
         }
 
         return jsonify(monthly_data)
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    except Exception:
+        current_app.logger.exception("Unhandled error")
+        return jsonify({"error": "Internal server error"}), 500

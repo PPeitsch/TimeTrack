@@ -5,6 +5,7 @@ import os
 import pathlib
 import shutil
 import tempfile
+import time
 import uuid
 from datetime import datetime
 from typing import List
@@ -34,6 +35,7 @@ import_log_bp = Blueprint("import_log", __name__, url_prefix="/import")
 # Configure upload folder
 UPLOAD_FOLDER = os.path.join(os.getcwd(), "uploads")
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+ALLOWED_EXTENSIONS = ("pdf", "xlsx", "xls")
 
 
 @import_log_bp.route("/", methods=["GET", "POST"])
@@ -52,9 +54,11 @@ def upload_file():
             filename = secure_filename(file.filename or "")
             file_ext = filename.split(".")[-1].lower()
 
-            if file_ext not in ["pdf", "xlsx", "xls"]:
+            if file_ext not in ALLOWED_EXTENSIONS:
                 flash("Unsupported file type", "error")
                 return redirect(request.url)
+
+            _cleanup_stale_uploads()
 
             # Generate unique ID for this upload
             upload_id = str(uuid.uuid4())
@@ -84,8 +88,9 @@ def preview(upload_id):
         return render_template(
             "import_preview.html", result=result, upload_id=upload_id
         )
-    except Exception as e:
-        flash(f"Error parsing file: {str(e)}", "error")
+    except Exception:
+        logger.exception("Error parsing upload %s", upload_id)
+        flash("Error parsing file. Check that it has the expected format.", "error")
         return redirect(url_for("import_log.upload_file"))
 
 
@@ -149,9 +154,10 @@ def confirm(upload_id):
         flash(f"Successfully imported {count} records", "success")
         return redirect(url_for("monthly_log.view_monthly_log"))
 
-    except Exception as e:
+    except Exception:
         db.session.rollback()
-        flash(f"Error importing data: {str(e)}", "error")
+        logger.exception("Error importing upload %s", upload_id)
+        flash("Error importing data.", "error")
         return redirect(url_for("import_log.preview", upload_id=upload_id))
 
 
@@ -161,14 +167,38 @@ def cancel(upload_id):
     if filepath:
         try:
             os.remove(filepath)
-        except:
-            pass
+        except OSError:
+            logger.warning("Could not remove upload %s", filepath)
     return redirect(url_for("import_log.upload_file"))
 
 
 def _get_filepath(upload_id):
-    # Search for file with upload_id prefix
-    for f in os.listdir(UPLOAD_FOLDER):
-        if f.startswith(upload_id):
-            return os.path.join(UPLOAD_FOLDER, f)
+    """Return the stored file for an upload id, or None.
+
+    The id comes from the URL, so it must be a canonical UUID and match a file
+    name exactly (`<uuid>.<ext>`); a prefix match would let `/preview/a` pick
+    up (or `cancel` delete) any upload starting with `a`.
+    """
+    try:
+        if str(uuid.UUID(upload_id)) != upload_id:
+            return None
+    except (ValueError, TypeError):
+        return None
+    for ext in ALLOWED_EXTENSIONS:
+        candidate = os.path.join(UPLOAD_FOLDER, f"{upload_id}.{ext}")
+        if os.path.isfile(candidate):
+            return candidate
     return None
+
+
+def _cleanup_stale_uploads():
+    """Delete uploads that were previewed but never confirmed or cancelled."""
+    max_age = current_app.config.get("UPLOAD_MAX_AGE_HOURS", 24) * 3600
+    now = time.time()
+    for name in os.listdir(UPLOAD_FOLDER):
+        path = os.path.join(UPLOAD_FOLDER, name)
+        try:
+            if os.path.isfile(path) and now - os.path.getmtime(path) > max_age:
+                os.remove(path)
+        except OSError:
+            logger.warning("Could not remove stale upload %s", path)

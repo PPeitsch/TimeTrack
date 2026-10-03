@@ -6,6 +6,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [Unreleased]
+
+### Security
+- Fixed stored XSS: absence codes and error messages are now escaped in the calendar, summary and time log views (shared `escapeHTML` in `static/js/utils.js`).
+- `run.py` no longer hardcodes `debug=True`; debug follows `FLASK_DEBUG`.
+- `SECRET_KEY` is required outside debug/testing; the app refuses to start without it.
+- Import upload ids must be exact UUIDs (no prefix matching), uploads are capped by `MAX_UPLOAD_MB` (default 10) and stale uploads are cleaned up after 24 h.
+- API errors no longer leak exception details to the client; they are logged instead.
+
+### Fixed
+- `/monthly-log/api/update-days` returns 400 on malformed dates or unknown day types instead of a 500 or storing arbitrary strings.
+- `.env` is loaded by `python run.py` and `init_db.py`, not only by `flask run`.
+- Default `HOLIDAY_PROVIDER` in `Config` is now `ARGENTINA_API`, matching `.env.example`.
+
 ## [1.5.2] - 2026-01-14
 
 ### Changed

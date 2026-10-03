@@ -1,15 +1,25 @@
 import os
 
+from dotenv import load_dotenv
+
+# Load .env so `python run.py` and `init_db.py` see the same settings as `flask run`.
+load_dotenv()
+
 
 class Config:
     SQLALCHEMY_DATABASE_URI = os.getenv(
         "DATABASE_URL", "postgresql://user:pass@localhost:5432/timetrack"
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    SECRET_KEY = os.getenv("SECRET_KEY", "dev-key")
+    # Required outside debug/testing; create_app refuses to start without it.
+    SECRET_KEY = os.getenv("SECRET_KEY")
+
+    # Uploads (file import)
+    MAX_CONTENT_LENGTH = int(os.getenv("MAX_UPLOAD_MB", "10")) * 1024 * 1024
+    UPLOAD_MAX_AGE_HOURS = 24
 
     # Holiday provider configuration
-    HOLIDAY_PROVIDER = os.getenv("HOLIDAY_PROVIDER", "ARGENTINA_WEBSITE")
+    HOLIDAY_PROVIDER = os.getenv("HOLIDAY_PROVIDER", "ARGENTINA_API")
     HOLIDAYS_BASE_URL = os.getenv(
         "HOLIDAYS_BASE_URL",
         "https://www.argentina.gob.ar/jefatura/feriados-nacionales-{year}",
