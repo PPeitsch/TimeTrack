@@ -183,6 +183,33 @@ class TestRoutes(unittest.TestCase):
             self.assertEqual(len(entry.entries), 1)
             self.assertEqual(entry.entries[0]["exit"], "13:00")
 
+    def test_manual_entry_saves_observation(self):
+        entry_data = {
+            "date": "2025-03-20",
+            "entries": [{"entry": "09:00", "exit": "17:00"}],
+            "observation": "  Dentist at noon  ",
+        }
+        self.client.post(
+            "/entry", data=json.dumps(entry_data), content_type="application/json"
+        )
+        data = json.loads(self.client.get("/entry/2025-03-20").data)
+        self.assertEqual(data["observation"], "Dentist at noon")
+
+        # Without the key the note is kept; an empty string clears it.
+        entry_data.pop("observation")
+        self.client.post(
+            "/entry", data=json.dumps(entry_data), content_type="application/json"
+        )
+        data = json.loads(self.client.get("/entry/2025-03-20").data)
+        self.assertEqual(data["observation"], "Dentist at noon")
+
+        entry_data["observation"] = ""
+        self.client.post(
+            "/entry", data=json.dumps(entry_data), content_type="application/json"
+        )
+        data = json.loads(self.client.get("/entry/2025-03-20").data)
+        self.assertIsNone(data["observation"])
+
     def test_get_entry_not_found(self):
         response = self.client.get("/entry/2025-01-01")
         self.assertEqual(response.status_code, 200)

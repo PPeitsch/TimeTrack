@@ -1,12 +1,11 @@
 from datetime import datetime
-from typing import Any, Dict, Optional, cast
 
 from flask import Blueprint, jsonify, redirect, request, url_for
 from flask_babel import gettext as _
 
 from app.auth import current_employee_id
 from app.db.database import db
-from app.models.models import AbsenceCode, Employee, ScheduleEntry
+from app.models.models import AbsenceCode, ScheduleEntry
 from app.utils.time_calculator import calculate_daily_hours
 from app.utils.validators import validate_date, validate_entries
 
@@ -58,19 +57,15 @@ def save_entry():
 
     entries = data.get("entries", [])
 
-    if existing_entry:
-        existing_entry.entries = [] if absence_code else entries
-        existing_entry.absence_code = absence_code
-        db.session.commit()
-    else:
-        schedule_entry = ScheduleEntry(
-            employee_id=employee_id,
-            date=entry_date,
-            entries=[] if absence_code else entries,
-            absence_code=absence_code,
-        )
-        db.session.add(schedule_entry)
-        db.session.commit()
+    if existing_entry is None:
+        existing_entry = ScheduleEntry(employee_id=employee_id, date=entry_date)
+        db.session.add(existing_entry)
+    existing_entry.entries = [] if absence_code else entries
+    existing_entry.absence_code = absence_code
+    # A request without the key keeps the note already saved for the day.
+    if "observation" in data:
+        existing_entry.observation = (data["observation"] or "").strip() or None
+    db.session.commit()
 
     if absence_code is None:
         hours = calculate_daily_hours(entries)
@@ -94,6 +89,7 @@ def get_entry(date):
             {
                 "entries": entry.entries,
                 "absence_code": entry.absence_code,
+                "observation": entry.observation,
                 "hours": (
                     calculate_daily_hours(entry.entries)
                     if not entry.absence_code
