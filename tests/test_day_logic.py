@@ -190,7 +190,7 @@ def test_parse_flags_invalid_times(app, tmp_path):
     from app.services.importer.protocol import ImportResult
 
     records = [
-        TimeEntryRecord(date="2025-03-17", entry_time="17:00", exit_time="09:00"),
+        TimeEntryRecord(date="2025-03-17", entry_time="09:00", exit_time="09:00"),
         TimeEntryRecord(date="2025-03-18", entry_time="09:00"),
         TimeEntryRecord(date="2025-03-19", entry_time="09:00", exit_time="17:00"),
     ]

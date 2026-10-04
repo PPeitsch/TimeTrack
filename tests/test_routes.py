@@ -87,7 +87,7 @@ class TestRoutes(unittest.TestCase):
             "date": "2025-03-16",
             "employee_id": 1,
             "entries": [
-                {"entry": "17:00", "exit": "09:00"}  # Exit before entry (invalid)
+                {"entry": "09:00", "exit": "09:00"}  # Exit equal to entry (invalid)
             ],
             "absence_code": None,
         }

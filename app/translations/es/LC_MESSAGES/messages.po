@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-03 06:28-0300\n"
+"POT-Creation-Date: 2026-10-04 15:23-0300\n"
 "PO-Revision-Date: 2026-10-03 01:51-0300\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: es\n"
@@ -71,6 +71,9 @@ msgstr "Agregar"
 
 msgid "Add time range"
 msgstr "Agregar rango horario"
+
+msgid "An exit earlier than the entry ends the next day."
+msgstr "Una salida anterior a la entrada termina al día siguiente."
 
 msgid "Another code with this name already exists"
 msgstr "Ya existe otro código con ese nombre"
@@ -194,8 +197,8 @@ msgstr "Salida"
 msgid "Exit time"
 msgstr "Hora de salida"
 
-msgid "Exit time must be after entry time"
-msgstr "La salida tiene que ser posterior a la entrada"
+msgid "Exit time must be different from entry time"
+msgstr "La salida tiene que ser distinta de la entrada"
 
 msgid "File"
 msgstr "Archivo"
@@ -308,6 +311,12 @@ msgstr "No hay horarios para el día laboral"
 
 msgid "Observation"
 msgstr "Observación"
+
+msgid "Only one time range can end after midnight"
+msgstr "Solo un rango horario puede terminar después de la medianoche"
+
+msgid "Only the last time range of the day can end after midnight"
+msgstr "Solo el último rango horario del día puede terminar después de la medianoche"
 
 msgid "Password"
 msgstr "Contraseña"

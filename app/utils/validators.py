@@ -22,10 +22,16 @@ def validate_time_format(time_str: str) -> bool:
 
 
 def validate_entries(entries: list) -> tuple[bool, str]:
-    """Validate a list of time entries."""
+    """Validate a list of time entries.
+
+    An exit earlier than its entry means the range ends the next day. Only the
+    range that starts last can do that: any range after it would overlap.
+    """
     if not entries:
         return False, _("No entries provided")
 
+    starts = []
+    overnight_start = None
     for entry in entries:
         # Check if both entry and exit times are provided
         if not entry.get("entry") or not entry.get("exit"):
@@ -40,11 +46,19 @@ def validate_entries(entries: list) -> tuple[bool, str]:
         try:
             entry_time = datetime.strptime(entry["entry"], "%H:%M")
             exit_time = datetime.strptime(entry["exit"], "%H:%M")
-
-            if exit_time <= entry_time:
-                return False, _("Exit time must be after entry time")
         except ValueError:
             return False, _("Invalid time values")
+
+        if exit_time == entry_time:
+            return False, _("Exit time must be different from entry time")
+        if exit_time < entry_time:
+            if overnight_start is not None:
+                return False, _("Only one time range can end after midnight")
+            overnight_start = entry_time
+        starts.append(entry_time)
+
+    if overnight_start is not None and overnight_start < max(starts):
+        return False, _("Only the last time range of the day can end after midnight")
 
     return True, ""
 

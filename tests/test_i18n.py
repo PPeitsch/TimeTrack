@@ -57,10 +57,10 @@ def test_api_errors_follow_language(client, default_employee_id):
     client.post("/lang/es")
     response = client.put(
         "/api/days/2025-03-17",
-        json={"kind": "work", "entries": [{"entry": "13:00", "exit": "09:00"}]},
+        json={"kind": "work", "entries": [{"entry": "09:00", "exit": "09:00"}]},
     )
     assert (
-        response.get_json()["error"] == "La salida tiene que ser posterior a la entrada"
+        response.get_json()["error"] == "La salida tiene que ser distinta de la entrada"
     )
 
 
