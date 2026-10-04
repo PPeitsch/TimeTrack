@@ -1,24 +1,16 @@
 """Tests for init_db.py helper functions."""
 
 import os
-import subprocess
 
 # Import the functions we want to test
 import sys
-import tempfile
-import unittest
 from unittest.mock import MagicMock, patch
 
 import pytest
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from init_db import (
-    check_dependencies,
-    extract_db_info,
-    install_missing_packages,
-    parse_env_file,
-)
+from init_db import check_dependencies, extract_db_info, main, parse_env_file
 
 
 class TestParseEnvFile:
@@ -162,27 +154,17 @@ class TestCheckDependencies:
         assert len(result) == 5  # All 5 required packages missing
 
 
-class TestInstallMissingPackages:
-    """Tests for the install_missing_packages function."""
+class TestMain:
+    """main() reports missing dependencies instead of installing them."""
 
-    @patch("init_db.subprocess.check_call")
-    def test_install_packages_success(self, mock_check_call):
-        """Test successful package installation."""
-        mock_check_call.return_value = 0
-        result = install_missing_packages(["package1", "package2"])
-        assert result is True
-        mock_check_call.assert_called_once()
-
-    @patch("init_db.subprocess.check_call")
-    def test_install_packages_failure(self, mock_check_call):
-        """Test failed package installation."""
-        mock_check_call.side_effect = subprocess.CalledProcessError(1, "pip")
-        result = install_missing_packages(["bad-package"])
-        assert result is False
-
-
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+    @patch("init_db.check_dependencies", return_value=["flask-migrate"])
+    def test_exits_when_dependencies_are_missing(self, _mock_check, capsys):
+        with pytest.raises(SystemExit) as exit_info:
+            main()
+        assert exit_info.value.code == 1
+        out = capsys.readouterr().out
+        assert "flask-migrate" in out
+        assert "pip install -r requirements.txt" in out
 
 
 class TestCreateSchema:

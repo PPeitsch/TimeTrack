@@ -2,7 +2,7 @@ import getpass
 import importlib.util
 import os
 import re
-import subprocess
+import secrets
 import sys
 import time
 from pathlib import Path
@@ -45,7 +45,7 @@ def initialize_database_manually():
     """Initialize database tables using direct Python imports."""
     app = None
     try:
-        print("\nIntentando inicializar la base de datos directamente...")
+        print("\nInitializing the database...")
         sys.path.append(os.getcwd())
 
         from app import create_app
@@ -53,40 +53,32 @@ def initialize_database_manually():
         from app.db.database import db
         from app.utils.init_data import init_data  # Import the data seeder
 
-        print("Módulos importados correctamente")
-
         app = create_app(Config)
-        print("Aplicación creada correctamente")
 
         with app.app_context():
             # Same path as production: the schema comes only from the migrations.
             if not create_schema(db):
-                return False, "base existente sin historial de migraciones"
-            print("Esquema al día (flask db upgrade)")
+                return False, "existing database without migration history"
+            print("Schema up to date (flask db upgrade).")
 
             # Populate initial data (absence codes, default employee)
             init_data()
-            print("Datos iniciales (códigos de ausencia) poblados.")
+            print("Default absence codes ready.")
 
             ensure_login()
 
             demo = (
-                input("\n¿Cargar datos de ejemplo de los últimos meses? (s/n) [n]: ")
+                input("\nLoad sample data for the last few months? (y/n) [n]: ")
                 .strip()
                 .lower()
-                == "s"
+                == "y"
             )
             if demo:
                 from app.services.demo_data import seed_demo_entries
 
-                print(f"{seed_demo_entries()} días de ejemplo creados.")
+                print(f"{seed_demo_entries()} sample days created.")
 
-            populate = (
-                input(
-                    "\n¿Deseas poblar la base de datos con los feriados? (s/n) [s]: "
-                ).lower()
-                != "n"
-            )
+            populate = input("\nLoad public holidays now? (y/n) [y]: ").lower() != "n"
             if populate:
                 from app.services.holiday_sync import refresh_holidays
 
@@ -94,26 +86,26 @@ def initialize_database_manually():
                 for year in (current_year, current_year + 1):
                     try:
                         count = refresh_holidays(year)
-                        print(f"{year}: {count} feriados guardados.")
+                        print(f"{year}: {count} holidays saved.")
                     except Exception as error:
                         db.session.rollback()
-                        print(f"{year}: no se pudieron obtener feriados ({error}).")
+                        print(f"{year}: could not fetch holidays ({error}).")
                 print(
-                    "Los años siguientes se cargan solos al consultarlos, o con "
-                    "'flask holidays refresh <año>'."
+                    "Later years load on their own when viewed, or with "
+                    "'flask holidays refresh <year>'."
                 )
 
-        print("\nLa base de datos ha sido inicializada exitosamente.")
-        return True, "Base de datos inicializada correctamente"
+        print("\nThe database is ready.")
+        return True, "Database initialized"
 
     except Exception as e:
-        error_message = f"Error durante la inicialización manual: {e}"
+        error_message = f"Database setup failed: {e}"
         print(f"ERROR: {error_message}")
         if app:
             with app.app_context():
                 if db.session.is_active:
                     db.session.rollback()
-                    print("Rollback de la sesión de base de datos realizado.")
+                    print("Database session rolled back.")
         return False, str(e)
 
 
@@ -125,9 +117,9 @@ def create_schema(db):
     tables = set(inspect(db.engine).get_table_names())
     if tables and "alembic_version" not in tables:
         print(
-            "\nLa base ya tiene tablas pero no historial de migraciones (la creó una "
-            "versión vieja de init_db.py).\nSi el esquema coincide con la última "
-            "versión, marcala con 'flask db stamp head' y volvé a correr este script."
+            "\nThe database has tables but no migration history (an old version of "
+            "init_db.py created it).\nIf the schema matches the latest version, mark "
+            "it with 'flask db stamp head' and run this script again."
         )
         return False
     upgrade(directory=str(Path(__file__).resolve().parent / "migrations"))
@@ -142,18 +134,18 @@ def ensure_login():
 
     employee = db.session.get(Employee, DEFAULT_EMPLOYEE_ID)
     if employee is not None and employee.password_hash:
-        print(f"Usuario de login existente: {employee.username}")
+        print(f"Existing login user: {employee.username}")
         return
 
-    print("\nConfiguración del usuario para iniciar sesión en TimeTrack")
-    username = input("Usuario [admin]: ").strip() or "admin"
+    print("\nTimeTrack login")
+    username = input("Username [admin]: ").strip() or "admin"
     while True:
-        password = getpass.getpass("Contraseña: ")
-        if password and password == getpass.getpass("Repetir contraseña: "):
+        password = getpass.getpass("Password: ")
+        if password and password == getpass.getpass("Repeat password: "):
             break
-        print("Las contraseñas no coinciden o están vacías. Probá de nuevo.")
+        print("The passwords are empty or do not match. Try again.")
     set_credentials(username, password)
-    print(f"Usuario '{username}' configurado.")
+    print(f"User '{username}' configured.")
 
 
 def check_dependencies():
@@ -172,113 +164,90 @@ def check_dependencies():
     return missing_packages
 
 
-def install_missing_packages(packages):
-    """Install missing packages."""
-    try:
-        subprocess.check_call([sys.executable, "-m", "pip", "install"] + packages)
-        return True
-    except subprocess.CalledProcessError:
-        return False
-
-
 def main():
-    print("=== Inicialización de base de datos para TimeTrack ===")
+    print("=== TimeTrack database setup ===")
 
     missing_packages = check_dependencies()
     if missing_packages:
-        print(
-            f"\nAVISO: Se encontraron dependencias faltantes: {', '.join(missing_packages)}"
-        )
-        install = input("¿Instalar dependencias faltantes? (s/n) [s]: ").lower() != "n"
-        if install:
-            print("Instalando dependencias...")
-            if not install_missing_packages(missing_packages):
-                print("ERROR: Error al instalar dependencias.")
-                return
-            print("Dependencias instaladas correctamente")
+        print(f"\nMissing dependencies: {', '.join(missing_packages)}")
+        print("Install them first: pip install -r requirements.txt")
+        sys.exit(1)
 
     env_path = ".env"
     env_example_path = ".env.example"
     using_existing = False
     if os.path.exists(env_path):
-        print(f"\nSe encontró el archivo {env_path} existente.")
+        print(f"\nFound existing {env_path}.")
         env_vars = parse_env_file(env_path)
         using_existing = True
     elif os.path.exists(env_example_path):
-        print(f"No se encontró {env_path}, usando {env_example_path} como plantilla.")
+        print(f"No {env_path} found, using {env_example_path} as a template.")
         env_vars = parse_env_file(env_example_path)
     else:
-        print("No se encontraron archivos de configuración. Se creará uno nuevo.")
+        print("No configuration file found. A new one will be created.")
         env_vars = {
             "DATABASE_URL": "sqlite:///timetrack.db",
-            "SECRET_KEY": "desarrollo-local-seguro",
+            "SECRET_KEY": secrets.token_hex(32),
             "FLASK_APP": "run.py",
             "FLASK_ENV": "development",
             "FLASK_DEBUG": "1",
-            "HOLIDAY_PROVIDER": "ARGENTINA_API",
-            "HOLIDAYS_BASE_URL": "https://www.argentina.gob.ar/jefatura/feriados-nacionales-{year}",
-            "HOLIDAY_API_URL": "https://api.argentinadatos.com/v1/feriados/{year}",
+            "HOLIDAY_COUNTRY": "AR",
         }
 
     if "FLASK_APP" not in env_vars or "run.py" not in env_vars.get("FLASK_APP", ""):
         env_vars["FLASK_APP"] = "run.py"
-        print("\nSe ha actualizado la configuración de FLASK_APP para usar run.py")
+        print("\nFLASK_APP set to run.py")
 
     db_url = env_vars.get("DATABASE_URL", "")
     db_info = extract_db_info(db_url)
 
     if using_existing:
-        print("\nConfiguración actual:")
-        print(f"  Base de datos: {db_info.get('type', 'desconocido')}")
-        print(
-            f"  Proveedor de feriados: {env_vars.get('HOLIDAY_PROVIDER', 'No configurado')}"
-        )
-        modify = (
-            input("\n¿Deseas modificar la configuración? (s/n) [n]: ").lower() == "s"
-        )
+        print("\nCurrent configuration:")
+        print(f"  Database: {db_info.get('type', 'unknown')}")
+        print(f"  Holiday country: {env_vars.get('HOLIDAY_COUNTRY') or 'AR (default)'}")
+        modify = input("\nChange the configuration? (y/n) [n]: ").lower() == "y"
     else:
         modify = True
 
     if modify:
-        print("\nSelecciona el tipo de base de datos:")
+        print("\nDatabase type:")
         print("  1. SQLite (default)")
         print("  2. PostgreSQL")
         db_choice = ""
         while db_choice not in ["1", "2"]:
-            db_choice = input("Selecciona una opción [1]: ").strip() or "1"
+            db_choice = input("Choose an option [1]: ").strip() or "1"
 
         if db_choice == "1":
-            sqlite_path = (
-                input("Ruta del archivo SQLite [timetrack.db]: ") or "timetrack.db"
-            )
+            sqlite_path = input("SQLite file [timetrack.db]: ") or "timetrack.db"
             env_vars["DATABASE_URL"] = f"sqlite:///{sqlite_path}"
         else:
-            db_name = input("Nombre de la base de datos [timetrack]: ") or "timetrack"
-            db_user = input("Usuario de PostgreSQL [postgres]: ") or "postgres"
-            db_pass = getpass.getpass("Contraseña para PostgreSQL: ")
-            db_host = input("Host de PostgreSQL [localhost]: ") or "localhost"
-            db_port = input("Puerto de PostgreSQL [5432]: ") or "5432"
+            db_name = input("Database name [timetrack]: ") or "timetrack"
+            db_user = input("PostgreSQL user [postgres]: ") or "postgres"
+            db_pass = getpass.getpass("PostgreSQL password: ")
+            db_host = input("PostgreSQL host [localhost]: ") or "localhost"
+            db_port = input("PostgreSQL port [5432]: ") or "5432"
             env_vars["DATABASE_URL"] = (
                 f"postgresql://{db_user}:{db_pass}@{db_host}:{db_port}/{db_name}"
             )
 
-    modify_secret = (
-        input("\n¿Deseas modificar la SECRET_KEY? (s/n) [n]: ").lower() == "s"
-    )
-    if modify_secret:
-        import secrets
+        country = input(
+            f"Holiday country, ISO code [{env_vars.get('HOLIDAY_COUNTRY') or 'AR'}]: "
+        ).strip()
+        if country:
+            env_vars["HOLIDAY_COUNTRY"] = country.upper()
 
-        new_secret = secrets.token_hex(16)
-        use_generated = input(f"¿Usar clave generada? (s/n) [s]: ").lower() != "n"
+    modify_secret = input("\nChange the SECRET_KEY? (y/n) [n]: ").lower() == "y"
+    if modify_secret:
+        use_generated = input("Generate a random key? (y/n) [y]: ").lower() != "n"
         env_vars["SECRET_KEY"] = (
-            new_secret if use_generated else input("Ingresa tu SECRET_KEY: ")
+            secrets.token_hex(32) if use_generated else input("SECRET_KEY: ")
         )
 
     with open(env_path, "w") as f:
         for key, value in env_vars.items():
             f.write(f"{key}={value}\n")
 
-    print(f"\nArchivo {env_path} {'actualizado' if using_existing else 'creado'}.")
+    print(f"\n{env_path} {'updated' if using_existing else 'created'}.")
 
     for key, value in env_vars.items():
         os.environ[key] = value
@@ -286,14 +255,13 @@ def main():
     success, message = initialize_database_manually()
 
     if success:
-        print("\nConfiguración completada exitosamente.")
-        print("Ahora puedes ejecutar 'flask run' para iniciar la aplicación.")
+        print("\nSetup complete. Start the app with 'flask run'.")
     else:
-        print(f"\nERROR: Error al inicializar la base de datos: {message}")
-        print("\nPuedes intentar ejecutar estos comandos manualmente para depurar:")
+        print(f"\nERROR: could not initialize the database: {message}")
+        print("\nTo debug, run these commands by hand:")
         print("  flask db upgrade")
         print("  flask seed defaults")
-        print("  flask user set-password <usuario>")
+        print("  flask user set-password <username>")
 
 
 if __name__ == "__main__":

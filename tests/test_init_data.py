@@ -36,11 +36,11 @@ class TestInitData:
         """Test that init_data creates the default employee."""
         with app.app_context():
             # Verify no employee exists before
-            assert Employee.query.get(1) is None
+            assert db.session.get(Employee, 1) is None
 
             init_data()
 
-            employee = Employee.query.get(1)
+            employee = db.session.get(Employee, 1)
             assert employee is not None
             assert employee.name == "Default User"
 
@@ -83,7 +83,7 @@ class TestInitData:
             init_data()
 
             # Employee name should remain unchanged
-            employee = Employee.query.get(1)
+            employee = db.session.get(Employee, 1)
             assert employee.name == "Existing User"
 
     def test_init_data_skips_existing_codes(self, app):
