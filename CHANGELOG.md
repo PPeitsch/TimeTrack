@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.1.0] - 2026-10-04
+
 ### Added
 - Shifts that cross midnight: a time range whose exit is earlier than its entry ends the next day (22:00 - 06:00 is 8 hours) and counts for the day it started. Only the range that starts last can end after midnight. The day panel says so and its preview counts those hours.
 
@@ -294,7 +296,8 @@ First release prepared for self-hosting by others: login, a simpler interface, E
 
 
 
-[Unreleased]: https://github.com/PPeitsch/TimeTrack/compare/v2.0.1...HEAD
+[Unreleased]: https://github.com/PPeitsch/TimeTrack/compare/v2.1.0...HEAD
+[2.1.0]: https://github.com/PPeitsch/TimeTrack/compare/v2.0.1...v2.1.0
 [2.0.1]: https://github.com/PPeitsch/TimeTrack/compare/v2.0.0...v2.0.1
 [2.0.0]: https://github.com/PPeitsch/TimeTrack/compare/v1.5.2...v2.0.0
 [1.5.2]: https://github.com/PPeitsch/TimeTrack/compare/v1.5.1...v1.5.2
