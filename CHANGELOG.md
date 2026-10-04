@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Shifts that cross midnight: a time range whose exit is earlier than its entry ends the next day (22:00 - 06:00 is 8 hours) and counts for the day it started. Only the range that starts last can end after midnight. The day panel says so and its preview counts those hours.
 
 ### Changed
+- `init_db.py` speaks English, like the rest of the app, and no longer installs packages with pip: if a dependency is missing it says so and exits. A new `.env` gets a random `SECRET_KEY` and `HOLIDAY_COUNTRY`, and the script asks for the holiday country.
 - A time range with the same entry and exit is rejected ("Exit time must be different from entry time"). Before, any exit earlier than the entry was an error.
 
 ### Fixed
