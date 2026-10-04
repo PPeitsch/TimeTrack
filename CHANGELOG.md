@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- `POST /entry` saves the day's `observation` (it was silently dropped) and `GET /entry/<date>` returns it. A request without the field keeps the note already saved.
+
 ## [2.0.1] - 2026-10-03
 
 ### Changed
