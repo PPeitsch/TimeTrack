@@ -74,7 +74,7 @@ class TestDayApi:
     def test_save_rejects_bad_times(self, client, default_employee_id):
         response = client.put(
             "/api/days/2025-03-17",
-            json={"kind": "work", "entries": [{"entry": "13:00", "exit": "09:00"}]},
+            json={"kind": "work", "entries": [{"entry": "09:00", "exit": "09:00"}]},
         )
         assert response.status_code == 400
 

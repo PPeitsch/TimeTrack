@@ -144,10 +144,12 @@ document.addEventListener('DOMContentLoaded', function () {
     function updateWorkedPreview() {
         let total = 0;
         collectEntries().forEach(e => {
-            if (e.entry && e.exit && e.exit > e.entry) {
+            if (e.entry && e.exit && e.exit !== e.entry) {
                 const [h1, m1] = e.entry.split(':').map(Number);
                 const [h2, m2] = e.exit.split(':').map(Number);
-                total += (h2 * 60 + m2 - h1 * 60 - m1) / 60;
+                let minutes = h2 * 60 + m2 - h1 * 60 - m1;
+                if (minutes < 0) minutes += 24 * 60; // ends the next day
+                total += minutes / 60;
             }
         });
         document.getElementById('workedPreview').textContent = total ? t('worked', { hours: formatHours(total) }) : '';

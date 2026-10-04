@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Shifts that cross midnight: a time range whose exit is earlier than its entry ends the next day (22:00 - 06:00 is 8 hours) and counts for the day it started. Only the range that starts last can end after midnight. The day panel says so and its preview counts those hours.
+
+### Changed
+- A time range with the same entry and exit is rejected ("Exit time must be different from entry time"). Before, any exit earlier than the entry was an error.
+
 ### Fixed
 - `POST /entry` saves the day's `observation` (it was silently dropped) and `GET /entry/<date>` returns it. A request without the field keeps the note already saved.
 

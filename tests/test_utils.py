@@ -32,6 +32,17 @@ class TestTimeCalculator(unittest.TestCase):
         entries = [{"entry": "", "exit": ""}]
         self.assertEqual(calculate_daily_hours(entries), 0.0)
 
+    def test_calculate_daily_hours_across_midnight(self):
+        # The exit is earlier than the entry: the range ends the next day
+        self.assertEqual(
+            calculate_daily_hours([{"entry": "22:00", "exit": "06:00"}]), 8.0
+        )
+        entries = [
+            {"entry": "14:00", "exit": "18:00"},
+            {"entry": "22:30", "exit": "00:15"},
+        ]
+        self.assertEqual(calculate_daily_hours(entries), 5.75)
+
     def test_validate_time_format(self):
         # Valid time formats
         self.assertTrue(validate_time_format("09:00"))
@@ -51,11 +62,11 @@ class TestTimeCalculator(unittest.TestCase):
         is_valid, _ = validate_entries(entries)
         self.assertTrue(is_valid)
 
-        # Invalid entries - exit before entry
-        entries = [{"entry": "09:00", "exit": "08:00"}]
+        # Invalid entries - exit equal to entry
+        entries = [{"entry": "09:00", "exit": "09:00"}]
         is_valid, error = validate_entries(entries)
         self.assertFalse(is_valid)
-        self.assertEqual(error, "Exit time must be after entry time")
+        self.assertEqual(error, "Exit time must be different from entry time")
 
         # Invalid entries - empty
         entries = []
@@ -68,6 +79,37 @@ class TestTimeCalculator(unittest.TestCase):
         is_valid, error = validate_entries(entries)
         self.assertFalse(is_valid)
         self.assertIn("time", error.lower())
+
+    def test_validate_entries_across_midnight(self):
+        # A range that ends the next day is valid when it starts last
+        entries = [
+            {"entry": "14:00", "exit": "18:00"},
+            {"entry": "22:00", "exit": "02:00"},
+        ]
+        self.assertTrue(validate_entries(entries)[0])
+
+        # Order in the list does not matter, the start time does
+        self.assertTrue(validate_entries(list(reversed(entries)))[0])
+
+        # A range that starts after the overnight one would overlap it
+        entries = [
+            {"entry": "20:00", "exit": "01:00"},
+            {"entry": "21:00", "exit": "22:00"},
+        ]
+        is_valid, error = validate_entries(entries)
+        self.assertFalse(is_valid)
+        self.assertEqual(
+            error, "Only the last time range of the day can end after midnight"
+        )
+
+        # Two ranges cannot both end the next day
+        entries = [
+            {"entry": "20:00", "exit": "01:00"},
+            {"entry": "23:00", "exit": "02:00"},
+        ]
+        is_valid, error = validate_entries(entries)
+        self.assertFalse(is_valid)
+        self.assertEqual(error, "Only one time range can end after midnight")
 
     def test_validate_date(self):
         # Valid date formats

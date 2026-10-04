@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-03 06:28-0300\n"
+"POT-Creation-Date: 2026-10-04 15:23-0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -71,6 +71,9 @@ msgstr ""
 msgid "Add time range"
 msgstr ""
 
+msgid "An exit earlier than the entry ends the next day."
+msgstr ""
+
 msgid "Another code with this name already exists"
 msgstr ""
 
@@ -89,9 +92,7 @@ msgstr ""
 msgid "Cannot delete code, it is currently in use."
 msgstr ""
 
-msgid ""
-"Click a day to edit it. Drag across days, or Shift+click, to change "
-"several at once."
+msgid "Click a day to edit it. Drag across days, or Shift+click, to change several at once."
 msgstr ""
 
 msgid "Close"
@@ -193,7 +194,7 @@ msgstr ""
 msgid "Exit time"
 msgstr ""
 
-msgid "Exit time must be after entry time"
+msgid "Exit time must be different from entry time"
 msgstr ""
 
 msgid "File"
@@ -308,6 +309,12 @@ msgstr ""
 msgid "Observation"
 msgstr ""
 
+msgid "Only one time range can end after midnight"
+msgstr ""
+
+msgid "Only the last time range of the day can end after midnight"
+msgstr ""
+
 msgid "Password"
 msgstr ""
 
@@ -396,8 +403,8 @@ msgid "Type"
 msgstr ""
 
 msgid ""
-"Types of absence you can assign to a day (vacation, sick leave...). "
-"Renaming a code also renames it on the days that use it."
+"Types of absence you can assign to a day (vacation, sick leave...). Renaming a code also renames "
+"it on the days that use it."
 msgstr ""
 
 msgid "Unknown absence code"
@@ -410,8 +417,8 @@ msgid "Unsupported file type"
 msgstr ""
 
 msgid ""
-"Upload a PDF or Excel report (xlsx) with date, entry, exit and "
-"observation columns. You will see a preview before anything is saved."
+"Upload a PDF or Excel report (xlsx) with date, entry, exit and observation columns. You will see "
+"a preview before anything is saved."
 msgstr ""
 
 msgid "Upload and preview"
