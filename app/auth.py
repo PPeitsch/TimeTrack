@@ -40,7 +40,14 @@ csrf = CSRFProtect()
 auth_bp = Blueprint("auth", __name__)
 
 # Endpoints reachable without a session.
-PUBLIC_ENDPOINTS = {"auth.login", "static", "i18n.set_language"}
+# /ops/metrics checks its own token (app/routes/ops.py).
+PUBLIC_ENDPOINTS = {
+    "auth.login",
+    "static",
+    "i18n.set_language",
+    "ops.health",
+    "ops.metrics",
+}
 
 # Failed login attempts per client IP, kept in memory (single process is enough
 # for a self-hosted single-user app).

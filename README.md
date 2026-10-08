@@ -120,6 +120,7 @@ Settings are read from the environment or from `.env`. The most relevant ones:
 | `DEMO_MODE` | `false` | Show the demo credentials on the login page. |
 | `DEMO_USERNAME` / `DEMO_PASSWORD` | `demo` / `demo` | Demo credentials (also used by `flask seed demo`). |
 | `MAX_UPLOAD_MB` | `10` | Maximum size of imported files. |
+| `OPS_METRICS_TOKEN` | unset | Bearer token for `/ops/metrics` (days logged in the week and in total, users: counts only). Unset, the endpoint answers 404. `/health` is always public. |
 
 The Docker image also reads `SEED_DEMO` (load sample data on start) and `GUNICORN_WORKERS`.
 See [`.env.example`](.env.example) for the full list.
