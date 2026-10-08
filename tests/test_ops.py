@@ -93,3 +93,23 @@ def test_git_version(tmp_path):
     (git / "packed-refs").write_text("fedcba9876543210 refs/heads/main\n")
     assert git_version(tmp_path) == "fedcba9"
     assert git_version(tmp_path / "missing") is None
+
+
+def test_health_is_503_when_the_database_fails(guarded, monkeypatch):
+    def broken(*args, **kwargs):
+        raise RuntimeError("database down")
+
+    monkeypatch.setattr(db.session, "execute", broken)
+    response = guarded.test_client().get("/health")
+    assert response.status_code == 503
+    assert response.get_json()["status"] == "error"
+
+
+def test_git_version_detached_and_unknown_ref(tmp_path):
+    git = tmp_path / ".git"
+    git.mkdir()
+    (git / "HEAD").write_text("abcdef0123456789\n")
+    assert git_version(tmp_path) == "abcdef0"
+    (git / "HEAD").write_text("ref: refs/heads/other\n")
+    (git / "packed-refs").write_text("fedcba9876543210 refs/heads/main\n")
+    assert git_version(tmp_path) is None
