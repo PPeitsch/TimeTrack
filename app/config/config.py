@@ -40,6 +40,10 @@ class Config:
     DEMO_USERNAME = os.getenv("DEMO_USERNAME", "demo")
     DEMO_PASSWORD = os.getenv("DEMO_PASSWORD", "demo")
 
+    # Monitoring (app/routes/ops.py): the token a monitor sends to /ops/metrics.
+    # Unset, the endpoint answers 404.
+    OPS_METRICS_TOKEN = os.getenv("OPS_METRICS_TOKEN")
+
     # Uploads (file import)
     MAX_CONTENT_LENGTH = int(os.getenv("MAX_UPLOAD_MB", "10")) * 1024 * 1024
     UPLOAD_MAX_AGE_HOURS = 24

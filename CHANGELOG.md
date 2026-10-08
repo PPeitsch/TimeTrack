@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- `/health` for a monitor: public, answers `ok` and the running commit, or 503 when the database does not answer.
+- `/ops/metrics`: counts for a monitor (days logged in the last week, worked and absences, days logged in total, users), with `Authorization: Bearer <OPS_METRICS_TOKEN>`. Without `OPS_METRICS_TOKEN` it answers 404. Never hours, dates or notes.
+
 ## [2.1.0] - 2026-10-04
 
 ### Added

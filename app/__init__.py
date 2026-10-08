@@ -11,6 +11,7 @@ from app.routes.api import api_bp
 from app.routes.main import main
 from app.routes.manual_entry import manual_entry
 from app.routes.monthly_log import monthly_log_bp
+from app.routes.ops import ops_bp
 from app.routes.settings import settings_bp
 from app.routes.time_log import time_log
 from app.routes.time_summary import time_summary
@@ -34,6 +35,7 @@ def create_app(config_object):
     app.register_blueprint(monthly_log_bp)
     app.register_blueprint(settings_bp)
     app.register_blueprint(api_bp)
+    app.register_blueprint(ops_bp)
 
     from app.routes.import_log import import_log_bp
 
