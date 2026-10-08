@@ -1,16 +1,26 @@
-Flask==3.1.0
-Werkzeug==3.1.3
+Flask==3.1.3
+Werkzeug==3.1.9
 Flask-SQLAlchemy==3.1.1
 Flask-Migrate==4.1.0
 Flask-Login==0.6.3
 Flask-WTF==1.2.2
 Flask-Babel==4.0.0
 SQLAlchemy==2.0.37
-requests==2.32.3
+requests==2.34.2
 psycopg2-binary==2.9.10
-python-dotenv==1.0.1
+python-dotenv==1.2.4
 beautifulsoup4==4.13.4
 
-pdfplumber==0.11.0
+pdfplumber==0.11.10
 openpyxl==3.1.2
 gunicorn==23.0.0
+
+# Not imported by the app, pinned for their security fixes: Pillow and cryptography come with
+# pdfplumber (pdfminer.six), urllib3 and idna with requests, soupsieve with beautifulsoup4,
+# Mako with Flask-Migrate (alembic).
+Pillow==12.3.0
+cryptography==50.0.2
+urllib3==2.8.0
+idna==3.20
+soupsieve==2.10
+Mako==1.3.12

@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+- Dependencies with known vulnerabilities: Flask 3.1.3, Werkzeug 3.1.9, requests 2.34.2, python-dotenv 1.2.4 and pdfplumber 0.11.10 (pdfminer.six 20260107, which no longer loads pickled CMaps from a crafted PDF). Pillow, cryptography, urllib3, idna, soupsieve and Mako are pinned to fixed versions although the app does not import them.
+
 ### Added
 - `/health` for a monitor: public, answers `ok` and the running commit, or 503 when the database does not answer.
 - `/ops/metrics`: counts for a monitor (days logged in the last week, worked and absences, days logged in total, users), with `Authorization: Bearer <OPS_METRICS_TOKEN>`. Without `OPS_METRICS_TOKEN` it answers 404. Never hours, dates or notes.
