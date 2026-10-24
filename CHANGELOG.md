@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Security
+- Pillow 13.0.0: 37 known vulnerabilities in 12.3.0, published on Oct 22 and 23. It requires Python 3.11, which CI and the Docker image already use.
 - Dependencies with known vulnerabilities: Flask 3.1.3, Werkzeug 3.1.9, requests 2.34.2, python-dotenv 1.2.4 and pdfplumber 0.11.10 (pdfminer.six 20260107, which no longer loads pickled CMaps from a crafted PDF). Pillow, cryptography, urllib3, idna, soupsieve and Mako are pinned to fixed versions although the app does not import them.
 
 ### Added

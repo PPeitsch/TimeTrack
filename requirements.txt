@@ -18,7 +18,7 @@ gunicorn==23.0.0
 # Not imported by the app, pinned for their security fixes: Pillow and cryptography come with
 # pdfplumber (pdfminer.six), urllib3 and idna with requests, soupsieve with beautifulsoup4,
 # Mako with Flask-Migrate (alembic).
-Pillow==12.3.0
+Pillow==13.0.0
 cryptography==50.0.2
 urllib3==2.8.0
 idna==3.20
